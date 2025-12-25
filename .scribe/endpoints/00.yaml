@@ -1,0 +1,176 @@
+name: Settings
+description: |-
+
+  APIs for retrieving application settings
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/settings
+    metadata:
+      custom: []
+      groupName: Settings
+      groupDescription: |-
+
+        APIs for retrieving application settings
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Get All Settings'
+      description: 'Get all application settings as key-value pairs with advanced filtering.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters:
+      keys:
+        custom: []
+        name: keys
+        description: 'Comma-separated list of setting keys to retrieve.'
+        required: false
+        example: 'app_name,app_url,ar_enabled'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      type:
+        custom: []
+        name: type
+        description: 'Filter by setting type (text, url, email, number, image, file).'
+        required: false
+        example: text
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      types:
+        custom: []
+        name: types
+        description: 'Comma-separated list of types to filter.'
+        required: false
+        example: 'text,url'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      search:
+        custom: []
+        name: search
+        description: 'Search in key or description.'
+        required: false
+        example: app
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      keys: 'app_name,app_url,ar_enabled'
+      type: text
+      types: 'text,url'
+      search: app
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Settings retrieved successfully",
+            "data": {
+              "app_name": "EGK",
+              "app_url": "http://localhost:8009",
+              "app_email": "info@egk.com",
+              "app_phone": "+1 (555) 123-4567",
+              "api_base_url": "http://localhost:8009/api",
+              "ar_enabled": "1"
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/settings/{key}'
+    metadata:
+      custom: []
+      groupName: Settings
+      groupDescription: |-
+
+        APIs for retrieving application settings
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Get Setting by Key'
+      description: 'Get a specific setting value by its key.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      key:
+        custom: []
+        name: key
+        description: 'Setting key.'
+        required: true
+        example: app_name
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      key: app_name
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Setting retrieved successfully",
+            "data": {
+              "key": "app_name",
+              "value": "EGK",
+              "type": "text",
+              "description": "Application name"
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "Setting not found",
+            "data": null
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null

@@ -1,0 +1,1217 @@
+name: 'Sender Packages'
+description: |-
+
+  APIs for managing sender packages
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/sender/packages
+    metadata:
+      custom: []
+      groupName: 'Sender Packages'
+      groupDescription: |-
+
+        APIs for managing sender packages
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Get All Packages'
+      description: 'Get a list of all packages for the authenticated sender with advanced filtering.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters:
+      status:
+        custom: []
+        name: status
+        description: 'Filter by status (pending_review, approved, rejected, paid, in_transit, delivered, cancelled).'
+        required: false
+        example: pending_review
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      statuses:
+        custom: []
+        name: statuses
+        description: 'Filter by multiple statuses.'
+        required: false
+        example:
+          - pending_review
+          - approved
+        type: 'string[]'
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      package_type_id:
+        custom: []
+        name: package_type_id
+        description: 'Filter by package type ID.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      search:
+        custom: []
+        name: search
+        description: 'Search in tracking number, receiver name, or description.'
+        required: false
+        example: PKG-102
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      pickup_date_from:
+        custom: []
+        name: pickup_date_from
+        description: 'date Filter packages with pickup date from.'
+        required: false
+        example: '2025-11-01'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      pickup_date_to:
+        custom: []
+        name: pickup_date_to
+        description: 'date Filter packages with pickup date to.'
+        required: false
+        example: '2025-11-30'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      delivery_date_from:
+        custom: []
+        name: delivery_date_from
+        description: 'date Filter packages with delivery date from.'
+        required: false
+        example: '2025-11-01'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      delivery_date_to:
+        custom: []
+        name: delivery_date_to
+        description: 'date Filter packages with delivery date to.'
+        required: false
+        example: '2025-11-30'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      status: pending_review
+      statuses:
+        - pending_review
+        - approved
+      package_type_id: 1
+      search: PKG-102
+      pickup_date_from: '2025-11-01'
+      pickup_date_to: '2025-11-30'
+      delivery_date_from: '2025-11-01'
+      delivery_date_to: '2025-11-30'
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Packages retrieved successfully",
+            "data": [
+              {
+                "id": 1,
+                "tracking_number": "PKG-ABC123XYZ",
+                "status": "pending_review",
+                "status_label": "Pending Review"
+              }
+            ]
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/sender/packages
+    metadata:
+      custom: []
+      groupName: 'Sender Packages'
+      groupDescription: |-
+
+        APIs for managing sender packages
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Create Package'
+      description: 'Create a new package request. The package will be created with "pending_review" status.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: multipart/form-data
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      pickup_address_id:
+        custom: []
+        name: pickup_address_id
+        description: 'optional ID of saved pickup address.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      pickup_full_address:
+        custom: []
+        name: pickup_full_address
+        description: 'Full pickup address.'
+        required: true
+        example: 'Hamra Plaza, Bliss Street, 4th Floor'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      pickup_country:
+        custom: []
+        name: pickup_country
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example: vmqeopfuudtdsufvyvddq
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      pickup_city:
+        custom: []
+        name: pickup_city
+        description: 'Pickup city.'
+        required: true
+        example: Beirut
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      pickup_area:
+        custom: []
+        name: pickup_area
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example: amniihfqcoynlazghdtqt
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      pickup_landmark:
+        custom: []
+        name: pickup_landmark
+        description: ''
+        required: false
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      pickup_latitude:
+        custom: []
+        name: pickup_latitude
+        description: 'Must be between -90 and 90.'
+        required: false
+        example: -90
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      pickup_longitude:
+        custom: []
+        name: pickup_longitude
+        description: 'Must be between -180 and 180.'
+        required: false
+        example: -179
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      pickup_date:
+        custom: []
+        name: pickup_date
+        description: 'Pickup date.'
+        required: true
+        example: '2025-11-03'
+        type: date
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      pickup_time:
+        custom: []
+        name: pickup_time
+        description: 'Pickup time.'
+        required: true
+        example: '14:30'
+        type: time
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      delivery_full_address:
+        custom: []
+        name: delivery_full_address
+        description: 'Full delivery address.'
+        required: true
+        example: 'Zahle Industrial Zone, Bldg 22, 3rd Floor'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      delivery_country:
+        custom: []
+        name: delivery_country
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example: eopfuudtdsufvyvddqamn
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      delivery_city:
+        custom: []
+        name: delivery_city
+        description: 'Delivery city.'
+        required: true
+        example: Zahle
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      delivery_area:
+        custom: []
+        name: delivery_area
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example: iihfqcoynlazghdtqtqxb
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      delivery_landmark:
+        custom: []
+        name: delivery_landmark
+        description: ''
+        required: false
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      delivery_latitude:
+        custom: []
+        name: delivery_latitude
+        description: 'Must be between -90 and 90.'
+        required: false
+        example: -90
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      delivery_longitude:
+        custom: []
+        name: delivery_longitude
+        description: 'Must be between -180 and 180.'
+        required: false
+        example: -179
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      delivery_date:
+        custom: []
+        name: delivery_date
+        description: 'Delivery date.'
+        required: true
+        example: '2025-11-04'
+        type: date
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      delivery_time:
+        custom: []
+        name: delivery_time
+        description: 'Delivery time.'
+        required: true
+        example: '15:00'
+        type: time
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      receiver_name:
+        custom: []
+        name: receiver_name
+        description: 'Receiver full name.'
+        required: true
+        example: 'Elie Haddad'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      receiver_mobile:
+        custom: []
+        name: receiver_mobile
+        description: 'Receiver mobile number.'
+        required: true
+        example: '+96170234567'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      receiver_notes:
+        custom: []
+        name: receiver_notes
+        description: ''
+        required: false
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      package_type_id:
+        custom: []
+        name: package_type_id
+        description: 'Package type ID.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      description:
+        custom: []
+        name: description
+        description: 'Package description.'
+        required: true
+        example: 'Apple AirPods sealed box'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      weight:
+        custom: []
+        name: weight
+        description: 'Package weight in kg.'
+        required: true
+        example: 0.5
+        type: number
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      length:
+        custom: []
+        name: length
+        description: 'Must be at least 0. Must not be greater than 1000.'
+        required: false
+        example: 13
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      width:
+        custom: []
+        name: width
+        description: 'Must be at least 0. Must not be greater than 1000.'
+        required: false
+        example: 16
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      height:
+        custom: []
+        name: height
+        description: 'Must be at least 0. Must not be greater than 1000.'
+        required: false
+        example: 5
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      special_instructions:
+        custom: []
+        name: special_instructions
+        description: ''
+        required: false
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      image:
+        custom: []
+        name: image
+        description: 'Must be an image. Must not be greater than 5120 kilobytes.'
+        required: false
+        example: null
+        type: file
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      compliance_confirmed:
+        custom: []
+        name: compliance_confirmed
+        description: 'Confirmation of compliance.'
+        required: true
+        example: true
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      pickup_address_id: 1
+      pickup_full_address: 'Hamra Plaza, Bliss Street, 4th Floor'
+      pickup_country: vmqeopfuudtdsufvyvddq
+      pickup_city: Beirut
+      pickup_area: amniihfqcoynlazghdtqt
+      pickup_landmark: consequatur
+      pickup_latitude: -90
+      pickup_longitude: -179
+      pickup_date: '2025-11-03'
+      pickup_time: '14:30'
+      delivery_full_address: 'Zahle Industrial Zone, Bldg 22, 3rd Floor'
+      delivery_country: eopfuudtdsufvyvddqamn
+      delivery_city: Zahle
+      delivery_area: iihfqcoynlazghdtqtqxb
+      delivery_landmark: consequatur
+      delivery_latitude: -90
+      delivery_longitude: -179
+      delivery_date: '2025-11-04'
+      delivery_time: '15:00'
+      receiver_name: 'Elie Haddad'
+      receiver_mobile: '+96170234567'
+      receiver_notes: consequatur
+      package_type_id: 1
+      description: 'Apple AirPods sealed box'
+      weight: 0.5
+      length: 13
+      width: 16
+      height: 5
+      special_instructions: consequatur
+      compliance_confirmed: true
+    fileParameters:
+      image: null
+    responses:
+      -
+        custom: []
+        status: 201
+        content: |-
+          {
+            "success": true,
+            "message": "Package created successfully",
+            "data": {
+              "id": 1,
+              "tracking_number": "PKG-ABC123XYZ",
+              "status": "pending_review"
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/sender/packages/{id}'
+    metadata:
+      custom: []
+      groupName: 'Sender Packages'
+      groupDescription: |-
+
+        APIs for managing sender packages
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Get Single Package'
+      description: 'Get a single package by ID with full details.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'Package ID.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Package retrieved successfully",
+            "data": {
+              "id": 1,
+              "tracking_number": "PKG-ABC123XYZ",
+              "status": "pending_review"
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "Package not found",
+            "data": null
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+      - PATCH
+    uri: 'api/sender/packages/{id}'
+    metadata:
+      custom: []
+      groupName: 'Sender Packages'
+      groupDescription: |-
+
+        APIs for managing sender packages
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Update Package'
+      description: 'Update an existing package. Only packages in "pending_review" status can be updated.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: multipart/form-data
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'Package ID.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      pickup_address_id:
+        custom: []
+        name: pickup_address_id
+        description: 'ID of saved pickup address (optional). The <code>id</code> of an existing record in the sender_addresses table.'
+        required: false
+        example: 1
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      pickup_full_address:
+        custom: []
+        name: pickup_full_address
+        description: 'Full pickup address.'
+        required: true
+        example: 'Hamra Plaza, Bliss Street, 4th Floor'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      pickup_country:
+        custom: []
+        name: pickup_country
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example: vmqeopfuudtdsufvyvddq
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      pickup_city:
+        custom: []
+        name: pickup_city
+        description: 'Pickup city. Must not be greater than 255 characters.'
+        required: true
+        example: Beirut
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      pickup_area:
+        custom: []
+        name: pickup_area
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example: amniihfqcoynlazghdtqt
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      pickup_landmark:
+        custom: []
+        name: pickup_landmark
+        description: ''
+        required: false
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      pickup_latitude:
+        custom: []
+        name: pickup_latitude
+        description: 'Must be between -90 and 90.'
+        required: false
+        example: -90
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      pickup_longitude:
+        custom: []
+        name: pickup_longitude
+        description: 'Must be between -180 and 180.'
+        required: false
+        example: -179
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      pickup_date:
+        custom: []
+        name: pickup_date
+        description: 'Pickup date (YYYY-MM-DD). Must be a valid date. Must be a date after or equal to <code>today</code>.'
+        required: true
+        example: '2025-11-03'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      pickup_time:
+        custom: []
+        name: pickup_time
+        description: 'Pickup time (HH:MM). Must be a valid date in the format <code>H:i</code>.'
+        required: true
+        example: '14:30'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      delivery_full_address:
+        custom: []
+        name: delivery_full_address
+        description: 'Full delivery address.'
+        required: true
+        example: 'Zahle Industrial Zone, Bldg 22, 3rd Floor'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      delivery_country:
+        custom: []
+        name: delivery_country
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example: eopfuudtdsufvyvddqamn
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      delivery_city:
+        custom: []
+        name: delivery_city
+        description: 'Delivery city. Must not be greater than 255 characters.'
+        required: true
+        example: Zahle
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      delivery_area:
+        custom: []
+        name: delivery_area
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example: iihfqcoynlazghdtqtqxb
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      delivery_landmark:
+        custom: []
+        name: delivery_landmark
+        description: ''
+        required: false
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      delivery_latitude:
+        custom: []
+        name: delivery_latitude
+        description: 'Must be between -90 and 90.'
+        required: false
+        example: -90
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      delivery_longitude:
+        custom: []
+        name: delivery_longitude
+        description: 'Must be between -180 and 180.'
+        required: false
+        example: -179
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      delivery_date:
+        custom: []
+        name: delivery_date
+        description: 'Delivery date (YYYY-MM-DD). Must be a valid date. Must be a date after or equal to <code>pickup_date</code>.'
+        required: true
+        example: '2025-11-04'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      delivery_time:
+        custom: []
+        name: delivery_time
+        description: 'Delivery time (HH:MM). Must be a valid date in the format <code>H:i</code>.'
+        required: true
+        example: '15:00'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      receiver_name:
+        custom: []
+        name: receiver_name
+        description: 'Receiver full name. Must not be greater than 255 characters.'
+        required: true
+        example: 'Elie Haddad'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      receiver_mobile:
+        custom: []
+        name: receiver_mobile
+        description: 'Receiver mobile number. Must not be greater than 255 characters.'
+        required: true
+        example: '+96170234567'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      receiver_notes:
+        custom: []
+        name: receiver_notes
+        description: ''
+        required: false
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      package_type_id:
+        custom: []
+        name: package_type_id
+        description: 'Package type ID. The <code>id</code> of an existing record in the package_types table.'
+        required: true
+        example: 1
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      description:
+        custom: []
+        name: description
+        description: 'Package description.'
+        required: true
+        example: 'Apple AirPods sealed box'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      weight:
+        custom: []
+        name: weight
+        description: 'Package weight in kg. Must be at least 0.01. Must not be greater than 1000.'
+        required: true
+        example: 0.5
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      length:
+        custom: []
+        name: length
+        description: 'Must be at least 0. Must not be greater than 1000.'
+        required: false
+        example: 13
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      width:
+        custom: []
+        name: width
+        description: 'Must be at least 0. Must not be greater than 1000.'
+        required: false
+        example: 16
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      height:
+        custom: []
+        name: height
+        description: 'Must be at least 0. Must not be greater than 1000.'
+        required: false
+        example: 5
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      special_instructions:
+        custom: []
+        name: special_instructions
+        description: ''
+        required: false
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      image:
+        custom: []
+        name: image
+        description: 'Must be an image. Must not be greater than 5120 kilobytes.'
+        required: false
+        example: null
+        type: file
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      compliance_confirmed:
+        custom: []
+        name: compliance_confirmed
+        description: 'Confirmation of compliance with packaging guidelines. Must be accepted.'
+        required: true
+        example: false
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      pickup_address_id: 1
+      pickup_full_address: 'Hamra Plaza, Bliss Street, 4th Floor'
+      pickup_country: vmqeopfuudtdsufvyvddq
+      pickup_city: Beirut
+      pickup_area: amniihfqcoynlazghdtqt
+      pickup_landmark: consequatur
+      pickup_latitude: -90
+      pickup_longitude: -179
+      pickup_date: '2025-11-03'
+      pickup_time: '14:30'
+      delivery_full_address: 'Zahle Industrial Zone, Bldg 22, 3rd Floor'
+      delivery_country: eopfuudtdsufvyvddqamn
+      delivery_city: Zahle
+      delivery_area: iihfqcoynlazghdtqtqxb
+      delivery_landmark: consequatur
+      delivery_latitude: -90
+      delivery_longitude: -179
+      delivery_date: '2025-11-04'
+      delivery_time: '15:00'
+      receiver_name: 'Elie Haddad'
+      receiver_mobile: '+96170234567'
+      receiver_notes: consequatur
+      package_type_id: 1
+      description: 'Apple AirPods sealed box'
+      weight: 0.5
+      length: 13
+      width: 16
+      height: 5
+      special_instructions: consequatur
+      compliance_confirmed: false
+    fileParameters:
+      image: null
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Package updated successfully",
+            "data": {
+              "id": 1,
+              "tracking_number": "PKG-ABC123XYZ"
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - DELETE
+    uri: 'api/sender/packages/{id}'
+    metadata:
+      custom: []
+      groupName: 'Sender Packages'
+      groupDescription: |-
+
+        APIs for managing sender packages
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Delete Package'
+      description: 'Soft delete a package. Use cancel endpoint instead for cancelling packages.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'The ID of the package.'
+        required: true
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      package:
+        custom: []
+        name: package
+        description: 'Package ID.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: consequatur
+      package: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Package deleted successfully",
+            "data": null
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: 'api/sender/packages/{id}/cancel'
+    metadata:
+      custom: []
+      groupName: 'Sender Packages'
+      groupDescription: |-
+
+        APIs for managing sender packages
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Cancel Package'
+      description: 'Cancel a package. Only packages in "pending_review", "approved", or "paid" status can be cancelled.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        custom: []
+        name: id
+        description: 'Package ID.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      id: 1
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Package cancelled successfully",
+            "data": {
+              "id": 1,
+              "status": "cancelled"
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 422
+        content: |-
+          {
+            "success": false,
+            "message": "Package cannot be cancelled in its current status",
+            "data": null
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null

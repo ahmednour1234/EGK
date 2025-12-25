@@ -1,0 +1,783 @@
+name: 'Sender Authentication'
+description: |-
+
+  APIs for sender authentication and management
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/sender/register
+    metadata:
+      custom: []
+      groupName: 'Sender Authentication'
+      groupDescription: |-
+
+        APIs for sender authentication and management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Register Sender'
+      description: 'Register a new sender and send verification code to email.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      full_name:
+        custom: []
+        name: full_name
+        description: 'Sender full name.'
+        required: true
+        example: 'Ahmed Osama'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      email:
+        custom: []
+        name: email
+        description: 'Sender email.'
+        required: true
+        example: ahmed@example.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      phone:
+        custom: []
+        name: phone
+        description: 'Sender phone.'
+        required: true
+        example: '+96170123456'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      password:
+        custom: []
+        name: password
+        description: 'Password (min 8 characters).'
+        required: true
+        example: password123
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      password_confirmation:
+        custom: []
+        name: password_confirmation
+        description: 'Password confirmation.'
+        required: true
+        example: password123
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      full_name: 'Ahmed Osama'
+      email: ahmed@example.com
+      phone: '+96170123456'
+      password: password123
+      password_confirmation: password123
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 201
+        content: |-
+          {
+            "success": true,
+            "message": "Registration successful. Verification code sent to your email.",
+            "data": {
+              "id": 1,
+              "email": "ahmed@example.com",
+              "is_verified": false
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/sender/verify-code
+    metadata:
+      custom: []
+      groupName: 'Sender Authentication'
+      groupDescription: |-
+
+        APIs for sender authentication and management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Verify Email Code'
+      description: 'Verify email with code sent during registration.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      email:
+        custom: []
+        name: email
+        description: 'Email address.'
+        required: true
+        example: ahmed@example.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      phone:
+        custom: []
+        name: phone
+        description: 'This field is required when <code>email</code> is not present.'
+        required: false
+        example: consequatur
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      code:
+        custom: []
+        name: code
+        description: '6-digit verification code.'
+        required: true
+        example: '123456'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      type:
+        custom: []
+        name: type
+        description: 'Code type.'
+        required: true
+        example: email_verification
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      email: ahmed@example.com
+      phone: consequatur
+      code: '123456'
+      type: email_verification
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Email verified successfully",
+            "data": {
+              "token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+              "sender": {
+                "id": 1,
+                "full_name": "Ahmed Osama",
+                "email": "ahmed@example.com",
+                "is_verified": true
+              }
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/sender/login
+    metadata:
+      custom: []
+      groupName: 'Sender Authentication'
+      groupDescription: |-
+
+        APIs for sender authentication and management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Login Sender'
+      description: 'Login with email or phone and password.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      email_or_phone:
+        custom: []
+        name: email_or_phone
+        description: 'Email or phone number.'
+        required: true
+        example: ahmed@example.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      password:
+        custom: []
+        name: password
+        description: Password.
+        required: true
+        example: password123
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      device_id:
+        custom: []
+        name: device_id
+        description: 'optional Device ID.'
+        required: false
+        example: device123
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      fcm_token:
+        custom: []
+        name: fcm_token
+        description: 'optional FCM token.'
+        required: false
+        example: fcm_token_here
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      device_type:
+        custom: []
+        name: device_type
+        description: 'optional Device type (ios, android, web).'
+        required: false
+        example: android
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      device_name:
+        custom: []
+        name: device_name
+        description: 'optional Device name.'
+        required: false
+        example: 'Samsung Galaxy'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      email_or_phone: ahmed@example.com
+      password: password123
+      device_id: device123
+      fcm_token: fcm_token_here
+      device_type: android
+      device_name: 'Samsung Galaxy'
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Login successful",
+            "data": {
+              "token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+              "sender": {
+                "id": 1,
+                "full_name": "Ahmed Osama",
+                "email": "ahmed@example.com"
+              }
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/sender/forget-password
+    metadata:
+      custom: []
+      groupName: 'Sender Authentication'
+      groupDescription: |-
+
+        APIs for sender authentication and management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Forget Password'
+      description: 'Send password reset code to email.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      email:
+        custom: []
+        name: email
+        description: 'Email address.'
+        required: true
+        example: ahmed@example.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      email: ahmed@example.com
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Password reset code sent to your email",
+            "data": null
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/sender/reset-password
+    metadata:
+      custom: []
+      groupName: 'Sender Authentication'
+      groupDescription: |-
+
+        APIs for sender authentication and management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Reset Password'
+      description: 'Reset password using verification code.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      email:
+        custom: []
+        name: email
+        description: 'Email address.'
+        required: true
+        example: ahmed@example.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      code:
+        custom: []
+        name: code
+        description: '6-digit verification code.'
+        required: true
+        example: '123456'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      password:
+        custom: []
+        name: password
+        description: 'New password (min 8 characters).'
+        required: true
+        example: newpassword123
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      password_confirmation:
+        custom: []
+        name: password_confirmation
+        description: 'Password confirmation.'
+        required: true
+        example: newpassword123
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      email: ahmed@example.com
+      code: '123456'
+      password: newpassword123
+      password_confirmation: newpassword123
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Password reset successfully",
+            "data": null
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/sender/me
+    metadata:
+      custom: []
+      groupName: 'Sender Authentication'
+      groupDescription: |-
+
+        APIs for sender authentication and management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Get Authenticated Sender'
+      description: 'Get current authenticated sender data.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Sender data retrieved successfully",
+            "data": {
+              "id": 1,
+              "full_name": "Ahmed Osama",
+              "email": "ahmed@example.com",
+              "phone": "+96170123456",
+              "avatar": "http://example.com/storage/avatars/avatar.jpg"
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: api/sender/update
+    metadata:
+      custom: []
+      groupName: 'Sender Authentication'
+      groupDescription: |-
+
+        APIs for sender authentication and management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Update Sender Data'
+      description: 'Update authenticated sender information.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      full_name:
+        custom: []
+        name: full_name
+        description: 'optional Full name.'
+        required: false
+        example: 'Ahmed Osama'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      email:
+        custom: []
+        name: email
+        description: 'optional Email.'
+        required: false
+        example: ahmed@example.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      phone:
+        custom: []
+        name: phone
+        description: 'optional Phone.'
+        required: false
+        example: '+96170123456'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      full_name: 'Ahmed Osama'
+      email: ahmed@example.com
+      phone: '+96170123456'
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Sender updated successfully",
+            "data": {
+              "id": 1,
+              "full_name": "Ahmed Osama",
+              "email": "ahmed@example.com"
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/sender/switch-type
+    metadata:
+      custom: []
+      groupName: 'Sender Authentication'
+      groupDescription: |-
+
+        APIs for sender authentication and management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Switch User Type'
+      description: |-
+        Switch between sender and traveler type. This will update the user's type and invalidate the current token.
+        User will need to login again after switching.
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      type:
+        custom: []
+        name: type
+        description: 'The type to switch to (sender or traveler).'
+        required: true
+        example: traveler
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      type: traveler
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "User type switched successfully. Please login again.",
+            "data": {
+              "type": "traveler"
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 422
+        content: |-
+          {
+            "success": false,
+            "message": "Validation failed",
+            "errors": {
+              "type": ["The type field is required."]
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/sender/logout
+    metadata:
+      custom: []
+      groupName: 'Sender Authentication'
+      groupDescription: |-
+
+        APIs for sender authentication and management
+      subgroup: ''
+      subgroupDescription: ''
+      title: Logout
+      description: 'Logout authenticated sender and invalidate token.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Logout successful",
+            "data": null
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/sender/refresh
+    metadata:
+      custom: []
+      groupName: 'Sender Authentication'
+      groupDescription: |-
+
+        APIs for sender authentication and management
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Refresh Token'
+      description: 'Refresh JWT token.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Token refreshed successfully",
+            "data": {
+              "token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+              "token_type": "bearer",
+              "expires_in": 3600
+            }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
