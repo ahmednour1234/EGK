@@ -74,6 +74,17 @@ endpoints:
         exampleWasSpecified: true
         nullable: false
         deprecated: false
+      type:
+        custom: []
+        name: type
+        description: "optional User type (sender or traveler). Defaults to 'sender'."
+        required: false
+        example: sender
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
       password_confirmation:
         custom: []
         name: password_confirmation
@@ -90,6 +101,7 @@ endpoints:
       email: ahmed@example.com
       phone: '+96170123456'
       password: password123
+      type: sender
       password_confirmation: password123
     fileParameters: []
     responses:
@@ -103,7 +115,8 @@ endpoints:
             "data": {
               "id": 1,
               "email": "ahmed@example.com",
-              "is_verified": false
+              "is_verified": false,
+              "type": "sender"
             }
           }
         headers: []
@@ -127,7 +140,9 @@ endpoints:
       subgroup: ''
       subgroupDescription: ''
       title: 'Verify Email Code'
-      description: 'Verify email with code sent during registration.'
+      description: |-
+        Verify email with code sent during registration.
+        In development: code "111111" is accepted without database check.
       authenticated: false
       deprecated: false
     headers:

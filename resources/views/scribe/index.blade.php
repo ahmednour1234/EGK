@@ -221,6 +221,28 @@
                             </li>
                                                                         </ul>
                             </ul>
+                    <ul id="tocify-header-traveler-tickets" class="tocify-header">
+                <li class="tocify-item level-1" data-unique="traveler-tickets">
+                    <a href="#traveler-tickets">Traveler Tickets</a>
+                </li>
+                                    <ul id="tocify-subheader-traveler-tickets" class="tocify-subheader">
+                                                    <li class="tocify-item level-2" data-unique="traveler-tickets-GETapi-sender-tickets">
+                                <a href="#traveler-tickets-GETapi-sender-tickets">Get All Tickets</a>
+                            </li>
+                                                                                <li class="tocify-item level-2" data-unique="traveler-tickets-POSTapi-sender-tickets">
+                                <a href="#traveler-tickets-POSTapi-sender-tickets">Create Ticket</a>
+                            </li>
+                                                                                <li class="tocify-item level-2" data-unique="traveler-tickets-GETapi-sender-tickets--id-">
+                                <a href="#traveler-tickets-GETapi-sender-tickets--id-">Get Single Ticket</a>
+                            </li>
+                                                                                <li class="tocify-item level-2" data-unique="traveler-tickets-PUTapi-sender-tickets--id-">
+                                <a href="#traveler-tickets-PUTapi-sender-tickets--id-">Update Ticket</a>
+                            </li>
+                                                                                <li class="tocify-item level-2" data-unique="traveler-tickets-DELETEapi-sender-tickets--id-">
+                                <a href="#traveler-tickets-DELETEapi-sender-tickets--id-">Delete Ticket</a>
+                            </li>
+                                                                        </ul>
+                            </ul>
             </div>
 
     <ul class="toc-footer" id="toc-footer">
@@ -230,7 +252,7 @@
     </ul>
 
     <ul class="toc-footer" id="last-updated">
-        <li>Last updated: December 24, 2025</li>
+        <li>Last updated: December 26, 2025</li>
     </ul>
 </div>
 
@@ -3326,6 +3348,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"email\": \"ahmed@example.com\",
     \"phone\": \"+96170123456\",
     \"password\": \"password123\",
+    \"type\": \"sender\",
     \"password_confirmation\": \"password123\"
 }"
 </code></pre></div>
@@ -3346,6 +3369,7 @@ let body = {
     "email": "ahmed@example.com",
     "phone": "+96170123456",
     "password": "password123",
+    "type": "sender",
     "password_confirmation": "password123"
 };
 
@@ -3369,7 +3393,8 @@ fetch(url, {
     &quot;data&quot;: {
         &quot;id&quot;: 1,
         &quot;email&quot;: &quot;ahmed@example.com&quot;,
-        &quot;is_verified&quot;: false
+        &quot;is_verified&quot;: false,
+        &quot;type&quot;: &quot;sender&quot;
     }
 }</code>
  </pre>
@@ -3495,6 +3520,18 @@ You can check the Dev Tools console for debugging information.</code></pre>
 <p>Password (min 8 characters). Example: <code>password123</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>type</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="type"                data-endpoint="POSTapi-sender-register"
+               value="sender"
+               data-component="body">
+    <br>
+<p>optional User type (sender or traveler). Defaults to 'sender'. Example: <code>sender</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>password_confirmation</code></b>&nbsp;&nbsp;
 <small>string</small>&nbsp;
  &nbsp;
@@ -3513,7 +3550,8 @@ You can check the Dev Tools console for debugging information.</code></pre>
 <p>
 </p>
 
-<p>Verify email with code sent during registration.</p>
+<p>Verify email with code sent during registration.
+In development: code &quot;111111&quot; is accepted without database check.</p>
 
 <span id="example-requests-POSTapi-sender-verify-code">
 <blockquote>Example request:</blockquote>
@@ -5249,7 +5287,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --form "height=5"\
     --form "special_instructions=consequatur"\
     --form "compliance_confirmed=1"\
-    --form "image=@C:\Users\ahmednour\AppData\Local\Microsoft\WinGet\Packages\Astronomer.Astro_Microsoft.Winget.Source_8wekyb3d8bbwe\phpDB48.tmp" </code></pre></div>
+    --form "image=@C:\Users\ahmednour\AppData\Local\Microsoft\WinGet\Packages\Astronomer.Astro_Microsoft.Winget.Source_8wekyb3d8bbwe\php4E57.tmp" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -5750,7 +5788,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>Must be an image. Must not be greater than 5120 kilobytes. Example: <code>C:\Users\ahmednour\AppData\Local\Microsoft\WinGet\Packages\Astronomer.Astro_Microsoft.Winget.Source_8wekyb3d8bbwe\phpDB48.tmp</code></p>
+<p>Must be an image. Must not be greater than 5120 kilobytes. Example: <code>C:\Users\ahmednour\AppData\Local\Microsoft\WinGet\Packages\Astronomer.Astro_Microsoft.Winget.Source_8wekyb3d8bbwe\php4E57.tmp</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>compliance_confirmed</code></b>&nbsp;&nbsp;
@@ -5971,7 +6009,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --form "height=5"\
     --form "special_instructions=consequatur"\
     --form "compliance_confirmed="\
-    --form "image=@C:\Users\ahmednour\AppData\Local\Microsoft\WinGet\Packages\Astronomer.Astro_Microsoft.Winget.Source_8wekyb3d8bbwe\phpDB58.tmp" </code></pre></div>
+    --form "image=@C:\Users\ahmednour\AppData\Local\Microsoft\WinGet\Packages\Astronomer.Astro_Microsoft.Winget.Source_8wekyb3d8bbwe\php4E67.tmp" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -6488,7 +6526,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>Must be an image. Must not be greater than 5120 kilobytes. Example: <code>C:\Users\ahmednour\AppData\Local\Microsoft\WinGet\Packages\Astronomer.Astro_Microsoft.Winget.Source_8wekyb3d8bbwe\phpDB58.tmp</code></p>
+<p>Must be an image. Must not be greater than 5120 kilobytes. Example: <code>C:\Users\ahmednour\AppData\Local\Microsoft\WinGet\Packages\Astronomer.Astro_Microsoft.Winget.Source_8wekyb3d8bbwe\php4E67.tmp</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>compliance_confirmed</code></b>&nbsp;&nbsp;
@@ -7145,6 +7183,1470 @@ You can check the Dev Tools console for debugging information.</code></pre>
                data-component="url">
     <br>
 <p>Setting key. Example: <code>app_name</code></p>
+            </div>
+                    </form>
+
+                <h1 id="traveler-tickets">Traveler Tickets</h1>
+
+    <p>APIs for managing traveler tickets (only accessible to travelers)</p>
+
+                                <h2 id="traveler-tickets-GETapi-sender-tickets">Get All Tickets</h2>
+
+<p>
+</p>
+
+<p>Get a list of all tickets for the authenticated traveler with advanced filtering.
+Only travelers (type='traveler') can access this endpoint.</p>
+
+<span id="example-requests-GETapi-sender-tickets">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request GET \
+    --get "http://localhost/api/api/sender/tickets?status=active&amp;statuses[]=draft&amp;statuses[]=active&amp;trip_type=one-way&amp;transport_type=Car&amp;from_city=Beirut&amp;to_city=Tripoli&amp;departure_date_from=2025-11-01&amp;departure_date_to=2025-11-30&amp;search=Beirut&amp;page=1&amp;per_page=15" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json"</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost/api/api/sender/tickets"
+);
+
+const params = {
+    "status": "active",
+    "statuses[0]": "draft",
+    "statuses[1]": "active",
+    "trip_type": "one-way",
+    "transport_type": "Car",
+    "from_city": "Beirut",
+    "to_city": "Tripoli",
+    "departure_date_from": "2025-11-01",
+    "departure_date_to": "2025-11-30",
+    "search": "Beirut",
+    "page": "1",
+    "per_page": "15",
+};
+Object.keys(params)
+    .forEach(key =&gt; url.searchParams.append(key, params[key]));
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+fetch(url, {
+    method: "GET",
+    headers,
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-GETapi-sender-tickets">
+            <blockquote>
+            <p>Example response (200):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Tickets retrieved successfully&quot;,
+  &quot;data&quot;: [...],
+  &quot;meta&quot;: {...}
+}</code>
+ </pre>
+    </span>
+<span id="execution-results-GETapi-sender-tickets" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-GETapi-sender-tickets"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-GETapi-sender-tickets"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-GETapi-sender-tickets" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-GETapi-sender-tickets">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-GETapi-sender-tickets" data-method="GET"
+      data-path="api/sender/tickets"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('GETapi-sender-tickets', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-GETapi-sender-tickets"
+                    onclick="tryItOut('GETapi-sender-tickets');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-GETapi-sender-tickets"
+                    onclick="cancelTryOut('GETapi-sender-tickets');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-GETapi-sender-tickets"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-green">GET</small>
+            <b><code>api/sender/tickets</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="GETapi-sender-tickets"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="GETapi-sender-tickets"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                            <h4 class="fancy-heading-panel"><b>Query Parameters</b></h4>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>status</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="status"                data-endpoint="GETapi-sender-tickets"
+               value="active"
+               data-component="query">
+    <br>
+<p>Filter by status (draft, active, matched, completed, cancelled). Example: <code>active</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>statuses</code></b>&nbsp;&nbsp;
+<small>string[]</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="statuses[0]"                data-endpoint="GETapi-sender-tickets"
+               data-component="query">
+        <input type="text" style="display: none"
+               name="statuses[1]"                data-endpoint="GETapi-sender-tickets"
+               data-component="query">
+    <br>
+<p>Filter by multiple statuses.</p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>trip_type</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="trip_type"                data-endpoint="GETapi-sender-tickets"
+               value="one-way"
+               data-component="query">
+    <br>
+<p>Filter by trip type (one-way, round-trip). Example: <code>one-way</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>transport_type</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="transport_type"                data-endpoint="GETapi-sender-tickets"
+               value="Car"
+               data-component="query">
+    <br>
+<p>Filter by transport type. Example: <code>Car</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>from_city</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="from_city"                data-endpoint="GETapi-sender-tickets"
+               value="Beirut"
+               data-component="query">
+    <br>
+<p>Filter by from city. Example: <code>Beirut</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>to_city</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="to_city"                data-endpoint="GETapi-sender-tickets"
+               value="Tripoli"
+               data-component="query">
+    <br>
+<p>Filter by to city. Example: <code>Tripoli</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>departure_date_from</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="departure_date_from"                data-endpoint="GETapi-sender-tickets"
+               value="2025-11-01"
+               data-component="query">
+    <br>
+<p>date Filter tickets with departure date from. Example: <code>2025-11-01</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>departure_date_to</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="departure_date_to"                data-endpoint="GETapi-sender-tickets"
+               value="2025-11-30"
+               data-component="query">
+    <br>
+<p>date Filter tickets with departure date to. Example: <code>2025-11-30</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>search</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="search"                data-endpoint="GETapi-sender-tickets"
+               value="Beirut"
+               data-component="query">
+    <br>
+<p>Search in cities, transport type, or notes. Example: <code>Beirut</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>page</code></b>&nbsp;&nbsp;
+<small>integer</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="page"                data-endpoint="GETapi-sender-tickets"
+               value="1"
+               data-component="query">
+    <br>
+<p>Page number for pagination. Example: <code>1</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>per_page</code></b>&nbsp;&nbsp;
+<small>integer</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="per_page"                data-endpoint="GETapi-sender-tickets"
+               value="15"
+               data-component="query">
+    <br>
+<p>Items per page (default: 15, max: 100). Example: <code>15</code></p>
+            </div>
+                </form>
+
+                    <h2 id="traveler-tickets-POSTapi-sender-tickets">Create Ticket</h2>
+
+<p>
+</p>
+
+<p>Create a new travel ticket. Only travelers (type='traveler') can create tickets.</p>
+
+<span id="example-requests-POSTapi-sender-tickets">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request POST \
+    "http://localhost/api/api/sender/tickets" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json" \
+    --data "{
+    \"from_city\": \"Beirut\",
+    \"to_city\": \"Tripoli\",
+    \"full_address\": \"Main Street, Building 5\",
+    \"landmark\": \"Near AUB Main Gate\",
+    \"latitude\": 33.893791,
+    \"longitude\": 35.472163,
+    \"trip_type\": \"one-way\",
+    \"departure_date\": \"2025-11-26\",
+    \"departure_time\": \"11:33\",
+    \"transport_type\": \"Car\",
+    \"total_weight_limit\": 10,
+    \"max_package_count\": 5,
+    \"acceptable_package_types\": [
+        1,
+        2,
+        3
+    ],
+    \"preferred_pickup_area\": \"City Center\",
+    \"preferred_delivery_area\": \"Downtown\",
+    \"notes_for_senders\": \"No liquids please\",
+    \"allow_urgent_packages\": false,
+    \"accept_only_verified_senders\": true,
+    \"status\": \"active\",
+    \"return_date\": \"2025-11-27\",
+    \"return_time\": \"14:00\"
+}"
+</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost/api/api/sender/tickets"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+let body = {
+    "from_city": "Beirut",
+    "to_city": "Tripoli",
+    "full_address": "Main Street, Building 5",
+    "landmark": "Near AUB Main Gate",
+    "latitude": 33.893791,
+    "longitude": 35.472163,
+    "trip_type": "one-way",
+    "departure_date": "2025-11-26",
+    "departure_time": "11:33",
+    "transport_type": "Car",
+    "total_weight_limit": 10,
+    "max_package_count": 5,
+    "acceptable_package_types": [
+        1,
+        2,
+        3
+    ],
+    "preferred_pickup_area": "City Center",
+    "preferred_delivery_area": "Downtown",
+    "notes_for_senders": "No liquids please",
+    "allow_urgent_packages": false,
+    "accept_only_verified_senders": true,
+    "status": "active",
+    "return_date": "2025-11-27",
+    "return_time": "14:00"
+};
+
+fetch(url, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-POSTapi-sender-tickets">
+            <blockquote>
+            <p>Example response (201):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Ticket created successfully&quot;,
+  &quot;data&quot;: {...}
+}</code>
+ </pre>
+    </span>
+<span id="execution-results-POSTapi-sender-tickets" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-POSTapi-sender-tickets"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-POSTapi-sender-tickets"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-POSTapi-sender-tickets" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-POSTapi-sender-tickets">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-POSTapi-sender-tickets" data-method="POST"
+      data-path="api/sender/tickets"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('POSTapi-sender-tickets', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-POSTapi-sender-tickets"
+                    onclick="tryItOut('POSTapi-sender-tickets');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-POSTapi-sender-tickets"
+                    onclick="cancelTryOut('POSTapi-sender-tickets');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-POSTapi-sender-tickets"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-black">POST</small>
+            <b><code>api/sender/tickets</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="POSTapi-sender-tickets"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="POSTapi-sender-tickets"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <h4 class="fancy-heading-panel"><b>Body Parameters</b></h4>
+        <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>from_city</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="from_city"                data-endpoint="POSTapi-sender-tickets"
+               value="Beirut"
+               data-component="body">
+    <br>
+<p>From city. Example: <code>Beirut</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>to_city</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="to_city"                data-endpoint="POSTapi-sender-tickets"
+               value="Tripoli"
+               data-component="body">
+    <br>
+<p>To city. Example: <code>Tripoli</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>full_address</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="full_address"                data-endpoint="POSTapi-sender-tickets"
+               value="Main Street, Building 5"
+               data-component="body">
+    <br>
+<p>Full address. Example: <code>Main Street, Building 5</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>landmark</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="landmark"                data-endpoint="POSTapi-sender-tickets"
+               value="Near AUB Main Gate"
+               data-component="body">
+    <br>
+<p>optional Landmark. Example: <code>Near AUB Main Gate</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>latitude</code></b>&nbsp;&nbsp;
+<small>number</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="latitude"                data-endpoint="POSTapi-sender-tickets"
+               value="33.893791"
+               data-component="body">
+    <br>
+<p>optional Latitude coordinate. Example: <code>33.893791</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>longitude</code></b>&nbsp;&nbsp;
+<small>number</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="longitude"                data-endpoint="POSTapi-sender-tickets"
+               value="35.472163"
+               data-component="body">
+    <br>
+<p>optional Longitude coordinate. Example: <code>35.472163</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>trip_type</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="trip_type"                data-endpoint="POSTapi-sender-tickets"
+               value="one-way"
+               data-component="body">
+    <br>
+<p>Trip type (one-way or round-trip). Example: <code>one-way</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>departure_date</code></b>&nbsp;&nbsp;
+<small>date</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="departure_date"                data-endpoint="POSTapi-sender-tickets"
+               value="2025-11-26"
+               data-component="body">
+    <br>
+<p>Departure date. Example: <code>2025-11-26</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>departure_time</code></b>&nbsp;&nbsp;
+<small>time</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="departure_time"                data-endpoint="POSTapi-sender-tickets"
+               value="11:33"
+               data-component="body">
+    <br>
+<p>Departure time. Example: <code>11:33</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>transport_type</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="transport_type"                data-endpoint="POSTapi-sender-tickets"
+               value="Car"
+               data-component="body">
+    <br>
+<p>Transport type. Example: <code>Car</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>total_weight_limit</code></b>&nbsp;&nbsp;
+<small>number</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="total_weight_limit"                data-endpoint="POSTapi-sender-tickets"
+               value="10"
+               data-component="body">
+    <br>
+<p>optional Total weight limit in kg. Example: <code>10</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>max_package_count</code></b>&nbsp;&nbsp;
+<small>integer</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="max_package_count"                data-endpoint="POSTapi-sender-tickets"
+               value="5"
+               data-component="body">
+    <br>
+<p>optional Maximum package count. Example: <code>5</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>acceptable_package_types</code></b>&nbsp;&nbsp;
+<small>string[]</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="acceptable_package_types[0]"                data-endpoint="POSTapi-sender-tickets"
+               data-component="body">
+        <input type="text" style="display: none"
+               name="acceptable_package_types[1]"                data-endpoint="POSTapi-sender-tickets"
+               data-component="body">
+    <br>
+<p>optional Array of package type IDs.</p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>preferred_pickup_area</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="preferred_pickup_area"                data-endpoint="POSTapi-sender-tickets"
+               value="City Center"
+               data-component="body">
+    <br>
+<p>optional Preferred pickup area. Example: <code>City Center</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>preferred_delivery_area</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="preferred_delivery_area"                data-endpoint="POSTapi-sender-tickets"
+               value="Downtown"
+               data-component="body">
+    <br>
+<p>optional Preferred delivery area. Example: <code>Downtown</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>notes_for_senders</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="notes_for_senders"                data-endpoint="POSTapi-sender-tickets"
+               value="No liquids please"
+               data-component="body">
+    <br>
+<p>optional Notes for senders. Example: <code>No liquids please</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>allow_urgent_packages</code></b>&nbsp;&nbsp;
+<small>boolean</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <label data-endpoint="POSTapi-sender-tickets" style="display: none">
+            <input type="radio" name="allow_urgent_packages"
+                   value="true"
+                   data-endpoint="POSTapi-sender-tickets"
+                   data-component="body"             >
+            <code>true</code>
+        </label>
+        <label data-endpoint="POSTapi-sender-tickets" style="display: none">
+            <input type="radio" name="allow_urgent_packages"
+                   value="false"
+                   data-endpoint="POSTapi-sender-tickets"
+                   data-component="body"             >
+            <code>false</code>
+        </label>
+    <br>
+<p>optional Allow urgent packages. Example: <code>false</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>accept_only_verified_senders</code></b>&nbsp;&nbsp;
+<small>boolean</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <label data-endpoint="POSTapi-sender-tickets" style="display: none">
+            <input type="radio" name="accept_only_verified_senders"
+                   value="true"
+                   data-endpoint="POSTapi-sender-tickets"
+                   data-component="body"             >
+            <code>true</code>
+        </label>
+        <label data-endpoint="POSTapi-sender-tickets" style="display: none">
+            <input type="radio" name="accept_only_verified_senders"
+                   value="false"
+                   data-endpoint="POSTapi-sender-tickets"
+                   data-component="body"             >
+            <code>false</code>
+        </label>
+    <br>
+<p>optional Accept only verified senders. Example: <code>true</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>status</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="status"                data-endpoint="POSTapi-sender-tickets"
+               value="active"
+               data-component="body">
+    <br>
+<p>optional Status (draft or active). Default: draft. Example: <code>active</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>return_date</code></b>&nbsp;&nbsp;
+<small>date</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="return_date"                data-endpoint="POSTapi-sender-tickets"
+               value="2025-11-27"
+               data-component="body">
+    <br>
+<p>optional Return date (required for round-trip). Example: <code>2025-11-27</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>return_time</code></b>&nbsp;&nbsp;
+<small>time</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="return_time"                data-endpoint="POSTapi-sender-tickets"
+               value="14:00"
+               data-component="body">
+    <br>
+<p>optional Return time (required for round-trip). Example: <code>14:00</code></p>
+        </div>
+        </form>
+
+                    <h2 id="traveler-tickets-GETapi-sender-tickets--id-">Get Single Ticket</h2>
+
+<p>
+</p>
+
+<p>Get a single ticket by ID with full details.</p>
+
+<span id="example-requests-GETapi-sender-tickets--id-">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request GET \
+    --get "http://localhost/api/api/sender/tickets/1" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json"</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost/api/api/sender/tickets/1"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+fetch(url, {
+    method: "GET",
+    headers,
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-GETapi-sender-tickets--id-">
+            <blockquote>
+            <p>Example response (200):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Ticket retrieved successfully&quot;,
+  &quot;data&quot;: {...}
+}</code>
+ </pre>
+    </span>
+<span id="execution-results-GETapi-sender-tickets--id-" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-GETapi-sender-tickets--id-"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-GETapi-sender-tickets--id-"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-GETapi-sender-tickets--id-" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-GETapi-sender-tickets--id-">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-GETapi-sender-tickets--id-" data-method="GET"
+      data-path="api/sender/tickets/{id}"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('GETapi-sender-tickets--id-', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-GETapi-sender-tickets--id-"
+                    onclick="tryItOut('GETapi-sender-tickets--id-');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-GETapi-sender-tickets--id-"
+                    onclick="cancelTryOut('GETapi-sender-tickets--id-');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-GETapi-sender-tickets--id-"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-green">GET</small>
+            <b><code>api/sender/tickets/{id}</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="GETapi-sender-tickets--id-"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="GETapi-sender-tickets--id-"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                        <h4 class="fancy-heading-panel"><b>URL Parameters</b></h4>
+                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>id</code></b>&nbsp;&nbsp;
+<small>integer</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="id"                data-endpoint="GETapi-sender-tickets--id-"
+               value="1"
+               data-component="url">
+    <br>
+<p>Ticket ID. Example: <code>1</code></p>
+            </div>
+                    </form>
+
+                    <h2 id="traveler-tickets-PUTapi-sender-tickets--id-">Update Ticket</h2>
+
+<p>
+</p>
+
+<p>Update an existing ticket. Only draft or active tickets can be updated.</p>
+
+<span id="example-requests-PUTapi-sender-tickets--id-">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request PUT \
+    "http://localhost/api/api/sender/tickets/1" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json" \
+    --data "{
+    \"from_city\": \"vmqeopfuudtdsufvyvddq\",
+    \"to_city\": \"amniihfqcoynlazghdtqt\",
+    \"full_address\": \"qxbajwbpilpmufinllwlo\",
+    \"landmark\": \"auydlsmsjuryvojcybzvr\",
+    \"latitude\": -90,
+    \"longitude\": -179,
+    \"trip_type\": \"round-trip\",
+    \"departure_date\": \"2107-01-25\",
+    \"departure_time\": \"14:08\",
+    \"transport_type\": \"mqeopfuudtdsufvyvddqa\",
+    \"total_weight_limit\": 45,
+    \"max_package_count\": 46,
+    \"preferred_pickup_area\": \"iihfqcoynlazghdtqtqxb\",
+    \"preferred_delivery_area\": \"ajwbpilpmufinllwloauy\",
+    \"notes_for_senders\": \"dlsmsjuryvojcybzvrbyi\",
+    \"allow_urgent_packages\": false,
+    \"accept_only_verified_senders\": false,
+    \"status\": \"draft\",
+    \"return_date\": \"2025-12-26T14:08:50\",
+    \"return_time\": \"14:08\"
+}"
+</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost/api/api/sender/tickets/1"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+let body = {
+    "from_city": "vmqeopfuudtdsufvyvddq",
+    "to_city": "amniihfqcoynlazghdtqt",
+    "full_address": "qxbajwbpilpmufinllwlo",
+    "landmark": "auydlsmsjuryvojcybzvr",
+    "latitude": -90,
+    "longitude": -179,
+    "trip_type": "round-trip",
+    "departure_date": "2107-01-25",
+    "departure_time": "14:08",
+    "transport_type": "mqeopfuudtdsufvyvddqa",
+    "total_weight_limit": 45,
+    "max_package_count": 46,
+    "preferred_pickup_area": "iihfqcoynlazghdtqtqxb",
+    "preferred_delivery_area": "ajwbpilpmufinllwloauy",
+    "notes_for_senders": "dlsmsjuryvojcybzvrbyi",
+    "allow_urgent_packages": false,
+    "accept_only_verified_senders": false,
+    "status": "draft",
+    "return_date": "2025-12-26T14:08:50",
+    "return_time": "14:08"
+};
+
+fetch(url, {
+    method: "PUT",
+    headers,
+    body: JSON.stringify(body),
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-PUTapi-sender-tickets--id-">
+            <blockquote>
+            <p>Example response (200):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Ticket updated successfully&quot;,
+  &quot;data&quot;: {...}
+}</code>
+ </pre>
+    </span>
+<span id="execution-results-PUTapi-sender-tickets--id-" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-PUTapi-sender-tickets--id-"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-PUTapi-sender-tickets--id-"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-PUTapi-sender-tickets--id-" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-PUTapi-sender-tickets--id-">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-PUTapi-sender-tickets--id-" data-method="PUT"
+      data-path="api/sender/tickets/{id}"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('PUTapi-sender-tickets--id-', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-PUTapi-sender-tickets--id-"
+                    onclick="tryItOut('PUTapi-sender-tickets--id-');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-PUTapi-sender-tickets--id-"
+                    onclick="cancelTryOut('PUTapi-sender-tickets--id-');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-PUTapi-sender-tickets--id-"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-darkblue">PUT</small>
+            <b><code>api/sender/tickets/{id}</code></b>
+        </p>
+            <p>
+            <small class="badge badge-purple">PATCH</small>
+            <b><code>api/sender/tickets/{id}</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="PUTapi-sender-tickets--id-"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="PUTapi-sender-tickets--id-"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                        <h4 class="fancy-heading-panel"><b>URL Parameters</b></h4>
+                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>id</code></b>&nbsp;&nbsp;
+<small>integer</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="id"                data-endpoint="PUTapi-sender-tickets--id-"
+               value="1"
+               data-component="url">
+    <br>
+<p>Ticket ID. Example: <code>1</code></p>
+            </div>
+                            <h4 class="fancy-heading-panel"><b>Body Parameters</b></h4>
+        <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>from_city</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="from_city"                data-endpoint="PUTapi-sender-tickets--id-"
+               value="vmqeopfuudtdsufvyvddq"
+               data-component="body">
+    <br>
+<p>Must not be greater than 255 characters. Example: <code>vmqeopfuudtdsufvyvddq</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>to_city</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="to_city"                data-endpoint="PUTapi-sender-tickets--id-"
+               value="amniihfqcoynlazghdtqt"
+               data-component="body">
+    <br>
+<p>Must not be greater than 255 characters. Example: <code>amniihfqcoynlazghdtqt</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>full_address</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="full_address"                data-endpoint="PUTapi-sender-tickets--id-"
+               value="qxbajwbpilpmufinllwlo"
+               data-component="body">
+    <br>
+<p>Must not be greater than 255 characters. Example: <code>qxbajwbpilpmufinllwlo</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>landmark</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="landmark"                data-endpoint="PUTapi-sender-tickets--id-"
+               value="auydlsmsjuryvojcybzvr"
+               data-component="body">
+    <br>
+<p>Must not be greater than 255 characters. Example: <code>auydlsmsjuryvojcybzvr</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>latitude</code></b>&nbsp;&nbsp;
+<small>number</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="latitude"                data-endpoint="PUTapi-sender-tickets--id-"
+               value="-90"
+               data-component="body">
+    <br>
+<p>Must be between -90 and 90. Example: <code>-90</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>longitude</code></b>&nbsp;&nbsp;
+<small>number</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="longitude"                data-endpoint="PUTapi-sender-tickets--id-"
+               value="-179"
+               data-component="body">
+    <br>
+<p>Must be between -180 and 180. Example: <code>-179</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>trip_type</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="trip_type"                data-endpoint="PUTapi-sender-tickets--id-"
+               value="round-trip"
+               data-component="body">
+    <br>
+<p>Example: <code>round-trip</code></p>
+Must be one of:
+<ul style="list-style-type: square;"><li><code>one-way</code></li> <li><code>round-trip</code></li></ul>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>departure_date</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="departure_date"                data-endpoint="PUTapi-sender-tickets--id-"
+               value="2107-01-25"
+               data-component="body">
+    <br>
+<p>Must be a valid date. Must be a date after or equal to <code>today</code>. Example: <code>2107-01-25</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>departure_time</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="departure_time"                data-endpoint="PUTapi-sender-tickets--id-"
+               value="14:08"
+               data-component="body">
+    <br>
+<p>Must be a valid date in the format <code>H:i</code>. Example: <code>14:08</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>transport_type</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="transport_type"                data-endpoint="PUTapi-sender-tickets--id-"
+               value="mqeopfuudtdsufvyvddqa"
+               data-component="body">
+    <br>
+<p>Must not be greater than 255 characters. Example: <code>mqeopfuudtdsufvyvddqa</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>total_weight_limit</code></b>&nbsp;&nbsp;
+<small>number</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="total_weight_limit"                data-endpoint="PUTapi-sender-tickets--id-"
+               value="45"
+               data-component="body">
+    <br>
+<p>Must be at least 0.01. Example: <code>45</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>max_package_count</code></b>&nbsp;&nbsp;
+<small>integer</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="max_package_count"                data-endpoint="PUTapi-sender-tickets--id-"
+               value="46"
+               data-component="body">
+    <br>
+<p>Must be at least 1. Example: <code>46</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>acceptable_package_types</code></b>&nbsp;&nbsp;
+<small>string[]</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="acceptable_package_types[0]"                data-endpoint="PUTapi-sender-tickets--id-"
+               data-component="body">
+        <input type="text" style="display: none"
+               name="acceptable_package_types[1]"                data-endpoint="PUTapi-sender-tickets--id-"
+               data-component="body">
+    <br>
+<p>The <code>id</code> of an existing record in the package_types table.</p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>preferred_pickup_area</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="preferred_pickup_area"                data-endpoint="PUTapi-sender-tickets--id-"
+               value="iihfqcoynlazghdtqtqxb"
+               data-component="body">
+    <br>
+<p>Must not be greater than 255 characters. Example: <code>iihfqcoynlazghdtqtqxb</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>preferred_delivery_area</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="preferred_delivery_area"                data-endpoint="PUTapi-sender-tickets--id-"
+               value="ajwbpilpmufinllwloauy"
+               data-component="body">
+    <br>
+<p>Must not be greater than 255 characters. Example: <code>ajwbpilpmufinllwloauy</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>notes_for_senders</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="notes_for_senders"                data-endpoint="PUTapi-sender-tickets--id-"
+               value="dlsmsjuryvojcybzvrbyi"
+               data-component="body">
+    <br>
+<p>Must not be greater than 65535 characters. Example: <code>dlsmsjuryvojcybzvrbyi</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>allow_urgent_packages</code></b>&nbsp;&nbsp;
+<small>boolean</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <label data-endpoint="PUTapi-sender-tickets--id-" style="display: none">
+            <input type="radio" name="allow_urgent_packages"
+                   value="true"
+                   data-endpoint="PUTapi-sender-tickets--id-"
+                   data-component="body"             >
+            <code>true</code>
+        </label>
+        <label data-endpoint="PUTapi-sender-tickets--id-" style="display: none">
+            <input type="radio" name="allow_urgent_packages"
+                   value="false"
+                   data-endpoint="PUTapi-sender-tickets--id-"
+                   data-component="body"             >
+            <code>false</code>
+        </label>
+    <br>
+<p>Example: <code>false</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>accept_only_verified_senders</code></b>&nbsp;&nbsp;
+<small>boolean</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <label data-endpoint="PUTapi-sender-tickets--id-" style="display: none">
+            <input type="radio" name="accept_only_verified_senders"
+                   value="true"
+                   data-endpoint="PUTapi-sender-tickets--id-"
+                   data-component="body"             >
+            <code>true</code>
+        </label>
+        <label data-endpoint="PUTapi-sender-tickets--id-" style="display: none">
+            <input type="radio" name="accept_only_verified_senders"
+                   value="false"
+                   data-endpoint="PUTapi-sender-tickets--id-"
+                   data-component="body"             >
+            <code>false</code>
+        </label>
+    <br>
+<p>Example: <code>false</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>status</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="status"                data-endpoint="PUTapi-sender-tickets--id-"
+               value="draft"
+               data-component="body">
+    <br>
+<p>Example: <code>draft</code></p>
+Must be one of:
+<ul style="list-style-type: square;"><li><code>draft</code></li> <li><code>active</code></li></ul>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>return_date</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="return_date"                data-endpoint="PUTapi-sender-tickets--id-"
+               value="2025-12-26T14:08:50"
+               data-component="body">
+    <br>
+<p>Must be a valid date. Example: <code>2025-12-26T14:08:50</code></p>
+        </div>
+                <div style=" padding-left: 28px;  clear: unset;">
+            <b style="line-height: 2;"><code>return_time</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="return_time"                data-endpoint="PUTapi-sender-tickets--id-"
+               value="14:08"
+               data-component="body">
+    <br>
+<p>Must be a valid date in the format <code>H:i</code>. Example: <code>14:08</code></p>
+        </div>
+        </form>
+
+                    <h2 id="traveler-tickets-DELETEapi-sender-tickets--id-">Delete Ticket</h2>
+
+<p>
+</p>
+
+<p>Soft delete a ticket.</p>
+
+<span id="example-requests-DELETEapi-sender-tickets--id-">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request DELETE \
+    "http://localhost/api/api/sender/tickets/1" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json"</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost/api/api/sender/tickets/1"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+fetch(url, {
+    method: "DELETE",
+    headers,
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-DELETEapi-sender-tickets--id-">
+            <blockquote>
+            <p>Example response (200):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;success&quot;: true,
+    &quot;message&quot;: &quot;Ticket deleted successfully&quot;,
+    &quot;data&quot;: null
+}</code>
+ </pre>
+    </span>
+<span id="execution-results-DELETEapi-sender-tickets--id-" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-DELETEapi-sender-tickets--id-"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-DELETEapi-sender-tickets--id-"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-DELETEapi-sender-tickets--id-" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-DELETEapi-sender-tickets--id-">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-DELETEapi-sender-tickets--id-" data-method="DELETE"
+      data-path="api/sender/tickets/{id}"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('DELETEapi-sender-tickets--id-', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-DELETEapi-sender-tickets--id-"
+                    onclick="tryItOut('DELETEapi-sender-tickets--id-');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-DELETEapi-sender-tickets--id-"
+                    onclick="cancelTryOut('DELETEapi-sender-tickets--id-');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-DELETEapi-sender-tickets--id-"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-red">DELETE</small>
+            <b><code>api/sender/tickets/{id}</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="DELETEapi-sender-tickets--id-"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="DELETEapi-sender-tickets--id-"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                        <h4 class="fancy-heading-panel"><b>URL Parameters</b></h4>
+                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>id</code></b>&nbsp;&nbsp;
+<small>integer</small>&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="id"                data-endpoint="DELETEapi-sender-tickets--id-"
+               value="1"
+               data-component="url">
+    <br>
+<p>Ticket ID. Example: <code>1</code></p>
             </div>
                     </form>
 
