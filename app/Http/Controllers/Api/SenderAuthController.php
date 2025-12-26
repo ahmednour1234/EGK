@@ -43,6 +43,7 @@ class SenderAuthController extends BaseApiController
      * @bodyParam phone string required Sender phone. Example: +96170123456
      * @bodyParam password string required Password (min 8 characters). Example: password123
      * @bodyParam password_confirmation string required Password confirmation. Example: password123
+     * @bodyParam type string optional User type (sender or traveler). Defaults to 'sender'. Example: sender
      * 
      * @response 201 {
      *   "success": true,
@@ -50,14 +51,27 @@ class SenderAuthController extends BaseApiController
      *   "data": {
      *     "id": 1,
      *     "email": "ahmed@example.com",
-     *     "is_verified": false
+     *     "is_verified": false,
+     *     "type": "sender"
      *   }
      * }
      */
     public function register(RegisterSenderRequest $request): JsonResponse
     {
+        $validated = $request->validated();
+        
+        // Set default type to 'sender' if not provided
+        if (!isset($validated['type']) || empty($validated['type'])) {
+            $validated['type'] = 'sender';
+        }
+
+        // Validate type value
+        if (!in_array($validated['type'], ['sender', 'traveler'])) {
+            return $this->error('Type must be either "sender" or "traveler"', 422);
+        }
+
         // Create sender
-        $sender = $this->senderRepository->create($request->validated());
+        $sender = $this->senderRepository->create($validated);
 
         // Generate verification code
         $code = EmailHelper::generateCode();
@@ -70,20 +84,32 @@ class SenderAuthController extends BaseApiController
             'type' => 'email_verification',
         ]);
 
-        // Send verification code via email
-        EmailHelper::sendVerificationCode($sender->email, $code, $sender->full_name);
+        // Only send email in production or if code is not the development code
+        $env = config('app.env', 'production');
+        $isDevelopment = in_array($env, ['local', 'development', 'dev', 'staging', 'testing']);
+        
+        if (!$isDevelopment || $code !== '111111') {
+            // Send verification code via email
+            EmailHelper::sendVerificationCode($sender->email, $code, $sender->full_name);
+        }
+
+        $message = $isDevelopment && $code === '111111' 
+            ? 'Registration successful. Use code 111111 to verify your email.'
+            : 'Registration successful. Verification code sent to your email.';
 
         return $this->created([
             'id' => $sender->id,
             'email' => $sender->email,
             'is_verified' => $sender->is_verified,
-        ], 'Registration successful. Verification code sent to your email.');
+            'type' => $sender->type,
+        ], $message);
     }
 
     /**
      * Verify Email Code
      * 
      * Verify email with code sent during registration.
+     * In development: code "111111" is accepted without database check.
      * 
      * @bodyParam email string required Email address. Example: ahmed@example.com
      * @bodyParam code string required 6-digit verification code. Example: 123456
@@ -107,37 +133,59 @@ class SenderAuthController extends BaseApiController
     {
         $validated = $request->validated();
         
-        // Find valid verification code
-        if (isset($validated['email'])) {
-            $verificationCode = $this->verificationCodeRepository->findValidCode(
-                $validated['email'],
-                $validated['code'],
-                $validated['type']
-            );
+        // Check if it's development environment and code is "111111"
+        $env = config('app.env', 'production');
+        $isDevelopment = in_array($env, ['local', 'development', 'dev', 'staging', 'testing']);
+        $isDevCode = $validated['code'] === '111111';
+        
+        $verificationCode = null;
+        $sender = null;
+        
+        // In development, accept "111111" without database check
+        if ($isDevelopment && $isDevCode) {
+            // Find sender by email or phone
+            if (isset($validated['email'])) {
+                $sender = $this->senderRepository->findByEmail($validated['email']);
+            } else {
+                $sender = $this->senderRepository->findByPhone($validated['phone'] ?? '');
+            }
+            
+            if (!$sender) {
+                return $this->error('Sender not found', 404);
+            }
         } else {
-            $verificationCode = $this->verificationCodeRepository->findValidCodeByPhone(
-                $validated['phone'],
-                $validated['code'],
-                $validated['type']
-            );
-        }
+            // Normal verification flow - check database
+            if (isset($validated['email'])) {
+                $verificationCode = $this->verificationCodeRepository->findValidCode(
+                    $validated['email'],
+                    $validated['code'],
+                    $validated['type']
+                );
+            } else {
+                $verificationCode = $this->verificationCodeRepository->findValidCodeByPhone(
+                    $validated['phone'],
+                    $validated['code'],
+                    $validated['type']
+                );
+            }
 
-        if (!$verificationCode) {
-            return $this->error('Invalid or expired verification code', 400);
-        }
+            if (!$verificationCode) {
+                return $this->error('Invalid or expired verification code', 400);
+            }
 
-        // Mark code as used
-        $this->verificationCodeRepository->markAsUsed($verificationCode->id);
+            // Mark code as used
+            $this->verificationCodeRepository->markAsUsed($verificationCode->id);
 
-        // Get sender
-        $sender = $verificationCode->sender ?? $this->senderRepository->findByEmail($validated['email'] ?? '');
+            // Get sender
+            $sender = $verificationCode->sender ?? $this->senderRepository->findByEmail($validated['email'] ?? '');
 
-        if (!$sender) {
-            $sender = $this->senderRepository->findByPhone($validated['phone'] ?? '');
-        }
+            if (!$sender) {
+                $sender = $this->senderRepository->findByPhone($validated['phone'] ?? '');
+            }
 
-        if (!$sender) {
-            return $this->error('Sender not found', 404);
+            if (!$sender) {
+                return $this->error('Sender not found', 404);
+            }
         }
 
         // Verify email if it's email verification

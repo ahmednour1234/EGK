@@ -21,6 +21,7 @@ class RegisterSenderRequest extends FormRequest
             'email' => 'required|email|max:255|unique:senders,email',
             'phone' => 'required|string|max:255|unique:senders,phone',
             'password' => 'required|string|min:8|confirmed',
+            'type' => 'nullable|string|in:sender,traveler',
         ];
     }
 
