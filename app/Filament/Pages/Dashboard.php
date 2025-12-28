@@ -14,9 +14,11 @@ class Dashboard extends BaseDashboard
     {
         return [
             \App\Filament\Widgets\DashboardSearch::class,
+            \App\Filament\Widgets\StatsOverviewWidget::class,
+            \App\Filament\Widgets\PackagesChartWidget::class,
+            \App\Filament\Widgets\TicketsChartWidget::class,
             \App\Filament\Widgets\NewTravelerTicketsWidget::class,
             \Filament\Widgets\AccountWidget::class,
-            \Filament\Widgets\FilamentInfoWidget::class,
         ];
     }
 }

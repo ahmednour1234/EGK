@@ -9,13 +9,13 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class NewTravelerTicketsWidget extends BaseWidget
 {
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 5;
 
     protected int | string | array $columnSpan = 'full';
 
-    protected static ?string $heading = 'New Traveler Tickets';
+    protected static ?string $heading = 'Active Traveler Tickets';
 
-    protected static ?string $description = 'Recent traveler tickets that need attention';
+    protected static ?string $description = 'Currently active traveler tickets';
 
     public static function canView(): bool
     {
@@ -30,7 +30,7 @@ class NewTravelerTicketsWidget extends BaseWidget
                     ->whereHas('traveler', function ($query) {
                         $query->where('type', 'traveler');
                     })
-                    ->whereIn('status', ['draft', 'active'])
+                    ->where('status', 'active')
                     ->latest()
                     ->limit(10)
             )
@@ -55,14 +55,9 @@ class NewTravelerTicketsWidget extends BaseWidget
                     ->sortable(),
                 Tables\Columns\BadgeColumn::make('status')
                     ->colors([
-                        'gray' => 'draft',
                         'info' => 'active',
                     ])
-                    ->formatStateUsing(fn ($state) => match($state) {
-                        'draft' => 'Draft',
-                        'active' => 'Active',
-                        default => ucfirst($state),
-                    })
+                    ->formatStateUsing(fn ($state) => 'Active')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
