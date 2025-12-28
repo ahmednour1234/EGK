@@ -16,6 +16,7 @@ class Dashboard extends BaseDashboard
             \App\Filament\Widgets\DashboardSearch::class,
             \App\Filament\Widgets\StatsOverviewWidget::class,
             \App\Filament\Widgets\PackagesChartWidget::class,
+            \App\Filament\Widgets\PackagesTrendChartWidget::class,
             \App\Filament\Widgets\TicketsChartWidget::class,
             \App\Filament\Widgets\NewTravelerTicketsWidget::class,
             \Filament\Widgets\AccountWidget::class,
