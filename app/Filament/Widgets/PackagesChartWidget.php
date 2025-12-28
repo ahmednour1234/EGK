@@ -7,13 +7,13 @@ use Filament\Widgets\ChartWidget;
 
 class PackagesChartWidget extends ChartWidget
 {
-    protected static ?string $heading = 'Packages Status Overview';
+    protected static ?string $heading = 'Packages Status Distribution';
 
-    protected static ?string $description = 'Distribution of packages by status';
+    protected static ?string $description = 'Breakdown of all packages by current status';
 
     protected static ?int $sort = 3;
 
-    protected int | string | array $columnSpan = 'full';
+    protected int | string | array $columnSpan = 2;
 
     protected function getData(): array
     {

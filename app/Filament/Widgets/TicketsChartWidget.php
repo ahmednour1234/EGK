@@ -7,13 +7,13 @@ use Filament\Widgets\ChartWidget;
 
 class TicketsChartWidget extends ChartWidget
 {
-    protected static ?string $heading = 'Traveler Tickets Status';
+    protected static ?string $heading = 'Traveler Tickets Status Distribution';
 
-    protected static ?string $description = 'Distribution of traveler tickets by status';
+    protected static ?string $description = 'Breakdown of all traveler tickets by current status';
 
     protected static ?int $sort = 4;
 
-    protected int | string | array $columnSpan = 'full';
+    protected int | string | array $columnSpan = 2;
 
     protected function getData(): array
     {
