@@ -22,7 +22,7 @@ class SwitchUserType extends Page
 
     public static function shouldRegisterNavigation(): bool
     {
-        return true;
+        return false;
     }
 
     public function switchToSender()
