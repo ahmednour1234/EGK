@@ -94,16 +94,16 @@ class StatsOverviewWidget extends BaseWidget
 
         return [
             Stat::make('Total Senders', number_format($totalSenders))
-                ->description("{$activeSenders} active • {$verifiedSenders} verified • {$senderPercentage}% active rate")
-                ->descriptionIcon('heroicon-o-user-circle')
+                ->description("{$activeSenders} active • {$verifiedSenders} verified")
+                ->descriptionIcon('heroicon-o-check-circle', 'before')
                 ->icon('heroicon-o-users')
                 ->color('success')
                 ->chart($senderChartData)
                 ->chartColor('success'),
             
             Stat::make('Total Travelers', number_format($totalTravelers))
-                ->description("{$activeTravelers} active • {$verifiedTravelers} verified • {$travelerPercentage}% active rate")
-                ->descriptionIcon('heroicon-o-globe-alt')
+                ->description("{$activeTravelers} active • {$verifiedTravelers} verified")
+                ->descriptionIcon('heroicon-o-check-circle', 'before')
                 ->icon('heroicon-o-user-group')
                 ->color('info')
                 ->chart($travelerChartData)
@@ -111,15 +111,15 @@ class StatsOverviewWidget extends BaseWidget
             
             Stat::make('Total Packages', number_format($totalPackages))
                 ->description("{$activePackages} active • {$deliveredPackages} delivered • {$pendingPackages} pending")
-                ->descriptionIcon('heroicon-o-cube')
+                ->descriptionIcon('heroicon-o-cube', 'before')
                 ->icon('heroicon-o-archive-box')
                 ->color('warning')
                 ->chart($packageChartData)
                 ->chartColor('warning'),
             
             Stat::make('Active Tickets', number_format($activeTickets))
-                ->description("{$totalTickets} total • {$completedTickets} completed • {$ticketPercentage}% active")
-                ->descriptionIcon('heroicon-o-ticket')
+                ->description("{$totalTickets} total • {$completedTickets} completed")
+                ->descriptionIcon('heroicon-o-ticket', 'before')
                 ->icon('heroicon-o-clipboard-document-check')
                 ->color('primary')
                 ->chart($ticketChartData)

@@ -7,9 +7,9 @@ use Filament\Widgets\ChartWidget;
 
 class TicketsChartWidget extends ChartWidget
 {
-    protected static ?string $heading = 'Traveler Tickets Status Distribution';
+    protected static ?string $heading = '🎫 Traveler Tickets Status Distribution';
 
-    protected static ?string $description = 'Breakdown of all traveler tickets by current status';
+    protected static ?string $description = 'Complete breakdown of all traveler tickets by status';
 
     protected static ?int $sort = 5;
 
@@ -48,12 +48,12 @@ class TicketsChartWidget extends ChartWidget
             $labelNames[] = $label;
             
             $colors[] = match($key) {
-                'draft' => 'rgba(156, 163, 175, 0.8)',    // gray
-                'active' => 'rgba(59, 130, 246, 0.8)',     // blue
-                'matched' => 'rgba(34, 197, 94, 0.8)',     // green
-                'completed' => 'rgba(16, 185, 129, 0.8)',  // teal
-                'cancelled' => 'rgba(239, 68, 68, 0.8)',   // red
-                default => 'rgba(156, 163, 175, 0.8)',
+                'draft' => 'rgba(156, 163, 175, 0.9)',      // gray
+                'active' => 'rgba(59, 130, 246, 0.9)',       // blue
+                'matched' => 'rgba(34, 197, 94, 0.9)',       // green
+                'completed' => 'rgba(16, 185, 129, 0.9)',   // emerald
+                'cancelled' => 'rgba(239, 68, 68, 0.9)',   // red
+                default => 'rgba(156, 163, 175, 0.9)',
             };
         }
 
@@ -63,6 +63,13 @@ class TicketsChartWidget extends ChartWidget
                     'label' => 'Tickets',
                     'data' => $data,
                     'backgroundColor' => $colors,
+                    'borderColor' => array_map(function($color) {
+                        return str_replace('0.9', '1', $color);
+                    }, $colors),
+                    'borderWidth' => 2,
+                    'borderRadius' => 8,
+                    'barThickness' => 'flex',
+                    'maxBarThickness' => 60,
                 ],
             ],
             'labels' => $labelNames,
@@ -80,12 +87,45 @@ class TicketsChartWidget extends ChartWidget
             'scales' => [
                 'y' => [
                     'beginAtZero' => true,
+                    'grid' => [
+                        'color' => 'rgba(255, 255, 255, 0.05)',
+                    ],
+                    'ticks' => [
+                        'color' => 'rgba(255, 255, 255, 0.7)',
+                        'font' => ['size' => 11],
+                        'stepSize' => 1,
+                    ],
+                ],
+                'x' => [
+                    'grid' => [
+                        'display' => false,
+                    ],
+                    'ticks' => [
+                        'color' => 'rgba(255, 255, 255, 0.7)',
+                        'font' => ['size' => 11],
+                    ],
                 ],
             ],
             'plugins' => [
                 'legend' => [
                     'display' => true,
                     'position' => 'top',
+                    'labels' => [
+                        'padding' => 15,
+                        'usePointStyle' => true,
+                        'font' => [
+                            'size' => 12,
+                            'weight' => '500',
+                        ],
+                    ],
+                ],
+                'tooltip' => [
+                    'enabled' => true,
+                    'backgroundColor' => 'rgba(0, 0, 0, 0.8)',
+                    'padding' => 12,
+                    'titleFont' => ['size' => 14, 'weight' => 'bold'],
+                    'bodyFont' => ['size' => 13],
+                    'displayColors' => true,
                 ],
             ],
             'responsive' => true,

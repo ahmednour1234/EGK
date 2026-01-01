@@ -37,7 +37,13 @@ class Dashboard extends BaseDashboard
             'md' => 2,
             'lg' => 3,
             'xl' => 4,
+            '2xl' => 4,
         ];
+    }
+
+    protected function getMaxContentWidth(): ?string
+    {
+        return 'full';
     }
 }
 
