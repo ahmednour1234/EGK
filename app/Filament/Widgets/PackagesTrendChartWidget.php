@@ -7,7 +7,7 @@ use Filament\Widgets\ChartWidget;
 
 class PackagesTrendChartWidget extends ChartWidget
 {
-    protected static ?string $heading = '📈 Packages Trend (7 Days)';
+    protected static ?string $heading = 'Packages Trend (7 Days)';
 
     protected static ?string $description = 'Daily package creation and delivery trends';
 

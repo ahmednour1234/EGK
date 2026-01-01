@@ -7,7 +7,7 @@ use Filament\Widgets\ChartWidget;
 
 class TicketsChartWidget extends ChartWidget
 {
-    protected static ?string $heading = '🎫 Traveler Tickets Status Distribution';
+    protected static ?string $heading = 'Traveler Tickets Status Distribution';
 
     protected static ?string $description = 'Complete breakdown of all traveler tickets by status';
 

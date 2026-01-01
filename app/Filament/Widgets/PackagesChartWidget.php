@@ -7,7 +7,7 @@ use Filament\Widgets\ChartWidget;
 
 class PackagesChartWidget extends ChartWidget
 {
-    protected static ?string $heading = '📦 Packages Status Distribution';
+    protected static ?string $heading = 'Packages Status Distribution';
 
     protected static ?string $description = 'Visual breakdown of all packages by current status';
 
