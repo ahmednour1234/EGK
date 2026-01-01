@@ -13,7 +13,13 @@ class PackagesChartWidget extends ChartWidget
 
     protected static ?int $sort = 3;
 
-    protected int | string | array $columnSpan = 1;
+    protected int | string | array $columnSpan = [
+        'default' => 'full',
+        'sm' => 1,
+        'md' => 1,
+        'lg' => 1,
+        'xl' => 1,
+    ];
 
     protected function getData(): array
     {
@@ -48,6 +54,20 @@ class PackagesChartWidget extends ChartWidget
     protected function getType(): string
     {
         return 'doughnut';
+    }
+
+    protected function getOptions(): array
+    {
+        return [
+            'plugins' => [
+                'legend' => [
+                    'display' => true,
+                    'position' => 'bottom',
+                ],
+            ],
+            'responsive' => true,
+            'maintainAspectRatio' => true,
+        ];
     }
 }
 

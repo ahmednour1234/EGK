@@ -13,7 +13,13 @@ class PackagesTrendChartWidget extends ChartWidget
 
     protected static ?int $sort = 4;
 
-    protected int | string | array $columnSpan = 1;
+    protected int | string | array $columnSpan = [
+        'default' => 'full',
+        'sm' => 1,
+        'md' => 1,
+        'lg' => 1,
+        'xl' => 1,
+    ];
 
     protected function getData(): array
     {
@@ -73,6 +79,8 @@ class PackagesTrendChartWidget extends ChartWidget
                     'position' => 'top',
                 ],
             ],
+            'responsive' => true,
+            'maintainAspectRatio' => true,
         ];
     }
 }

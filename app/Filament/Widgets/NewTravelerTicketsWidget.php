@@ -9,9 +9,15 @@ use Filament\Widgets\TableWidget as BaseWidget;
 
 class NewTravelerTicketsWidget extends BaseWidget
 {
-    protected static ?int $sort = 5;
+    protected static ?int $sort = 6;
 
-    protected int | string | array $columnSpan = 'full';
+    protected int | string | array $columnSpan = [
+        'default' => 'full',
+        'sm' => 'full',
+        'md' => 'full',
+        'lg' => 'full',
+        'xl' => 'full',
+    ];
 
     protected static ?string $heading = 'Active Traveler Tickets';
 
@@ -64,6 +70,7 @@ class NewTravelerTicketsWidget extends BaseWidget
                     ->sortable()
                     ->label('Created'),
             ])
+            ->headerActions([])
             ->defaultSort('created_at', 'desc');
     }
 }

@@ -11,9 +11,15 @@ class TicketsChartWidget extends ChartWidget
 
     protected static ?string $description = 'Breakdown of all traveler tickets by current status';
 
-    protected static ?int $sort = 4;
+    protected static ?int $sort = 5;
 
-    protected int | string | array $columnSpan = 2;
+    protected int | string | array $columnSpan = [
+        'default' => 'full',
+        'sm' => 'full',
+        'md' => 2,
+        'lg' => 2,
+        'xl' => 2,
+    ];
 
     protected function getData(): array
     {
@@ -66,6 +72,25 @@ class TicketsChartWidget extends ChartWidget
     protected function getType(): string
     {
         return 'bar';
+    }
+
+    protected function getOptions(): array
+    {
+        return [
+            'scales' => [
+                'y' => [
+                    'beginAtZero' => true,
+                ],
+            ],
+            'plugins' => [
+                'legend' => [
+                    'display' => true,
+                    'position' => 'top',
+                ],
+            ],
+            'responsive' => true,
+            'maintainAspectRatio' => true,
+        ];
     }
 }
 
