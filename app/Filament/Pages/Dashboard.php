@@ -29,7 +29,7 @@ class Dashboard extends BaseDashboard
         ];
     }
 
-    protected function getColumns(): int | string | array
+    public function getColumns(): int | string | array
     {
         return [
             'default' => 1,
