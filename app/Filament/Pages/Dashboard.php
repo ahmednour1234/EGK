@@ -41,7 +41,7 @@ class Dashboard extends BaseDashboard
         ];
     }
 
-    protected function getMaxContentWidth(): ?string
+    public function getMaxContentWidth(): ?string
     {
         return 'full';
     }
