@@ -239,6 +239,9 @@ class DatabaseSeeder extends Seeder
         
         // Seed packages
         $this->call(PackageSeeder::class);
+        
+        // Seed traveler tickets
+        $this->call(TravelerTicketSeeder::class);
 
         $this->command->info('Database seeded successfully!');
         $this->command->info('Admin user: admin@example.com / password');
