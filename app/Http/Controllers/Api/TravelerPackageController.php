@@ -3,12 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Resources\PackageResource;
-use App\Models\Package;
-use App\Models\TravelerTicket;
+use App\Repositories\Contracts\TravelerPackageRepositoryInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 /**
  * @group Traveler Packages
@@ -17,6 +15,10 @@ use Illuminate\Support\Facades\DB;
  */
 class TravelerPackageController extends BaseApiController
 {
+    public function __construct(
+        protected TravelerPackageRepositoryInterface $travelerPackageRepository
+    ) {}
+
     /**
      * Get Packages with Me
      *
@@ -51,29 +53,6 @@ class TravelerPackageController extends BaseApiController
             return $this->error('Only travelers can access this endpoint', 403);
         }
 
-        // Get active ticket IDs for this traveler
-        $activeTicketIds = TravelerTicket::where('traveler_id', $traveler->id)
-            ->where('status', 'active')
-            ->pluck('id')
-            ->toArray();
-
-        if (empty($activeTicketIds)) {
-            // Return empty paginated result
-            $perPage = min((int) $request->input('per_page', 15), 100);
-            $emptyPaginator = new \Illuminate\Pagination\LengthAwarePaginator(
-                collect([]),
-                0,
-                $perPage,
-                1
-            );
-            return $this->paginated($emptyPaginator, 'Packages retrieved successfully');
-        }
-
-        // Build query for packages linked to active tickets
-        $query = Package::whereIn('ticket_id', $activeTicketIds)
-            ->with(['packageType', 'pickupAddress', 'ticket']);
-
-        // Apply filters
         $filters = [
             'status' => $request->input('status'),
             'statuses' => $request->input('statuses'),
@@ -86,63 +65,17 @@ class TravelerPackageController extends BaseApiController
             'delivery_date_to' => $request->input('delivery_date_to'),
         ];
 
-        // Filter by status
-        if (isset($filters['status'])) {
-            $query->where('status', $filters['status']);
+        // Handle statuses as array if provided as comma-separated string
+        if (isset($filters['statuses']) && is_string($filters['statuses'])) {
+            $filters['statuses'] = explode(',', $filters['statuses']);
         }
 
-        // Filter by multiple statuses
-        if (isset($filters['statuses'])) {
-            $statuses = is_string($filters['statuses'])
-                ? explode(',', $filters['statuses'])
-                : $filters['statuses'];
-            if (is_array($statuses) && !empty($statuses)) {
-                $query->whereIn('status', $statuses);
-            }
-        }
-
-        // Filter by package type
-        if (isset($filters['package_type_id'])) {
-            $query->where('package_type_id', $filters['package_type_id']);
-        }
-
-        // Filter by ticket ID
-        if (isset($filters['ticket_id'])) {
-            $query->where('ticket_id', $filters['ticket_id']);
-        }
-
-        // Search
-        if (isset($filters['search'])) {
-            $search = $filters['search'];
-            $query->where(function ($q) use ($search) {
-                $q->where('tracking_number', 'like', "%{$search}%")
-                  ->orWhere('receiver_name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
-            });
-        }
-
-        // Filter by pickup date range
-        if (isset($filters['pickup_date_from'])) {
-            $query->whereDate('pickup_date', '>=', $filters['pickup_date_from']);
-        }
-        if (isset($filters['pickup_date_to'])) {
-            $query->whereDate('pickup_date', '<=', $filters['pickup_date_to']);
-        }
-
-        // Filter by delivery date range
-        if (isset($filters['delivery_date_from'])) {
-            $query->whereDate('delivery_date', '>=', $filters['delivery_date_from']);
-        }
-        if (isset($filters['delivery_date_to'])) {
-            $query->whereDate('delivery_date', '<=', $filters['delivery_date_to']);
-        }
-
-        // Order by created_at desc (newest first)
-        $query->orderBy('created_at', 'desc');
-
-        // Paginate
         $perPage = min((int) $request->input('per_page', 15), 100);
-        $packages = $query->paginate($perPage);
+        $packages = $this->travelerPackageRepository->getPackagesWithMe(
+            $traveler->id,
+            array_filter($filters, fn($value) => $value !== null),
+            $perPage
+        );
 
         return $this->paginated(PackageResource::collection($packages), 'Packages retrieved successfully');
     }
@@ -176,30 +109,6 @@ class TravelerPackageController extends BaseApiController
             return $this->error('Only travelers can access this endpoint', 403);
         }
 
-        // Get active ticket IDs for this traveler
-        $activeTicketIds = TravelerTicket::where('traveler_id', $traveler->id)
-            ->where('status', 'active')
-            ->pluck('id')
-            ->toArray();
-
-        if (empty($activeTicketIds)) {
-            // Return empty paginated result
-            $perPage = min((int) $request->input('per_page', 15), 100);
-            $emptyPaginator = new \Illuminate\Pagination\LengthAwarePaginator(
-                collect([]),
-                0,
-                $perPage,
-                1
-            );
-            return $this->paginated($emptyPaginator, 'Active packages retrieved successfully');
-        }
-
-        // Build query for in_transit packages linked to active tickets
-        $query = Package::whereIn('ticket_id', $activeTicketIds)
-            ->where('status', 'in_transit')
-            ->with(['packageType', 'pickupAddress', 'ticket']);
-
-        // Apply filters
         $filters = [
             'ticket_id' => $request->input('ticket_id'),
             'search' => $request->input('search'),
@@ -207,37 +116,13 @@ class TravelerPackageController extends BaseApiController
             'created_to' => $request->input('created_to'),
         ];
 
-        // Filter by ticket ID
-        if (isset($filters['ticket_id'])) {
-            $query->where('ticket_id', $filters['ticket_id']);
-        }
-
-        // Search
-        if (isset($filters['search'])) {
-            $search = $filters['search'];
-            $query->where(function ($q) use ($search) {
-                $q->where('tracking_number', 'like', "%{$search}%")
-                  ->orWhere('receiver_name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
-            });
-        }
-
-        // Filter by created date range
-        if (isset($filters['created_from'])) {
-            $query->whereDate('created_at', '>=', $filters['created_from']);
-        }
-        if (isset($filters['created_to'])) {
-            $query->whereDate('created_at', '<=', $filters['created_to']);
-        }
-
-        // Order by created_at asc (oldest first)
-        $query->orderBy('created_at', 'asc');
-
-        // Paginate
         $perPage = min((int) $request->input('per_page', 15), 100);
-        $packages = $query->paginate($perPage);
+        $packages = $this->travelerPackageRepository->getActivePackagesNow(
+            $traveler->id,
+            array_filter($filters, fn($value) => $value !== null),
+            $perPage
+        );
 
         return $this->paginated(PackageResource::collection($packages), 'Active packages retrieved successfully');
     }
 }
-

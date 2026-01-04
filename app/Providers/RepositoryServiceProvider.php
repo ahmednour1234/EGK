@@ -24,6 +24,12 @@ use App\Repositories\SenderVerificationCodeRepository;
 use App\Repositories\SettingRepository;
 use App\Repositories\TravelerTicketRepository;
 use App\Repositories\Contracts\TravelerTicketRepositoryInterface;
+use App\Repositories\TravelerPackageRepository;
+use App\Repositories\Contracts\TravelerPackageRepositoryInterface;
+use App\Repositories\StatisticsRepository;
+use App\Repositories\Contracts\StatisticsRepositoryInterface;
+use App\Repositories\RecentUpdatesRepository;
+use App\Repositories\Contracts\RecentUpdatesRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -44,6 +50,9 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(SenderDeviceRepositoryInterface::class, SenderDeviceRepository::class);
         $this->app->bind(SenderAddressRepositoryInterface::class, SenderAddressRepository::class);
         $this->app->bind(TravelerTicketRepositoryInterface::class, TravelerTicketRepository::class);
+        $this->app->bind(TravelerPackageRepositoryInterface::class, TravelerPackageRepository::class);
+        $this->app->bind(StatisticsRepositoryInterface::class, StatisticsRepository::class);
+        $this->app->bind(RecentUpdatesRepositoryInterface::class, RecentUpdatesRepository::class);
     }
 
     /**

@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Package;
-use App\Models\TravelerTicket;
-use App\Models\User;
+use App\Services\StatisticsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 /**
  * @group Statistics
@@ -16,6 +13,10 @@ use Illuminate\Support\Facades\DB;
  */
 class StatisticsController extends BaseApiController
 {
+    public function __construct(
+        protected StatisticsService $statisticsService
+    ) {}
+
     /**
      * Get Statistics
      * 
@@ -44,62 +45,9 @@ class StatisticsController extends BaseApiController
     public function index(): JsonResponse
     {
         $user = Auth::guard('sender')->user();
-        $statistics = [];
 
-        if ($user->type === 'traveler') {
-            // Traveler statistics
-            $totalTickets = TravelerTicket::where('traveler_id', $user->id)->count();
-            $activeTickets = TravelerTicket::where('traveler_id', $user->id)
-                ->where('status', 'active')
-                ->count();
-
-            // Get ticket IDs for this traveler
-            $ticketIds = TravelerTicket::where('traveler_id', $user->id)->pluck('id')->toArray();
-
-            $totalPackages = 0;
-            $deliveredPackages = 0;
-            if (!empty($ticketIds)) {
-                $totalPackages = Package::whereIn('ticket_id', $ticketIds)->count();
-                $deliveredPackages = Package::whereIn('ticket_id', $ticketIds)
-                    ->where('status', 'delivered')
-                    ->count();
-            }
-
-            // Count unique assigned drivers/assignees
-            $assignedDrivers = TravelerTicket::where('traveler_id', $user->id)
-                ->whereNotNull('assignee_id')
-                ->distinct('assignee_id')
-                ->count('assignee_id');
-
-            $statistics = [
-                'tickets' => [
-                    'total' => $totalTickets,
-                    'active' => $activeTickets,
-                ],
-                'packages' => [
-                    'total' => $totalPackages,
-                    'delivered' => $deliveredPackages,
-                ],
-                'drivers' => [
-                    'assigned' => $assignedDrivers,
-                ],
-            ];
-        } else {
-            // Sender statistics (packages only)
-            $totalPackages = Package::where('sender_id', $user->id)->count();
-            $deliveredPackages = Package::where('sender_id', $user->id)
-                ->where('status', 'delivered')
-                ->count();
-
-            $statistics = [
-                'packages' => [
-                    'total' => $totalPackages,
-                    'delivered' => $deliveredPackages,
-                ],
-            ];
-        }
+        $statistics = $this->statisticsService->getStatistics($user->id, $user->type);
 
         return $this->success($statistics, 'Statistics retrieved successfully');
     }
 }
-
