@@ -65,6 +65,17 @@ class PackageResource extends Resource
                         Forms\Components\Toggle::make('compliance_confirmed')
                             ->label('Compliance Confirmed')
                             ->required(),
+                        Forms\Components\Select::make('ticket_id')
+                            ->relationship('ticket', 'id', fn ($query) => $query->where('status', 'active'))
+                            ->label('Linked Ticket')
+                            ->searchable()
+                            ->preload()
+                            ->placeholder('No ticket linked'),
+                        Forms\Components\DateTimePicker::make('delivered_at')
+                            ->label('Delivered At')
+                            ->displayFormat('d/m/Y H:i')
+                            ->visible(fn ($record) => $record?->status === 'delivered')
+                            ->helperText('Actual delivery completion time'),
                     ])
                     ->columns(2),
                 Forms\Components\Section::make('Pickup Information')
@@ -232,6 +243,34 @@ class PackageResource extends Resource
                         default => ucfirst(str_replace('_', ' ', $state)),
                     })
                     ->sortable(),
+                Tables\Columns\IconColumn::make('is_delayed')
+                    ->label('Delayed')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-exclamation-triangle')
+                    ->trueColor('danger')
+                    ->falseIcon('heroicon-o-check-circle')
+                    ->falseColor('success')
+                    ->getStateUsing(fn ($record) => $record->is_delayed),
+                Tables\Columns\IconColumn::make('delivered_late')
+                    ->label('Delivered Late')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-clock')
+                    ->trueColor('warning')
+                    ->falseIcon('heroicon-o-check-circle')
+                    ->falseColor('success')
+                    ->getStateUsing(fn ($record) => $record->delivered_late)
+                    ->visible(fn ($record) => $record?->status === 'delivered'),
+                Tables\Columns\TextColumn::make('ticket_id')
+                    ->label('Ticket')
+                    ->formatStateUsing(fn ($state, $record) => $record->ticket ? 'Ticket #' . $record->ticket->id : '—')
+                    ->color(fn ($state, $record) => $record->ticket ? 'primary' : 'gray')
+                    ->sortable()
+                    ->toggleable(),
+                Tables\Columns\TextColumn::make('delivered_at')
+                    ->label('Delivered At')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\IconColumn::make('compliance_confirmed')
                     ->label('Compliance')
                     ->boolean()

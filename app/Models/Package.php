@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class Package extends Model
 {
@@ -47,6 +48,8 @@ class Package extends Model
         'image',
         'status',
         'compliance_confirmed',
+        'delivered_at',
+        'ticket_id',
     ];
 
     protected $casts = [
@@ -61,6 +64,7 @@ class Package extends Model
         'delivery_latitude' => 'decimal:8',
         'delivery_longitude' => 'decimal:8',
         'compliance_confirmed' => 'boolean',
+        'delivered_at' => 'datetime',
     ];
 
     protected static function boot()
@@ -100,6 +104,96 @@ class Package extends Model
     public function packageType(): BelongsTo
     {
         return $this->belongsTo(PackageType::class);
+    }
+
+    /**
+     * Get the linked traveler ticket.
+     */
+    public function ticket(): BelongsTo
+    {
+        return $this->belongsTo(TravelerTicket::class, 'ticket_id');
+    }
+
+    /**
+     * Get pickup datetime (pickup_date + pickup_time).
+     */
+    public function getPickupDatetimeAttribute(): ?Carbon
+    {
+        if (!$this->pickup_date || !$this->pickup_time) {
+            return null;
+        }
+
+        $date = $this->pickup_date instanceof Carbon 
+            ? $this->pickup_date->copy() 
+            : Carbon::parse($this->pickup_date);
+        
+        // pickup_time is stored as time string (H:i:s)
+        $timeString = is_string($this->pickup_time) 
+            ? $this->pickup_time 
+            : ($this->pickup_time instanceof Carbon 
+                ? $this->pickup_time->format('H:i:s') 
+                : Carbon::parse($this->pickup_time)->format('H:i:s'));
+
+        return $date->setTimeFromTimeString($timeString);
+    }
+
+    /**
+     * Get delivery datetime (delivery_date + delivery_time).
+     */
+    public function getDeliveryDatetimeAttribute(): ?Carbon
+    {
+        if (!$this->delivery_date || !$this->delivery_time) {
+            return null;
+        }
+
+        $date = $this->delivery_date instanceof Carbon 
+            ? $this->delivery_date->copy() 
+            : Carbon::parse($this->delivery_date);
+        
+        // delivery_time is stored as time string (H:i:s)
+        $timeString = is_string($this->delivery_time) 
+            ? $this->delivery_time 
+            : ($this->delivery_time instanceof Carbon 
+                ? $this->delivery_time->format('H:i:s') 
+                : Carbon::parse($this->delivery_time)->format('H:i:s'));
+
+        return $date->setTimeFromTimeString($timeString);
+    }
+
+    /**
+     * Check if package is delayed (now > delivery_datetime AND status != delivered).
+     */
+    public function getIsDelayedAttribute(): bool
+    {
+        $deliveryDatetime = $this->delivery_datetime;
+        
+        if (!$deliveryDatetime) {
+            return false;
+        }
+
+        return now()->isAfter($deliveryDatetime) && $this->status !== 'delivered';
+    }
+
+    /**
+     * Check if package was delivered late (status=delivered AND delivered_at > delivery_datetime).
+     */
+    public function getDeliveredLateAttribute(): bool
+    {
+        if ($this->status !== 'delivered' || !$this->delivered_at) {
+            return false;
+        }
+
+        $deliveryDatetime = $this->delivery_datetime;
+        
+        if (!$deliveryDatetime) {
+            return false;
+        }
+
+        $deliveredAt = $this->delivered_at instanceof Carbon 
+            ? $this->delivered_at 
+            : Carbon::parse($this->delivered_at);
+        
+        return $deliveredAt->isAfter($deliveryDatetime);
     }
 
     /**

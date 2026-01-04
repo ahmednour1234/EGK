@@ -180,6 +180,12 @@ class TravelerTicketResource extends Resource
                     ->label('Max Packages')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('packages_count')
+                    ->label('Linked Packages')
+                    ->counts('packages')
+                    ->badge()
+                    ->color(fn ($state) => $state > 0 ? 'success' : 'gray')
+                    ->sortable(),
                 Tables\Columns\BadgeColumn::make('status')
                     ->colors([
                         'gray' => 'draft',
@@ -274,7 +280,7 @@ class TravelerTicketResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            TravelerTicketResource\RelationManagers\PackagesRelationManager::class,
         ];
     }
 

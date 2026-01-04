@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TravelerTicket extends Model
@@ -54,6 +55,14 @@ class TravelerTicket extends Model
     public function traveler(): BelongsTo
     {
         return $this->belongsTo(Sender::class, 'traveler_id');
+    }
+
+    /**
+     * Get the packages linked to this ticket.
+     */
+    public function packages(): HasMany
+    {
+        return $this->hasMany(Package::class, 'ticket_id');
     }
 
     /**
