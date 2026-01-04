@@ -79,6 +79,58 @@ class TravelerTicketController extends BaseApiController
     }
 
     /**
+     * Get Active Trips
+     * 
+     * Get all active tickets (status='active') for the authenticated traveler with package counts.
+     * Only travelers (type='traveler') can access this endpoint.
+     * 
+     * @queryParam trip_type string Filter by trip type (one-way, round-trip). Example: one-way
+     * @queryParam transport_type string Filter by transport type. Example: Car
+     * @queryParam from_city string Filter by from city. Example: Beirut
+     * @queryParam to_city string Filter by to city. Example: Tripoli
+     * @queryParam departure_date_from date Filter tickets with departure date from. Example: 2025-11-01
+     * @queryParam departure_date_to date Filter tickets with departure date to. Example: 2025-11-30
+     * @queryParam search string Search in cities, transport type, or notes. Example: Beirut
+     * @queryParam page int Page number for pagination. Example: 1
+     * @queryParam per_page int Items per page (default: 15, max: 100). Example: 15
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "message": "Active trips retrieved successfully",
+     *   "data": [...],
+     *   "meta": {...}
+     * }
+     */
+    public function activeTrips(Request $request): JsonResponse
+    {
+        $traveler = Auth::guard('sender')->user();
+
+        // Ensure user is a traveler
+        if ($traveler->type !== 'traveler') {
+            return $this->error('Only travelers can access active trips', 403);
+        }
+
+        $filters = [
+            'status' => 'active', // Force status to active
+            'trip_type' => $request->input('trip_type'),
+            'transport_type' => $request->input('transport_type'),
+            'from_city' => $request->input('from_city'),
+            'to_city' => $request->input('to_city'),
+            'departure_date_from' => $request->input('departure_date_from'),
+            'departure_date_to' => $request->input('departure_date_to'),
+            'search' => $request->input('search'),
+        ];
+
+        $perPage = min((int) $request->input('per_page', 15), 100);
+        $tickets = $this->ticketRepository->getAll($traveler->id, array_filter($filters, fn($value) => $value !== null), $perPage);
+
+        // Load package counts for each ticket
+        $tickets->loadCount('packages');
+
+        return $this->paginated(TravelerTicketResource::collection($tickets), 'Active trips retrieved successfully');
+    }
+
+    /**
      * Create Ticket
      * 
      * Create a new travel ticket. Only travelers (type='traveler') can create tickets.

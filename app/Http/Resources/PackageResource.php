@@ -84,6 +84,17 @@ class PackageResource extends JsonResource
                 'image' => $this->image ? Storage::disk('public')->url($this->image) : null,
             ],
             
+            'ticket_id' => $this->ticket_id,
+            'ticket' => $this->whenLoaded('ticket', function () {
+                return [
+                    'id' => $this->ticket->id,
+                    'from_city' => $this->ticket->from_city,
+                    'to_city' => $this->ticket->to_city,
+                    'status' => $this->ticket->status,
+                    'status_label' => $this->ticket->status_label,
+                ];
+            }),
+            
             'can_be_cancelled' => $this->canBeCancelled(),
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),

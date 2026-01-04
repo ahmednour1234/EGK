@@ -60,6 +60,9 @@ class TravelerTicketResource extends JsonResource
             'status_label' => $this->status_label,
             'status_color' => $this->status_color,
             
+            // Package count (if loaded)
+            'packages_count' => $this->when(isset($this->packages_count), $this->packages_count),
+            
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
             'deleted_at' => $this->deleted_at?->toIso8601String(),

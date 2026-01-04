@@ -7,6 +7,9 @@ use App\Http\Controllers\Api\PageController;
 use App\Http\Controllers\Api\CityController;
 use App\Http\Controllers\Api\PackageTypeController;
 use App\Http\Controllers\Api\SenderAuthController;
+use App\Http\Controllers\Api\StatisticsController;
+use App\Http\Controllers\Api\RecentUpdatesController;
+use App\Http\Controllers\Api\TravelerPackageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -66,8 +69,21 @@ Route::prefix('sender')->middleware('auth:sender')->group(function () {
     Route::apiResource('packages', \App\Http\Controllers\Api\PackageController::class);
     Route::post('packages/{id}/cancel', [\App\Http\Controllers\Api\PackageController::class, 'cancel']);
     
+    // Statistics route (accessible to both travelers and senders)
+    Route::get('statistics', [StatisticsController::class, 'index']);
+    
+    // Recent Updates route (accessible to both travelers and senders)
+    Route::get('recent-updates', [RecentUpdatesController::class, 'index']);
+    
     // Traveler Tickets routes (only for travelers)
     Route::apiResource('tickets', \App\Http\Controllers\Api\TravelerTicketController::class);
+    Route::get('traveler/active-trips', [\App\Http\Controllers\Api\TravelerTicketController::class, 'activeTrips']);
+    
+    // Traveler Package routes (only for travelers)
+    Route::prefix('traveler')->group(function () {
+        Route::get('packages-with-me', [TravelerPackageController::class, 'packagesWithMe']);
+        Route::get('active-packages-now', [TravelerPackageController::class, 'activePackagesNow']);
+    });
 });
 
 
