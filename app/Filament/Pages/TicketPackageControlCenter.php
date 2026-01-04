@@ -134,7 +134,7 @@ class TicketPackageControlCenter extends Page implements HasForms, HasTable
         return $query;
     }
 
-    protected function getMatchResults($ticket): string
+    protected function getMatchResults($ticket): array
     {
         $matcher = new TicketPackageMatcher();
         $packages = Package::whereIn('status', ['approved', 'paid'])
@@ -156,22 +156,7 @@ class TicketPackageControlCenter extends Page implements HasForms, HasTable
         usort($matches, fn ($a, $b) => $b['score'] <=> $a['score']);
         $topMatches = array_slice($matches, 0, 10);
 
-        if (empty($topMatches)) {
-            return 'No matching packages found.';
-        }
-
-        $html = '<div class="space-y-2">';
-        foreach ($topMatches as $match) {
-            $package = $match['package'];
-            $score = $match['score'];
-            $html .= "<div class='p-2 border rounded'>
-                <strong>{$package->tracking_number}</strong> - Score: {$score}%
-                <br><small>{$package->pickup_city} → {$package->delivery_city}</small>
-            </div>";
-        }
-        $html .= '</div>';
-
-        return $html;
+        return $topMatches;
     }
 
     protected function getTableQuery(): Builder
@@ -273,10 +258,27 @@ class TicketPackageControlCenter extends Page implements HasForms, HasTable
                     ->icon('heroicon-o-magnifying-glass')
                     ->color('primary')
                     ->slideOver()
+                    ->mountUsing(function ($form, $record) {
+                        $matches = $this->getMatchResults($record);
+                        $content = '';
+                        if (empty($matches)) {
+                            $content = 'No matching packages found.';
+                        } else {
+                            foreach ($matches as $index => $match) {
+                                $package = $match['package'];
+                                $score = round($match['score'], 2);
+                                $content .= ($index + 1) . ". {$package->tracking_number} - Score: {$score}%\n";
+                                $content .= "   Route: {$package->pickup_city} → {$package->delivery_city}\n";
+                                $content .= "   Receiver: {$package->receiver_mobile}\n\n";
+                            }
+                            $content = trim($content);
+                        }
+                        $form->fill(['matches_display' => $content]);
+                    })
                     ->form([
-                        Forms\Components\Placeholder::make('matches')
+                        Forms\Components\Placeholder::make('matches_display')
                             ->label('Top Matching Packages')
-                            ->content(fn ($record) => $this->getMatchResults($record)),
+                            ->content(fn ($get) => $get('matches_display') ?? 'No matches found.'),
                     ])
                     ->visible(fn ($record) => $record->status === 'active' && auth()->user()?->hasPermission('link-ticket-package')),
                 Tables\Actions\Action::make('linkPackage')
