@@ -14,6 +14,7 @@ class TravelerTicket extends Model
 
     protected $fillable = [
         'traveler_id',
+        'assignee_id',
         'from_city',
         'to_city',
         'full_address',
@@ -63,6 +64,14 @@ class TravelerTicket extends Model
     public function packages(): HasMany
     {
         return $this->hasMany(Package::class, 'ticket_id');
+    }
+
+    /**
+     * Get the user assigned to this ticket.
+     */
+    public function assignee(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assignee_id');
     }
 
     /**

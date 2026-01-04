@@ -71,6 +71,12 @@ class PermissionSeeder extends Seeder
             ['name' => 'Create Traveler Tickets', 'slug' => 'create-traveler-tickets'],
             ['name' => 'Update Traveler Tickets', 'slug' => 'update-traveler-tickets'],
             ['name' => 'Delete Traveler Tickets', 'slug' => 'delete-traveler-tickets'],
+
+            // Control Center Permissions
+            ['name' => 'Manage Packages', 'slug' => 'manage-packages'],
+            ['name' => 'Manage Traveler Tickets', 'slug' => 'manage-traveler-tickets'],
+            ['name' => 'Link Ticket Package', 'slug' => 'link-ticket-package'],
+            ['name' => 'Assign Tickets', 'slug' => 'assign-tickets'],
         ];
 
         // Create permissions
