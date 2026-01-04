@@ -191,6 +191,7 @@ class TicketPackageControlCenter extends Page implements HasForms, HasTable
     protected function configureTicketsTable(Table $table): Table
     {
         return $table
+            ->query($this->getTicketsTableQuery())
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')
@@ -365,6 +366,7 @@ class TicketPackageControlCenter extends Page implements HasForms, HasTable
     protected function configurePackagesTable(Table $table): Table
     {
         return $table
+            ->query($this->getPackagesTableQuery())
             ->columns([
                 TextColumn::make('tracking_number')
                     ->label('Tracking #')
