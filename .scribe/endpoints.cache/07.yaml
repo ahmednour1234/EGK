@@ -1217,3 +1217,131 @@ endpoints:
     controller: null
     method: null
     route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/sender/packages/active
+    metadata:
+      custom: []
+      groupName: 'Sender Packages'
+      groupDescription: |-
+
+        APIs for managing sender packages
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Get Active Package'
+      description: 'Get the active package for the authenticated sender. Active packages are those that are not delivered or cancelled (pending_review, approved, rejected, paid, in_transit).'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Active package retrieved successfully",
+            "data": {
+              "id": 1,
+              "tracking_number": "PKG-ABC123XYZ",
+              "status": "in_transit",
+              "status_label": "In Transit",
+              "pickup_city": "Beirut",
+              "delivery_city": "Zahle",
+              "receiver_name": "Elie Haddad",
+              "receiver_mobile": "+96170234567"
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "No active package found",
+            "data": null
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/sender/packages/last
+    metadata:
+      custom: []
+      groupName: 'Sender Packages'
+      groupDescription: |-
+
+        APIs for managing sender packages
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Get Last Package'
+      description: 'Get the most recently created package for the authenticated sender.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Last package retrieved successfully",
+            "data": {
+              "id": 5,
+              "tracking_number": "PKG-XYZ789ABC",
+              "status": "delivered",
+              "status_label": "Delivered",
+              "pickup_city": "Beirut",
+              "delivery_city": "Tripoli",
+              "receiver_name": "John Doe",
+              "receiver_mobile": "+96170123456"
+            }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "No package found",
+            "data": null
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null

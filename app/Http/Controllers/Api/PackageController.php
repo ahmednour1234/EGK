@@ -290,5 +290,81 @@ class PackageController extends BaseApiController
         $packageModel->delete();
         return $this->success(null, 'Package deleted successfully');
     }
+
+    /**
+     * Get Active Package
+     * 
+     * Get the active package for the authenticated sender. Active packages are those that are not delivered or cancelled (pending_review, approved, rejected, paid, in_transit).
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "message": "Active package retrieved successfully",
+     *   "data": {
+     *     "id": 1,
+     *     "tracking_number": "PKG-ABC123XYZ",
+     *     "status": "in_transit",
+     *     "status_label": "In Transit",
+     *     "pickup_city": "Beirut",
+     *     "delivery_city": "Zahle",
+     *     "receiver_name": "Elie Haddad",
+     *     "receiver_mobile": "+96170234567"
+     *   }
+     * }
+     * 
+     * @response 404 {
+     *   "success": false,
+     *   "message": "No active package found",
+     *   "data": null
+     * }
+     */
+    public function activePackage(): JsonResponse
+    {
+        $sender = Auth::guard('sender')->user();
+        $package = $this->packageRepository->getActivePackage($sender->id);
+
+        if (!$package) {
+            return $this->error('No active package found', 404);
+        }
+
+        return $this->success(new PackageResource($package), 'Active package retrieved successfully');
+    }
+
+    /**
+     * Get Last Package
+     * 
+     * Get the most recently created package for the authenticated sender.
+     * 
+     * @response 200 {
+     *   "success": true,
+     *   "message": "Last package retrieved successfully",
+     *   "data": {
+     *     "id": 5,
+     *     "tracking_number": "PKG-XYZ789ABC",
+     *     "status": "delivered",
+     *     "status_label": "Delivered",
+     *     "pickup_city": "Beirut",
+     *     "delivery_city": "Tripoli",
+     *     "receiver_name": "John Doe",
+     *     "receiver_mobile": "+96170123456"
+     *   }
+     * }
+     * 
+     * @response 404 {
+     *   "success": false,
+     *   "message": "No package found",
+     *   "data": null
+     * }
+     */
+    public function lastPackage(): JsonResponse
+    {
+        $sender = Auth::guard('sender')->user();
+        $package = $this->packageRepository->getLastPackage($sender->id);
+
+        if (!$package) {
+            return $this->error('No package found', 404);
+        }
+
+        return $this->success(new PackageResource($package), 'Last package retrieved successfully');
+    }
 }
 

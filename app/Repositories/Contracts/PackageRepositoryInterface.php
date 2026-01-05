@@ -11,5 +11,7 @@ interface PackageRepositoryInterface
     public function create(int $senderId, array $data): Package;
     public function update(int $id, int $senderId, array $data): Package;
     public function cancel(int $id, int $senderId): bool;
+    public function getActivePackage(int $senderId): ?Package;
+    public function getLastPackage(int $senderId): ?Package;
 }
 

@@ -121,6 +121,16 @@
                             </li>
                                                                         </ul>
                             </ul>
+                    <ul id="tocify-header-recent-updates" class="tocify-header">
+                <li class="tocify-item level-1" data-unique="recent-updates">
+                    <a href="#recent-updates">Recent Updates</a>
+                </li>
+                                    <ul id="tocify-subheader-recent-updates" class="tocify-subheader">
+                                                    <li class="tocify-item level-2" data-unique="recent-updates-GETapi-sender-recent-updates">
+                                <a href="#recent-updates-GETapi-sender-recent-updates">Get Recent Updates</a>
+                            </li>
+                                                                        </ul>
+                            </ul>
                     <ul id="tocify-header-sender-addresses" class="tocify-header">
                 <li class="tocify-item level-1" data-unique="sender-addresses">
                     <a href="#sender-addresses">Sender Addresses</a>
@@ -206,6 +216,12 @@
                                                                                 <li class="tocify-item level-2" data-unique="sender-packages-POSTapi-sender-packages--id--cancel">
                                 <a href="#sender-packages-POSTapi-sender-packages--id--cancel">Cancel Package</a>
                             </li>
+                                                                                <li class="tocify-item level-2" data-unique="sender-packages-GETapi-sender-packages-active">
+                                <a href="#sender-packages-GETapi-sender-packages-active">Get Active Package</a>
+                            </li>
+                                                                                <li class="tocify-item level-2" data-unique="sender-packages-GETapi-sender-packages-last">
+                                <a href="#sender-packages-GETapi-sender-packages-last">Get Last Package</a>
+                            </li>
                                                                         </ul>
                             </ul>
                     <ul id="tocify-header-settings" class="tocify-header">
@@ -218,6 +234,29 @@
                             </li>
                                                                                 <li class="tocify-item level-2" data-unique="settings-GETapi-settings--key-">
                                 <a href="#settings-GETapi-settings--key-">Get Setting by Key</a>
+                            </li>
+                                                                        </ul>
+                            </ul>
+                    <ul id="tocify-header-statistics" class="tocify-header">
+                <li class="tocify-item level-1" data-unique="statistics">
+                    <a href="#statistics">Statistics</a>
+                </li>
+                                    <ul id="tocify-subheader-statistics" class="tocify-subheader">
+                                                    <li class="tocify-item level-2" data-unique="statistics-GETapi-sender-statistics">
+                                <a href="#statistics-GETapi-sender-statistics">Get Statistics</a>
+                            </li>
+                                                                        </ul>
+                            </ul>
+                    <ul id="tocify-header-traveler-packages" class="tocify-header">
+                <li class="tocify-item level-1" data-unique="traveler-packages">
+                    <a href="#traveler-packages">Traveler Packages</a>
+                </li>
+                                    <ul id="tocify-subheader-traveler-packages" class="tocify-subheader">
+                                                    <li class="tocify-item level-2" data-unique="traveler-packages-GETapi-sender-traveler-packages-with-me">
+                                <a href="#traveler-packages-GETapi-sender-traveler-packages-with-me">Get Packages with Me</a>
+                            </li>
+                                                                                <li class="tocify-item level-2" data-unique="traveler-packages-GETapi-sender-traveler-active-packages-now">
+                                <a href="#traveler-packages-GETapi-sender-traveler-active-packages-now">Get Active Packages Now by Order</a>
                             </li>
                                                                         </ul>
                             </ul>
@@ -241,6 +280,9 @@
                                                                                 <li class="tocify-item level-2" data-unique="traveler-tickets-DELETEapi-sender-tickets--id-">
                                 <a href="#traveler-tickets-DELETEapi-sender-tickets--id-">Delete Ticket</a>
                             </li>
+                                                                                <li class="tocify-item level-2" data-unique="traveler-tickets-GETapi-sender-traveler-active-trips">
+                                <a href="#traveler-tickets-GETapi-sender-traveler-active-trips">Get Active Trips</a>
+                            </li>
                                                                         </ul>
                             </ul>
             </div>
@@ -252,7 +294,7 @@
     </ul>
 
     <ul class="toc-footer" id="last-updated">
-        <li>Last updated: December 26, 2025</li>
+        <li>Last updated: January 5, 2026</li>
     </ul>
 </div>
 
@@ -2060,6 +2102,173 @@ You can check the Dev Tools console for debugging information.</code></pre>
                data-component="query">
     <br>
 <p>Language locale (en, ar). Defaults to application locale. Example: <code>en</code></p>
+            </div>
+                </form>
+
+                <h1 id="recent-updates">Recent Updates</h1>
+
+    <p>APIs for getting recent activity/notifications</p>
+
+                                <h2 id="recent-updates-GETapi-sender-recent-updates">Get Recent Updates</h2>
+
+<p>
+</p>
+
+<p>Get recent activity/notifications (packages and tickets updated recently).
+For travelers: Recent updates on their tickets and packages linked to tickets
+For senders: Recent updates on their packages</p>
+
+<span id="example-requests-GETapi-sender-recent-updates">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request GET \
+    --get "http://localhost/api/api/sender/recent-updates?limit=20&amp;type=packages" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json"</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost/api/api/sender/recent-updates"
+);
+
+const params = {
+    "limit": "20",
+    "type": "packages",
+};
+Object.keys(params)
+    .forEach(key =&gt; url.searchParams.append(key, params[key]));
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+fetch(url, {
+    method: "GET",
+    headers,
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-GETapi-sender-recent-updates">
+            <blockquote>
+            <p>Example response (200):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;success&quot;: true,
+    &quot;message&quot;: &quot;Recent updates retrieved successfully&quot;,
+    &quot;data&quot;: [
+        {
+            &quot;id&quot;: 1,
+            &quot;type&quot;: &quot;package&quot;,
+            &quot;title&quot;: &quot;Package PKG-ABC123 updated&quot;,
+            &quot;description&quot;: &quot;Status changed to in_transit&quot;,
+            &quot;updated_at&quot;: &quot;2025-01-15T10:30:00Z&quot;
+        }
+    ]
+}</code>
+ </pre>
+    </span>
+<span id="execution-results-GETapi-sender-recent-updates" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-GETapi-sender-recent-updates"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-GETapi-sender-recent-updates"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-GETapi-sender-recent-updates" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-GETapi-sender-recent-updates">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-GETapi-sender-recent-updates" data-method="GET"
+      data-path="api/sender/recent-updates"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('GETapi-sender-recent-updates', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-GETapi-sender-recent-updates"
+                    onclick="tryItOut('GETapi-sender-recent-updates');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-GETapi-sender-recent-updates"
+                    onclick="cancelTryOut('GETapi-sender-recent-updates');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-GETapi-sender-recent-updates"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-green">GET</small>
+            <b><code>api/sender/recent-updates</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="GETapi-sender-recent-updates"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="GETapi-sender-recent-updates"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                            <h4 class="fancy-heading-panel"><b>Query Parameters</b></h4>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>limit</code></b>&nbsp;&nbsp;
+<small>integer</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="limit"                data-endpoint="GETapi-sender-recent-updates"
+               value="20"
+               data-component="query">
+    <br>
+<p>Number of items to return (default: 20, max: 100). Example: <code>20</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>type</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="type"                data-endpoint="GETapi-sender-recent-updates"
+               value="packages"
+               data-component="query">
+    <br>
+<p>Filter by type (packages, tickets, all). Default: all. Example: <code>packages</code></p>
             </div>
                 </form>
 
@@ -5287,7 +5496,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --form "height=5"\
     --form "special_instructions=consequatur"\
     --form "compliance_confirmed=1"\
-    --form "image=@C:\Users\ahmednour\AppData\Local\Microsoft\WinGet\Packages\Astronomer.Astro_Microsoft.Winget.Source_8wekyb3d8bbwe\php4E57.tmp" </code></pre></div>
+    --form "image=@C:\Users\ahmednour\AppData\Local\Microsoft\WinGet\Packages\Astronomer.Astro_Microsoft.Winget.Source_8wekyb3d8bbwe\phpF26E.tmp" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -5788,7 +5997,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>Must be an image. Must not be greater than 5120 kilobytes. Example: <code>C:\Users\ahmednour\AppData\Local\Microsoft\WinGet\Packages\Astronomer.Astro_Microsoft.Winget.Source_8wekyb3d8bbwe\php4E57.tmp</code></p>
+<p>Must be an image. Must not be greater than 5120 kilobytes. Example: <code>C:\Users\ahmednour\AppData\Local\Microsoft\WinGet\Packages\Astronomer.Astro_Microsoft.Winget.Source_8wekyb3d8bbwe\phpF26E.tmp</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>compliance_confirmed</code></b>&nbsp;&nbsp;
@@ -6009,7 +6218,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
     --form "height=5"\
     --form "special_instructions=consequatur"\
     --form "compliance_confirmed="\
-    --form "image=@C:\Users\ahmednour\AppData\Local\Microsoft\WinGet\Packages\Astronomer.Astro_Microsoft.Winget.Source_8wekyb3d8bbwe\php4E67.tmp" </code></pre></div>
+    --form "image=@C:\Users\ahmednour\AppData\Local\Microsoft\WinGet\Packages\Astronomer.Astro_Microsoft.Winget.Source_8wekyb3d8bbwe\phpF28E.tmp" </code></pre></div>
 
 
 <div class="javascript-example">
@@ -6526,7 +6735,7 @@ You can check the Dev Tools console for debugging information.</code></pre>
                value=""
                data-component="body">
     <br>
-<p>Must be an image. Must not be greater than 5120 kilobytes. Example: <code>C:\Users\ahmednour\AppData\Local\Microsoft\WinGet\Packages\Astronomer.Astro_Microsoft.Winget.Source_8wekyb3d8bbwe\php4E67.tmp</code></p>
+<p>Must be an image. Must not be greater than 5120 kilobytes. Example: <code>C:\Users\ahmednour\AppData\Local\Microsoft\WinGet\Packages\Astronomer.Astro_Microsoft.Winget.Source_8wekyb3d8bbwe\phpF28E.tmp</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>compliance_confirmed</code></b>&nbsp;&nbsp;
@@ -6845,6 +7054,288 @@ You can check the Dev Tools console for debugging information.</code></pre>
 <p>Package ID. Example: <code>1</code></p>
             </div>
                     </form>
+
+                    <h2 id="sender-packages-GETapi-sender-packages-active">Get Active Package</h2>
+
+<p>
+</p>
+
+<p>Get the active package for the authenticated sender. Active packages are those that are not delivered or cancelled (pending_review, approved, rejected, paid, in_transit).</p>
+
+<span id="example-requests-GETapi-sender-packages-active">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request GET \
+    --get "http://localhost/api/api/sender/packages/active" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json"</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost/api/api/sender/packages/active"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+fetch(url, {
+    method: "GET",
+    headers,
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-GETapi-sender-packages-active">
+            <blockquote>
+            <p>Example response (200):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;success&quot;: true,
+    &quot;message&quot;: &quot;Active package retrieved successfully&quot;,
+    &quot;data&quot;: {
+        &quot;id&quot;: 1,
+        &quot;tracking_number&quot;: &quot;PKG-ABC123XYZ&quot;,
+        &quot;status&quot;: &quot;in_transit&quot;,
+        &quot;status_label&quot;: &quot;In Transit&quot;,
+        &quot;pickup_city&quot;: &quot;Beirut&quot;,
+        &quot;delivery_city&quot;: &quot;Zahle&quot;,
+        &quot;receiver_name&quot;: &quot;Elie Haddad&quot;,
+        &quot;receiver_mobile&quot;: &quot;+96170234567&quot;
+    }
+}</code>
+ </pre>
+            <blockquote>
+            <p>Example response (404):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;success&quot;: false,
+    &quot;message&quot;: &quot;No active package found&quot;,
+    &quot;data&quot;: null
+}</code>
+ </pre>
+    </span>
+<span id="execution-results-GETapi-sender-packages-active" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-GETapi-sender-packages-active"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-GETapi-sender-packages-active"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-GETapi-sender-packages-active" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-GETapi-sender-packages-active">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-GETapi-sender-packages-active" data-method="GET"
+      data-path="api/sender/packages/active"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('GETapi-sender-packages-active', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-GETapi-sender-packages-active"
+                    onclick="tryItOut('GETapi-sender-packages-active');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-GETapi-sender-packages-active"
+                    onclick="cancelTryOut('GETapi-sender-packages-active');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-GETapi-sender-packages-active"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-green">GET</small>
+            <b><code>api/sender/packages/active</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="GETapi-sender-packages-active"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="GETapi-sender-packages-active"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                        </form>
+
+                    <h2 id="sender-packages-GETapi-sender-packages-last">Get Last Package</h2>
+
+<p>
+</p>
+
+<p>Get the most recently created package for the authenticated sender.</p>
+
+<span id="example-requests-GETapi-sender-packages-last">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request GET \
+    --get "http://localhost/api/api/sender/packages/last" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json"</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost/api/api/sender/packages/last"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+fetch(url, {
+    method: "GET",
+    headers,
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-GETapi-sender-packages-last">
+            <blockquote>
+            <p>Example response (200):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;success&quot;: true,
+    &quot;message&quot;: &quot;Last package retrieved successfully&quot;,
+    &quot;data&quot;: {
+        &quot;id&quot;: 5,
+        &quot;tracking_number&quot;: &quot;PKG-XYZ789ABC&quot;,
+        &quot;status&quot;: &quot;delivered&quot;,
+        &quot;status_label&quot;: &quot;Delivered&quot;,
+        &quot;pickup_city&quot;: &quot;Beirut&quot;,
+        &quot;delivery_city&quot;: &quot;Tripoli&quot;,
+        &quot;receiver_name&quot;: &quot;John Doe&quot;,
+        &quot;receiver_mobile&quot;: &quot;+96170123456&quot;
+    }
+}</code>
+ </pre>
+            <blockquote>
+            <p>Example response (404):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;success&quot;: false,
+    &quot;message&quot;: &quot;No package found&quot;,
+    &quot;data&quot;: null
+}</code>
+ </pre>
+    </span>
+<span id="execution-results-GETapi-sender-packages-last" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-GETapi-sender-packages-last"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-GETapi-sender-packages-last"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-GETapi-sender-packages-last" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-GETapi-sender-packages-last">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-GETapi-sender-packages-last" data-method="GET"
+      data-path="api/sender/packages/last"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('GETapi-sender-packages-last', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-GETapi-sender-packages-last"
+                    onclick="tryItOut('GETapi-sender-packages-last');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-GETapi-sender-packages-last"
+                    onclick="cancelTryOut('GETapi-sender-packages-last');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-GETapi-sender-packages-last"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-green">GET</small>
+            <b><code>api/sender/packages/last</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="GETapi-sender-packages-last"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="GETapi-sender-packages-last"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                        </form>
 
                 <h1 id="settings">Settings</h1>
 
@@ -7185,6 +7676,631 @@ You can check the Dev Tools console for debugging information.</code></pre>
 <p>Setting key. Example: <code>app_name</code></p>
             </div>
                     </form>
+
+                <h1 id="statistics">Statistics</h1>
+
+    <p>APIs for getting statistics dashboard data</p>
+
+                                <h2 id="statistics-GETapi-sender-statistics">Get Statistics</h2>
+
+<p>
+</p>
+
+<p>Get statistics dashboard data. Returns different statistics based on user type.
+For travelers: total/active tickets, total/delivered packages linked to tickets, assigned drivers count
+For senders: total/delivered packages</p>
+
+<span id="example-requests-GETapi-sender-statistics">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request GET \
+    --get "http://localhost/api/api/sender/statistics" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json"</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost/api/api/sender/statistics"
+);
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+fetch(url, {
+    method: "GET",
+    headers,
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-GETapi-sender-statistics">
+            <blockquote>
+            <p>Example response (200):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+    &quot;success&quot;: true,
+    &quot;message&quot;: &quot;Statistics retrieved successfully&quot;,
+    &quot;data&quot;: {
+        &quot;tickets&quot;: {
+            &quot;total&quot;: 10,
+            &quot;active&quot;: 5
+        },
+        &quot;packages&quot;: {
+            &quot;total&quot;: 25,
+            &quot;delivered&quot;: 15
+        },
+        &quot;drivers&quot;: {
+            &quot;assigned&quot;: 3
+        }
+    }
+}</code>
+ </pre>
+    </span>
+<span id="execution-results-GETapi-sender-statistics" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-GETapi-sender-statistics"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-GETapi-sender-statistics"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-GETapi-sender-statistics" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-GETapi-sender-statistics">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-GETapi-sender-statistics" data-method="GET"
+      data-path="api/sender/statistics"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('GETapi-sender-statistics', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-GETapi-sender-statistics"
+                    onclick="tryItOut('GETapi-sender-statistics');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-GETapi-sender-statistics"
+                    onclick="cancelTryOut('GETapi-sender-statistics');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-GETapi-sender-statistics"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-green">GET</small>
+            <b><code>api/sender/statistics</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="GETapi-sender-statistics"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="GETapi-sender-statistics"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                        </form>
+
+                <h1 id="traveler-packages">Traveler Packages</h1>
+
+    <p>APIs for managing packages linked to traveler tickets (only accessible to travelers)</p>
+
+                                <h2 id="traveler-packages-GETapi-sender-traveler-packages-with-me">Get Packages with Me</h2>
+
+<p>
+</p>
+
+<p>Get packages linked to the authenticated traveler's active tickets.
+Only travelers (type='traveler') can access this endpoint.</p>
+
+<span id="example-requests-GETapi-sender-traveler-packages-with-me">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request GET \
+    --get "http://localhost/api/api/sender/traveler/packages-with-me?status=in_transit&amp;statuses[]=in_transit&amp;statuses[]=delivered&amp;package_type_id=1&amp;ticket_id=1&amp;search=PKG-102&amp;pickup_date_from=2025-11-01&amp;pickup_date_to=2025-11-30&amp;delivery_date_from=2025-11-01&amp;delivery_date_to=2025-11-30&amp;page=1&amp;per_page=15" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json"</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost/api/api/sender/traveler/packages-with-me"
+);
+
+const params = {
+    "status": "in_transit",
+    "statuses[0]": "in_transit",
+    "statuses[1]": "delivered",
+    "package_type_id": "1",
+    "ticket_id": "1",
+    "search": "PKG-102",
+    "pickup_date_from": "2025-11-01",
+    "pickup_date_to": "2025-11-30",
+    "delivery_date_from": "2025-11-01",
+    "delivery_date_to": "2025-11-30",
+    "page": "1",
+    "per_page": "15",
+};
+Object.keys(params)
+    .forEach(key =&gt; url.searchParams.append(key, params[key]));
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+fetch(url, {
+    method: "GET",
+    headers,
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-GETapi-sender-traveler-packages-with-me">
+            <blockquote>
+            <p>Example response (200):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Packages retrieved successfully&quot;,
+  &quot;data&quot;: [...],
+  &quot;meta&quot;: {...}
+}</code>
+ </pre>
+    </span>
+<span id="execution-results-GETapi-sender-traveler-packages-with-me" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-GETapi-sender-traveler-packages-with-me"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-GETapi-sender-traveler-packages-with-me"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-GETapi-sender-traveler-packages-with-me" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-GETapi-sender-traveler-packages-with-me">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-GETapi-sender-traveler-packages-with-me" data-method="GET"
+      data-path="api/sender/traveler/packages-with-me"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('GETapi-sender-traveler-packages-with-me', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-GETapi-sender-traveler-packages-with-me"
+                    onclick="tryItOut('GETapi-sender-traveler-packages-with-me');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-GETapi-sender-traveler-packages-with-me"
+                    onclick="cancelTryOut('GETapi-sender-traveler-packages-with-me');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-GETapi-sender-traveler-packages-with-me"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-green">GET</small>
+            <b><code>api/sender/traveler/packages-with-me</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="GETapi-sender-traveler-packages-with-me"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="GETapi-sender-traveler-packages-with-me"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                            <h4 class="fancy-heading-panel"><b>Query Parameters</b></h4>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>status</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="status"                data-endpoint="GETapi-sender-traveler-packages-with-me"
+               value="in_transit"
+               data-component="query">
+    <br>
+<p>Filter by status (pending_review, approved, rejected, paid, in_transit, delivered, cancelled). Example: <code>in_transit</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>statuses</code></b>&nbsp;&nbsp;
+<small>string[]</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="statuses[0]"                data-endpoint="GETapi-sender-traveler-packages-with-me"
+               data-component="query">
+        <input type="text" style="display: none"
+               name="statuses[1]"                data-endpoint="GETapi-sender-traveler-packages-with-me"
+               data-component="query">
+    <br>
+<p>Filter by multiple statuses.</p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>package_type_id</code></b>&nbsp;&nbsp;
+<small>integer</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="package_type_id"                data-endpoint="GETapi-sender-traveler-packages-with-me"
+               value="1"
+               data-component="query">
+    <br>
+<p>Filter by package type ID. Example: <code>1</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>ticket_id</code></b>&nbsp;&nbsp;
+<small>integer</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="ticket_id"                data-endpoint="GETapi-sender-traveler-packages-with-me"
+               value="1"
+               data-component="query">
+    <br>
+<p>Filter by ticket ID. Example: <code>1</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>search</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="search"                data-endpoint="GETapi-sender-traveler-packages-with-me"
+               value="PKG-102"
+               data-component="query">
+    <br>
+<p>Search in tracking number, receiver name, or description. Example: <code>PKG-102</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>pickup_date_from</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="pickup_date_from"                data-endpoint="GETapi-sender-traveler-packages-with-me"
+               value="2025-11-01"
+               data-component="query">
+    <br>
+<p>date Filter packages with pickup date from. Example: <code>2025-11-01</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>pickup_date_to</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="pickup_date_to"                data-endpoint="GETapi-sender-traveler-packages-with-me"
+               value="2025-11-30"
+               data-component="query">
+    <br>
+<p>date Filter packages with pickup date to. Example: <code>2025-11-30</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>delivery_date_from</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="delivery_date_from"                data-endpoint="GETapi-sender-traveler-packages-with-me"
+               value="2025-11-01"
+               data-component="query">
+    <br>
+<p>date Filter packages with delivery date from. Example: <code>2025-11-01</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>delivery_date_to</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="delivery_date_to"                data-endpoint="GETapi-sender-traveler-packages-with-me"
+               value="2025-11-30"
+               data-component="query">
+    <br>
+<p>date Filter packages with delivery date to. Example: <code>2025-11-30</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>page</code></b>&nbsp;&nbsp;
+<small>integer</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="page"                data-endpoint="GETapi-sender-traveler-packages-with-me"
+               value="1"
+               data-component="query">
+    <br>
+<p>Page number for pagination. Example: <code>1</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>per_page</code></b>&nbsp;&nbsp;
+<small>integer</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="per_page"                data-endpoint="GETapi-sender-traveler-packages-with-me"
+               value="15"
+               data-component="query">
+    <br>
+<p>Items per page (default: 15, max: 100). Example: <code>15</code></p>
+            </div>
+                </form>
+
+                    <h2 id="traveler-packages-GETapi-sender-traveler-active-packages-now">Get Active Packages Now by Order</h2>
+
+<p>
+</p>
+
+<p>Get active packages (status='in_transit') linked to tickets, sorted by creation date (oldest first).
+Only travelers (type='traveler') can access this endpoint.</p>
+
+<span id="example-requests-GETapi-sender-traveler-active-packages-now">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request GET \
+    --get "http://localhost/api/api/sender/traveler/active-packages-now?ticket_id=1&amp;search=PKG-102&amp;created_from=2025-11-01&amp;created_to=2025-11-30&amp;page=1&amp;per_page=15" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json"</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost/api/api/sender/traveler/active-packages-now"
+);
+
+const params = {
+    "ticket_id": "1",
+    "search": "PKG-102",
+    "created_from": "2025-11-01",
+    "created_to": "2025-11-30",
+    "page": "1",
+    "per_page": "15",
+};
+Object.keys(params)
+    .forEach(key =&gt; url.searchParams.append(key, params[key]));
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+fetch(url, {
+    method: "GET",
+    headers,
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-GETapi-sender-traveler-active-packages-now">
+            <blockquote>
+            <p>Example response (200):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Active packages retrieved successfully&quot;,
+  &quot;data&quot;: [...],
+  &quot;meta&quot;: {...}
+}</code>
+ </pre>
+    </span>
+<span id="execution-results-GETapi-sender-traveler-active-packages-now" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-GETapi-sender-traveler-active-packages-now"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-GETapi-sender-traveler-active-packages-now"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-GETapi-sender-traveler-active-packages-now" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-GETapi-sender-traveler-active-packages-now">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-GETapi-sender-traveler-active-packages-now" data-method="GET"
+      data-path="api/sender/traveler/active-packages-now"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('GETapi-sender-traveler-active-packages-now', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-GETapi-sender-traveler-active-packages-now"
+                    onclick="tryItOut('GETapi-sender-traveler-active-packages-now');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-GETapi-sender-traveler-active-packages-now"
+                    onclick="cancelTryOut('GETapi-sender-traveler-active-packages-now');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-GETapi-sender-traveler-active-packages-now"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-green">GET</small>
+            <b><code>api/sender/traveler/active-packages-now</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="GETapi-sender-traveler-active-packages-now"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="GETapi-sender-traveler-active-packages-now"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                            <h4 class="fancy-heading-panel"><b>Query Parameters</b></h4>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>ticket_id</code></b>&nbsp;&nbsp;
+<small>integer</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="ticket_id"                data-endpoint="GETapi-sender-traveler-active-packages-now"
+               value="1"
+               data-component="query">
+    <br>
+<p>Filter by ticket ID. Example: <code>1</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>search</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="search"                data-endpoint="GETapi-sender-traveler-active-packages-now"
+               value="PKG-102"
+               data-component="query">
+    <br>
+<p>Search in tracking number, receiver name, or description. Example: <code>PKG-102</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>created_from</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="created_from"                data-endpoint="GETapi-sender-traveler-active-packages-now"
+               value="2025-11-01"
+               data-component="query">
+    <br>
+<p>date Filter packages created from. Example: <code>2025-11-01</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>created_to</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="created_to"                data-endpoint="GETapi-sender-traveler-active-packages-now"
+               value="2025-11-30"
+               data-component="query">
+    <br>
+<p>date Filter packages created to. Example: <code>2025-11-30</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>page</code></b>&nbsp;&nbsp;
+<small>integer</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="page"                data-endpoint="GETapi-sender-traveler-active-packages-now"
+               value="1"
+               data-component="query">
+    <br>
+<p>Page number for pagination. Example: <code>1</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>per_page</code></b>&nbsp;&nbsp;
+<small>integer</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="per_page"                data-endpoint="GETapi-sender-traveler-active-packages-now"
+               value="15"
+               data-component="query">
+    <br>
+<p>Items per page (default: 15, max: 100). Example: <code>15</code></p>
+            </div>
+                </form>
 
                 <h1 id="traveler-tickets">Traveler Tickets</h1>
 
@@ -8076,8 +9192,8 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"latitude\": -90,
     \"longitude\": -179,
     \"trip_type\": \"round-trip\",
-    \"departure_date\": \"2107-01-25\",
-    \"departure_time\": \"14:08\",
+    \"departure_date\": \"2107-02-04\",
+    \"departure_time\": \"23:18\",
     \"transport_type\": \"mqeopfuudtdsufvyvddqa\",
     \"total_weight_limit\": 45,
     \"max_package_count\": 46,
@@ -8087,8 +9203,8 @@ You can check the Dev Tools console for debugging information.</code></pre>
     \"allow_urgent_packages\": false,
     \"accept_only_verified_senders\": false,
     \"status\": \"draft\",
-    \"return_date\": \"2025-12-26T14:08:50\",
-    \"return_time\": \"14:08\"
+    \"return_date\": \"2026-01-05T23:18:03\",
+    \"return_time\": \"23:18\"
 }"
 </code></pre></div>
 
@@ -8111,8 +9227,8 @@ let body = {
     "latitude": -90,
     "longitude": -179,
     "trip_type": "round-trip",
-    "departure_date": "2107-01-25",
-    "departure_time": "14:08",
+    "departure_date": "2107-02-04",
+    "departure_time": "23:18",
     "transport_type": "mqeopfuudtdsufvyvddqa",
     "total_weight_limit": 45,
     "max_package_count": 46,
@@ -8122,8 +9238,8 @@ let body = {
     "allow_urgent_packages": false,
     "accept_only_verified_senders": false,
     "status": "draft",
-    "return_date": "2025-12-26T14:08:50",
-    "return_time": "14:08"
+    "return_date": "2026-01-05T23:18:03",
+    "return_time": "23:18"
 };
 
 fetch(url, {
@@ -8329,10 +9445,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="departure_date"                data-endpoint="PUTapi-sender-tickets--id-"
-               value="2107-01-25"
+               value="2107-02-04"
                data-component="body">
     <br>
-<p>Must be a valid date. Must be a date after or equal to <code>today</code>. Example: <code>2107-01-25</code></p>
+<p>Must be a valid date. Must be a date after or equal to <code>today</code>. Example: <code>2107-02-04</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>departure_time</code></b>&nbsp;&nbsp;
@@ -8341,10 +9457,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="departure_time"                data-endpoint="PUTapi-sender-tickets--id-"
-               value="14:08"
+               value="23:18"
                data-component="body">
     <br>
-<p>Must be a valid date in the format <code>H:i</code>. Example: <code>14:08</code></p>
+<p>Must be a valid date in the format <code>H:i</code>. Example: <code>23:18</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>transport_type</code></b>&nbsp;&nbsp;
@@ -8497,10 +9613,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="return_date"                data-endpoint="PUTapi-sender-tickets--id-"
-               value="2025-12-26T14:08:50"
+               value="2026-01-05T23:18:03"
                data-component="body">
     <br>
-<p>Must be a valid date. Example: <code>2025-12-26T14:08:50</code></p>
+<p>Must be a valid date. Example: <code>2026-01-05T23:18:03</code></p>
         </div>
                 <div style=" padding-left: 28px;  clear: unset;">
             <b style="line-height: 2;"><code>return_time</code></b>&nbsp;&nbsp;
@@ -8509,10 +9625,10 @@ Must be one of:
  &nbsp;
                 <input type="text" style="display: none"
                               name="return_time"                data-endpoint="PUTapi-sender-tickets--id-"
-               value="14:08"
+               value="23:18"
                data-component="body">
     <br>
-<p>Must be a valid date in the format <code>H:i</code>. Example: <code>14:08</code></p>
+<p>Must be a valid date in the format <code>H:i</code>. Example: <code>23:18</code></p>
         </div>
         </form>
 
@@ -8649,6 +9765,252 @@ You can check the Dev Tools console for debugging information.</code></pre>
 <p>Ticket ID. Example: <code>1</code></p>
             </div>
                     </form>
+
+                    <h2 id="traveler-tickets-GETapi-sender-traveler-active-trips">Get Active Trips</h2>
+
+<p>
+</p>
+
+<p>Get all active tickets (status='active') for the authenticated traveler with package counts.
+Only travelers (type='traveler') can access this endpoint.</p>
+
+<span id="example-requests-GETapi-sender-traveler-active-trips">
+<blockquote>Example request:</blockquote>
+
+
+<div class="bash-example">
+    <pre><code class="language-bash">curl --request GET \
+    --get "http://localhost/api/api/sender/traveler/active-trips?trip_type=one-way&amp;transport_type=Car&amp;from_city=Beirut&amp;to_city=Tripoli&amp;departure_date_from=2025-11-01&amp;departure_date_to=2025-11-30&amp;search=Beirut&amp;page=1&amp;per_page=15" \
+    --header "Content-Type: application/json" \
+    --header "Accept: application/json"</code></pre></div>
+
+
+<div class="javascript-example">
+    <pre><code class="language-javascript">const url = new URL(
+    "http://localhost/api/api/sender/traveler/active-trips"
+);
+
+const params = {
+    "trip_type": "one-way",
+    "transport_type": "Car",
+    "from_city": "Beirut",
+    "to_city": "Tripoli",
+    "departure_date_from": "2025-11-01",
+    "departure_date_to": "2025-11-30",
+    "search": "Beirut",
+    "page": "1",
+    "per_page": "15",
+};
+Object.keys(params)
+    .forEach(key =&gt; url.searchParams.append(key, params[key]));
+
+const headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+};
+
+fetch(url, {
+    method: "GET",
+    headers,
+}).then(response =&gt; response.json());</code></pre></div>
+
+</span>
+
+<span id="example-responses-GETapi-sender-traveler-active-trips">
+            <blockquote>
+            <p>Example response (200):</p>
+        </blockquote>
+                <pre>
+
+<code class="language-json" style="max-height: 300px;">{
+  &quot;success&quot;: true,
+  &quot;message&quot;: &quot;Active trips retrieved successfully&quot;,
+  &quot;data&quot;: [...],
+  &quot;meta&quot;: {...}
+}</code>
+ </pre>
+    </span>
+<span id="execution-results-GETapi-sender-traveler-active-trips" hidden>
+    <blockquote>Received response<span
+                id="execution-response-status-GETapi-sender-traveler-active-trips"></span>:
+    </blockquote>
+    <pre class="json"><code id="execution-response-content-GETapi-sender-traveler-active-trips"
+      data-empty-response-text="<Empty response>" style="max-height: 400px;"></code></pre>
+</span>
+<span id="execution-error-GETapi-sender-traveler-active-trips" hidden>
+    <blockquote>Request failed with error:</blockquote>
+    <pre><code id="execution-error-message-GETapi-sender-traveler-active-trips">
+
+Tip: Check that you&#039;re properly connected to the network.
+If you&#039;re a maintainer of ths API, verify that your API is running and you&#039;ve enabled CORS.
+You can check the Dev Tools console for debugging information.</code></pre>
+</span>
+<form id="form-GETapi-sender-traveler-active-trips" data-method="GET"
+      data-path="api/sender/traveler/active-trips"
+      data-authed="0"
+      data-hasfiles="0"
+      data-isarraybody="0"
+      autocomplete="off"
+      onsubmit="event.preventDefault(); executeTryOut('GETapi-sender-traveler-active-trips', this);">
+    <h3>
+        Request&nbsp;&nbsp;&nbsp;
+                    <button type="button"
+                    style="background-color: #8fbcd4; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-tryout-GETapi-sender-traveler-active-trips"
+                    onclick="tryItOut('GETapi-sender-traveler-active-trips');">Try it out ⚡
+            </button>
+            <button type="button"
+                    style="background-color: #c97a7e; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-canceltryout-GETapi-sender-traveler-active-trips"
+                    onclick="cancelTryOut('GETapi-sender-traveler-active-trips');" hidden>Cancel 🛑
+            </button>&nbsp;&nbsp;
+            <button type="submit"
+                    style="background-color: #6ac174; padding: 5px 10px; border-radius: 5px; border-width: thin;"
+                    id="btn-executetryout-GETapi-sender-traveler-active-trips"
+                    data-initial-text="Send Request 💥"
+                    data-loading-text="⏱ Sending..."
+                    hidden>Send Request 💥
+            </button>
+            </h3>
+            <p>
+            <small class="badge badge-green">GET</small>
+            <b><code>api/sender/traveler/active-trips</code></b>
+        </p>
+                <h4 class="fancy-heading-panel"><b>Headers</b></h4>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Content-Type</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Content-Type"                data-endpoint="GETapi-sender-traveler-active-trips"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                                <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>Accept</code></b>&nbsp;&nbsp;
+&nbsp;
+ &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="Accept"                data-endpoint="GETapi-sender-traveler-active-trips"
+               value="application/json"
+               data-component="header">
+    <br>
+<p>Example: <code>application/json</code></p>
+            </div>
+                            <h4 class="fancy-heading-panel"><b>Query Parameters</b></h4>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>trip_type</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="trip_type"                data-endpoint="GETapi-sender-traveler-active-trips"
+               value="one-way"
+               data-component="query">
+    <br>
+<p>Filter by trip type (one-way, round-trip). Example: <code>one-way</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>transport_type</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="transport_type"                data-endpoint="GETapi-sender-traveler-active-trips"
+               value="Car"
+               data-component="query">
+    <br>
+<p>Filter by transport type. Example: <code>Car</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>from_city</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="from_city"                data-endpoint="GETapi-sender-traveler-active-trips"
+               value="Beirut"
+               data-component="query">
+    <br>
+<p>Filter by from city. Example: <code>Beirut</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>to_city</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="to_city"                data-endpoint="GETapi-sender-traveler-active-trips"
+               value="Tripoli"
+               data-component="query">
+    <br>
+<p>Filter by to city. Example: <code>Tripoli</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>departure_date_from</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="departure_date_from"                data-endpoint="GETapi-sender-traveler-active-trips"
+               value="2025-11-01"
+               data-component="query">
+    <br>
+<p>date Filter tickets with departure date from. Example: <code>2025-11-01</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>departure_date_to</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="departure_date_to"                data-endpoint="GETapi-sender-traveler-active-trips"
+               value="2025-11-30"
+               data-component="query">
+    <br>
+<p>date Filter tickets with departure date to. Example: <code>2025-11-30</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>search</code></b>&nbsp;&nbsp;
+<small>string</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="text" style="display: none"
+                              name="search"                data-endpoint="GETapi-sender-traveler-active-trips"
+               value="Beirut"
+               data-component="query">
+    <br>
+<p>Search in cities, transport type, or notes. Example: <code>Beirut</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>page</code></b>&nbsp;&nbsp;
+<small>integer</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="page"                data-endpoint="GETapi-sender-traveler-active-trips"
+               value="1"
+               data-component="query">
+    <br>
+<p>Page number for pagination. Example: <code>1</code></p>
+            </div>
+                                    <div style="padding-left: 28px; clear: unset;">
+                <b style="line-height: 2;"><code>per_page</code></b>&nbsp;&nbsp;
+<small>integer</small>&nbsp;
+<i>optional</i> &nbsp;
+ &nbsp;
+                <input type="number" style="display: none"
+               step="any"               name="per_page"                data-endpoint="GETapi-sender-traveler-active-trips"
+               value="15"
+               data-component="query">
+    <br>
+<p>Items per page (default: 15, max: 100). Example: <code>15</code></p>
+            </div>
+                </form>
 
             
 

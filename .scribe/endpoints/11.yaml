@@ -1,0 +1,307 @@
+name: 'Traveler Packages'
+description: |-
+
+  APIs for managing packages linked to traveler tickets (only accessible to travelers)
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/sender/traveler/packages-with-me
+    metadata:
+      custom: []
+      groupName: 'Traveler Packages'
+      groupDescription: |-
+
+        APIs for managing packages linked to traveler tickets (only accessible to travelers)
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Get Packages with Me'
+      description: |-
+        Get packages linked to the authenticated traveler's active tickets.
+        Only travelers (type='traveler') can access this endpoint.
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters:
+      status:
+        custom: []
+        name: status
+        description: 'Filter by status (pending_review, approved, rejected, paid, in_transit, delivered, cancelled).'
+        required: false
+        example: in_transit
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      statuses:
+        custom: []
+        name: statuses
+        description: 'Filter by multiple statuses.'
+        required: false
+        example:
+          - in_transit
+          - delivered
+        type: 'string[]'
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      package_type_id:
+        custom: []
+        name: package_type_id
+        description: 'Filter by package type ID.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      ticket_id:
+        custom: []
+        name: ticket_id
+        description: 'Filter by ticket ID.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      search:
+        custom: []
+        name: search
+        description: 'Search in tracking number, receiver name, or description.'
+        required: false
+        example: PKG-102
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      pickup_date_from:
+        custom: []
+        name: pickup_date_from
+        description: 'date Filter packages with pickup date from.'
+        required: false
+        example: '2025-11-01'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      pickup_date_to:
+        custom: []
+        name: pickup_date_to
+        description: 'date Filter packages with pickup date to.'
+        required: false
+        example: '2025-11-30'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      delivery_date_from:
+        custom: []
+        name: delivery_date_from
+        description: 'date Filter packages with delivery date from.'
+        required: false
+        example: '2025-11-01'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      delivery_date_to:
+        custom: []
+        name: delivery_date_to
+        description: 'date Filter packages with delivery date to.'
+        required: false
+        example: '2025-11-30'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      page:
+        custom: []
+        name: page
+        description: 'Page number for pagination.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      per_page:
+        custom: []
+        name: per_page
+        description: 'Items per page (default: 15, max: 100).'
+        required: false
+        example: 15
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      status: in_transit
+      statuses:
+        - in_transit
+        - delivered
+      package_type_id: 1
+      ticket_id: 1
+      search: PKG-102
+      pickup_date_from: '2025-11-01'
+      pickup_date_to: '2025-11-30'
+      delivery_date_from: '2025-11-01'
+      delivery_date_to: '2025-11-30'
+      page: 1
+      per_page: 15
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Packages retrieved successfully",
+            "data": [...],
+            "meta": {...}
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/sender/traveler/active-packages-now
+    metadata:
+      custom: []
+      groupName: 'Traveler Packages'
+      groupDescription: |-
+
+        APIs for managing packages linked to traveler tickets (only accessible to travelers)
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Get Active Packages Now by Order'
+      description: |-
+        Get active packages (status='in_transit') linked to tickets, sorted by creation date (oldest first).
+        Only travelers (type='traveler') can access this endpoint.
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters:
+      ticket_id:
+        custom: []
+        name: ticket_id
+        description: 'Filter by ticket ID.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      search:
+        custom: []
+        name: search
+        description: 'Search in tracking number, receiver name, or description.'
+        required: false
+        example: PKG-102
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      created_from:
+        custom: []
+        name: created_from
+        description: 'date Filter packages created from.'
+        required: false
+        example: '2025-11-01'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      created_to:
+        custom: []
+        name: created_to
+        description: 'date Filter packages created to.'
+        required: false
+        example: '2025-11-30'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      page:
+        custom: []
+        name: page
+        description: 'Page number for pagination.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      per_page:
+        custom: []
+        name: per_page
+        description: 'Items per page (default: 15, max: 100).'
+        required: false
+        example: 15
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      ticket_id: 1
+      search: PKG-102
+      created_from: '2025-11-01'
+      created_to: '2025-11-30'
+      page: 1
+      per_page: 15
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Active packages retrieved successfully",
+            "data": [...],
+            "meta": {...}
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null

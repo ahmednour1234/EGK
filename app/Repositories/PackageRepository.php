@@ -104,5 +104,24 @@ class PackageRepository implements PackageRepositoryInterface
         $package->status = 'cancelled';
         return $package->save();
     }
+
+    public function getActivePackage(int $senderId): ?Package
+    {
+        // Active packages are those that are not delivered or cancelled
+        return Package::where('sender_id', $senderId)
+            ->whereNotIn('status', ['delivered', 'cancelled'])
+            ->with(['packageType', 'pickupAddress'])
+            ->orderBy('created_at', 'desc')
+            ->first();
+    }
+
+    public function getLastPackage(int $senderId): ?Package
+    {
+        // Get the most recently created package
+        return Package::where('sender_id', $senderId)
+            ->with(['packageType', 'pickupAddress'])
+            ->orderBy('created_at', 'desc')
+            ->first();
+    }
 }
 
