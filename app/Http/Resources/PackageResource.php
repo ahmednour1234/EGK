@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Http\Resources\PackageTypeResource;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
@@ -42,8 +43,10 @@ class PackageResource extends JsonResource
                 'latitude' => $this->pickup_latitude,
                 'longitude' => $this->pickup_longitude,
                 'date' => $this->pickup_date?->format('Y-m-d'),
-                'time' => $this->pickup_time?->format('H:i'),
-                'datetime' => $this->pickup_date?->format('Y-m-d') . ' at ' . $this->pickup_time?->format('H:i'),
+                'time' => $this->formatTime($this->pickup_time),
+                'datetime' => $this->pickup_date && $this->pickup_time 
+                    ? $this->pickup_date->format('Y-m-d') . ' at ' . $this->formatTime($this->pickup_time)
+                    : null,
             ],
             
             // Delivery Information
@@ -56,8 +59,10 @@ class PackageResource extends JsonResource
                 'latitude' => $this->delivery_latitude,
                 'longitude' => $this->delivery_longitude,
                 'date' => $this->delivery_date?->format('Y-m-d'),
-                'time' => $this->delivery_time?->format('H:i'),
-                'datetime' => $this->delivery_date?->format('Y-m-d') . ' at ' . $this->delivery_time?->format('H:i'),
+                'time' => $this->formatTime($this->delivery_time),
+                'datetime' => $this->delivery_date && $this->delivery_time 
+                    ? $this->delivery_date->format('Y-m-d') . ' at ' . $this->formatTime($this->delivery_time)
+                    : null,
             ],
             
             // Receiver Information
@@ -99,6 +104,27 @@ class PackageResource extends JsonResource
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
         ];
+    }
+
+    /**
+     * Format time field (handles both string and datetime objects).
+     */
+    private function formatTime($time): ?string
+    {
+        if (!$time) {
+            return null;
+        }
+
+        if (is_string($time)) {
+            // Extract HH:MM from time string (e.g., "14:30:00" -> "14:30")
+            return substr($time, 0, 5);
+        }
+
+        if ($time instanceof Carbon || $time instanceof \DateTimeInterface) {
+            return $time->format('H:i');
+        }
+
+        return null;
     }
 }
 
