@@ -318,8 +318,18 @@ class SenderAuthController extends BaseApiController
      */
     public function update(UpdateSenderRequest $request): JsonResponse
     {
+        $validated = $request->validated();
+        
+        $passwordValidation = $request->validate([
+            'password' => 'nullable|min:8|confirmed',
+        ]);
+        
+        if (isset($passwordValidation['password'])) {
+            $validated['password'] = $passwordValidation['password'];
+        }
+        
         $sender = Auth::guard('sender')->user();
-        $updatedSender = $this->senderRepository->update($sender->id, $request->validated());
+        $updatedSender = $this->senderRepository->update($sender->id, $validated);
 
         return $this->success(new SenderResource($updatedSender), 'Sender updated successfully');
     }
