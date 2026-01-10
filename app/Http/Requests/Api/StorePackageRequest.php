@@ -17,9 +17,14 @@ class StorePackageRequest extends FormRequest
 
     public function rules(): array
     {
+        $senderId = auth('sender')->id();
+        
         return [
             // Pickup Information
-            'pickup_address_id' => 'nullable|exists:sender_addresses,id',
+            'pickup_address_id' => [
+                'nullable',
+                Rule::exists('sender_addresses', 'id')->where('sender_id', $senderId),
+            ],
             'pickup_full_address' => 'nullable|string',
             'pickup_country' => 'nullable|string|max:255',
             'pickup_city' => 'nullable|string|max:255',
