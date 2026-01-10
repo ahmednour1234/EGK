@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\FaqController;
 use App\Http\Controllers\Api\PageController;
 use App\Http\Controllers\Api\CityController;
+use App\Http\Controllers\Api\CountryController;
 use App\Http\Controllers\Api\PackageTypeController;
 use App\Http\Controllers\Api\SenderAuthController;
 use App\Http\Controllers\Api\StatisticsController;
@@ -37,6 +38,10 @@ Route::get('pages/slug/{slug}', [PageController::class, 'show']);
 // City routes
 Route::get('cities', [CityController::class, 'index']);
 Route::get('cities/{id}', [CityController::class, 'show']);
+
+// Country routes
+Route::get('countries', [CountryController::class, 'index']);
+Route::get('countries/{country}', [CountryController::class, 'show']);
 
 // Package Type routes
 Route::get('package-types', [PackageTypeController::class, 'index']);
