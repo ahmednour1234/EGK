@@ -6,6 +6,7 @@ use App\Support\ApiResponse;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class StorePackageRequest extends FormRequest
 {
@@ -19,15 +20,15 @@ class StorePackageRequest extends FormRequest
         return [
             // Pickup Information
             'pickup_address_id' => 'nullable|exists:sender_addresses,id',
-            'pickup_full_address' => 'required|string',
+            'pickup_full_address' => 'nullable|string',
             'pickup_country' => 'nullable|string|max:255',
-            'pickup_city' => 'required|string|max:255',
+            'pickup_city' => 'nullable|string|max:255',
             'pickup_area' => 'nullable|string|max:255',
             'pickup_landmark' => 'nullable|string',
             'pickup_latitude' => 'nullable|numeric|between:-90,90',
             'pickup_longitude' => 'nullable|numeric|between:-180,180',
-            'pickup_date' => 'required|date|after_or_equal:today',
-            'pickup_time' => 'required|date_format:H:i',
+            'pickup_date' => 'nullable|date|after_or_equal:today',
+            'pickup_time' => 'nullable|date_format:H:i',
             
             // Delivery Information
             'delivery_full_address' => 'required|string',
@@ -37,7 +38,11 @@ class StorePackageRequest extends FormRequest
             'delivery_landmark' => 'nullable|string',
             'delivery_latitude' => 'nullable|numeric|between:-90,90',
             'delivery_longitude' => 'nullable|numeric|between:-180,180',
-            'delivery_date' => 'required|date|after_or_equal:pickup_date',
+            'delivery_date' => [
+                'required',
+                'date',
+                Rule::when($this->has('pickup_date') && $this->pickup_date, 'after_or_equal:pickup_date'),
+            ],
             'delivery_time' => 'required|date_format:H:i',
             
             // Receiver Information
