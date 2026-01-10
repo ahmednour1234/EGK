@@ -47,6 +47,7 @@ class StorePackageRequest extends FormRequest
             
             // Package Information
             'package_type_id' => 'required|exists:package_types,id',
+            'country_id' => 'nullable|exists:countries,id',
             'description' => 'required|string',
             'weight' => 'required|numeric|min:0.01|max:1000',
             'length' => 'nullable|numeric|min:0|max:1000',

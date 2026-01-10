@@ -228,6 +228,9 @@ class DatabaseSeeder extends Seeder
             );
         }
 
+        // Seed countries
+        $this->call(CountriesSeeder::class);
+        
         // Seed Lebanese cities
         $this->call(CitySeeder::class);
         

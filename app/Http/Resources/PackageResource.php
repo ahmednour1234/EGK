@@ -89,6 +89,14 @@ class PackageResource extends JsonResource
                 'image' => $this->image ? Storage::disk('public')->url($this->image) : null,
             ],
             
+            'country_id' => $this->country_id,
+            'country' => $this->whenLoaded('country', function () {
+                return [
+                    'id' => $this->country->id,
+                    'name' => $this->country->name,
+                ];
+            }),
+            
             'ticket_id' => $this->ticket_id,
             'ticket' => $this->whenLoaded('ticket', function () {
                 return [

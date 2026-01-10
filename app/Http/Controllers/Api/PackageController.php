@@ -162,7 +162,7 @@ class PackageController extends BaseApiController
         
         $package = $this->packageRepository->create($sender->id, $data);
 
-        return $this->created(new PackageResource($package->load(['packageType', 'pickupAddress'])), 'Package created successfully');
+        return $this->created(new PackageResource($package->load(['packageType', 'pickupAddress', 'country'])), 'Package created successfully');
     }
 
     /**

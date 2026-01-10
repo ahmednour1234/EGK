@@ -39,6 +39,7 @@ class Package extends Model
         'receiver_mobile',
         'receiver_notes',
         'package_type_id',
+        'country_id',
         'description',
         'weight',
         'length',
@@ -112,6 +113,14 @@ class Package extends Model
     public function ticket(): BelongsTo
     {
         return $this->belongsTo(TravelerTicket::class, 'ticket_id');
+    }
+
+    /**
+     * Get the country.
+     */
+    public function country(): BelongsTo
+    {
+        return $this->belongsTo(Country::class);
     }
 
     /**
