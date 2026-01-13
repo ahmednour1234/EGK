@@ -5,9 +5,9 @@ namespace App\Filament\Pages;
 use App\Models\Package;
 use App\Models\TravelerTicket;
 use App\Services\TicketPackageMatcher;
-use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Tables;
@@ -18,7 +18,6 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
 
 class TicketPackageControlCenter extends Page implements HasTable
 {
@@ -31,10 +30,10 @@ class TicketPackageControlCenter extends Page implements HasTable
     protected static ?string $navigationGroup = 'Operations';
     protected static ?int $navigationSort = 1;
 
-    // ✅ Tabs
+    /** Tabs */
     public string $activeTab = 'tickets';
 
-    // ✅ Filters (زي ما عندك)
+    /** Local filters */
     public ?string $searchQuery = null;
     public ?string $packageStatusFilter = null;
     public ?string $ticketStatusFilter = null;
@@ -47,15 +46,15 @@ class TicketPackageControlCenter extends Page implements HasTable
     public static function shouldRegisterNavigation(): bool
     {
         $user = auth()->user();
+
         return $user && (
-            $user->hasPermission('manage-packages') ||
-            $user->hasPermission('manage-traveler-tickets')
+            $user->hasPermission('manage-packages')
+            || $user->hasPermission('manage-traveler-tickets')
         );
     }
 
     protected function getHeaderWidgets(): array
     {
-        // ✅ رجعنا الستاتس
         return [
             \App\Filament\Widgets\TicketPackageStatsOverview::class,
         ];
@@ -63,18 +62,23 @@ class TicketPackageControlCenter extends Page implements HasTable
 
     public function switchTab(string $tab): void
     {
+        if (! in_array($tab, ['tickets', 'packages'], true)) {
+            return;
+        }
+
         $this->activeTab = $tab;
 
-        // ✅ مهم جدًا: يمنع تعلق pagination/filters ويقلل rerenders
+        // ✅ يمنع لخبطة pagination + يخفف rerenders
         $this->resetTable();
     }
 
-    /**
-     * ✅ Tickets Query - خفيف جدًا (حل N+1)
-     */
+    /** =========================
+     *  Queries (optimized)
+     *  ========================= */
+
     protected function getTicketsTableQuery(): Builder
     {
-        $query = TravelerTicket::query()
+        $q = TravelerTicket::query()
             ->select([
                 'id',
                 'trip_type',
@@ -85,40 +89,36 @@ class TicketPackageControlCenter extends Page implements HasTable
                 'assignee_id',
                 'created_at',
             ])
-            // ✅ بدل with(packages) + counts(packages)
             ->withCount('packages')
             ->with(['assignee:id,name']);
 
         if ($this->ticketStatusFilter) {
-            $query->where('status', $this->ticketStatusFilter);
+            $q->where('status', $this->ticketStatusFilter);
         }
 
         if ($this->tripTypeFilter) {
-            $query->where('trip_type', $this->tripTypeFilter);
+            $q->where('trip_type', $this->tripTypeFilter);
         }
 
         if ($this->assigneeFilter) {
-            $query->where('assignee_id', $this->assigneeFilter);
+            $q->where('assignee_id', $this->assigneeFilter);
         }
 
         if ($this->searchQuery) {
-            $s = $this->searchQuery;
-            $query->where(function ($q) use ($s) {
-                $q->where('id', 'like', "%{$s}%")
+            $s = trim($this->searchQuery);
+            $q->where(function ($qq) use ($s) {
+                $qq->where('id', 'like', "%{$s}%")
                     ->orWhere('from_city', 'like', "%{$s}%")
                     ->orWhere('to_city', 'like', "%{$s}%");
             });
         }
 
-        return $query;
+        return $q;
     }
 
-    /**
-     * ✅ Packages Query - خفيف
-     */
     protected function getPackagesTableQuery(): Builder
     {
-        $query = Package::query()
+        $q = Package::query()
             ->select([
                 'id',
                 'tracking_number',
@@ -138,33 +138,33 @@ class TicketPackageControlCenter extends Page implements HasTable
             ->with(['ticket:id']);
 
         if ($this->packageStatusFilter) {
-            $query->where('status', $this->packageStatusFilter);
+            $q->where('status', $this->packageStatusFilter);
         }
 
         if ($this->pickupCityFilter) {
-            $query->where('pickup_city', $this->pickupCityFilter);
+            $q->where('pickup_city', $this->pickupCityFilter);
         }
 
         if ($this->deliveryCityFilter) {
-            $query->where('delivery_city', $this->deliveryCityFilter);
+            $q->where('delivery_city', $this->deliveryCityFilter);
         }
 
         if ($this->delayedFilter === 'yes') {
-            $query->where('status', '!=', 'delivered')
+            $q->where('status', '!=', 'delivered')
                 ->whereNotNull('delivery_date')
                 ->whereNotNull('delivery_time')
-                ->where(DB::raw("CONCAT(delivery_date, ' ', delivery_time)"), '<', now());
+                ->whereRaw("STR_TO_DATE(CONCAT(delivery_date,' ',delivery_time),'%Y-%m-%d %H:%i:%s') < ?", [now()->format('Y-m-d H:i:s')]);
         }
 
         if ($this->searchQuery) {
-            $s = $this->searchQuery;
-            $query->where(function ($q) use ($s) {
-                $q->where('tracking_number', 'like', "%{$s}%")
+            $s = trim($this->searchQuery);
+            $q->where(function ($qq) use ($s) {
+                $qq->where('tracking_number', 'like', "%{$s}%")
                     ->orWhere('receiver_mobile', 'like', "%{$s}%");
             });
         }
 
-        return $query;
+        return $q;
     }
 
     protected function getTableQuery(): Builder
@@ -174,68 +174,33 @@ class TicketPackageControlCenter extends Page implements HasTable
             : $this->getPackagesTableQuery();
     }
 
-    protected function table(Table $table): Table
+    /** =========================
+     *  Table
+     *  ========================= */
+
+    public function table(Table $table): Table
     {
         return $this->activeTab === 'tickets'
-            ? $this->configureTicketsTable($table)
-            : $this->configurePackagesTable($table);
+            ? $this->ticketsTable($table)
+            : $this->packagesTable($table);
     }
 
-    /**
-     * ✅ Find Matches - محسنة (limit + filtering أولي)
-     */
-    protected function getMatchResults(TravelerTicket $ticket): array
-    {
-        $matcher = app(TicketPackageMatcher::class);
-
-        $packages = Package::query()
-            ->select(['id', 'tracking_number', 'pickup_city', 'delivery_city', 'receiver_mobile'])
-            ->whereIn('status', ['approved', 'paid'])
-            ->where('compliance_confirmed', true)
-            ->whereNull('ticket_id')
-            // ✅ فلترة أولية تقلل النتائج قبل الحساب
-            ->when($ticket->from_city, fn ($q) => $q->where('pickup_city', $ticket->from_city))
-            ->when($ticket->to_city, fn ($q) => $q->where('delivery_city', $ticket->to_city))
-            ->limit(300)
-            ->get();
-
-        $matches = [];
-
-        foreach ($packages as $package) {
-            $score = $matcher->match($package, $ticket);
-            if ($score > 0) {
-                $matches[] = [
-                    'package' => $package,
-                    'score' => $score,
-                ];
-            }
-        }
-
-        usort($matches, fn ($a, $b) => $b['score'] <=> $a['score']);
-
-        return array_slice($matches, 0, 10);
-    }
-
-    protected function configureTicketsTable(Table $table): Table
+    protected function ticketsTable(Table $table): Table
     {
         return $table
             ->query($this->getTicketsTableQuery())
-            ->deferLoading() // ✅ فرق كبير
+            ->deferLoading()
             ->paginationPageOptions([25, 50, 100])
             ->defaultPaginationPageOption(25)
+            ->defaultSort('created_at', 'desc')
             ->columns([
-                TextColumn::make('id')->label('ID')->sortable()->searchable(),
-
+                TextColumn::make('id')->label('ID')->sortable(),
                 TextColumn::make('trip_type')
                     ->badge()
                     ->formatStateUsing(fn ($state) => $state === 'one-way' ? 'One-way' : 'Round trip')
                     ->sortable(),
 
-                TextColumn::make('transport_type')
-                    ->label('Transport')
-                    ->searchable()
-                    ->sortable(),
-
+                TextColumn::make('transport_type')->label('Transport')->sortable(),
                 TextColumn::make('status')
                     ->badge()
                     ->formatStateUsing(fn ($state) => match ($state) {
@@ -248,20 +213,15 @@ class TicketPackageControlCenter extends Page implements HasTable
                     })
                     ->sortable(),
 
-                TextColumn::make('from_city')->label('From')->searchable()->sortable(),
-                TextColumn::make('to_city')->label('To')->searchable()->sortable(),
+                TextColumn::make('from_city')->label('From')->sortable(),
+                TextColumn::make('to_city')->label('To')->sortable(),
 
-                // ✅ جاي من withCount('packages')
                 TextColumn::make('packages_count')
                     ->label('Linked Packages')
                     ->badge()
                     ->sortable(),
 
-                TextColumn::make('assignee.name')
-                    ->label('Assigned To')
-                    ->default('—')
-                    ->sortable(),
-
+                TextColumn::make('assignee.name')->label('Assigned To')->default('—')->sortable(),
                 TextColumn::make('created_at')->dateTime()->sortable(),
             ])
             ->filters([
@@ -273,11 +233,13 @@ class TicketPackageControlCenter extends Page implements HasTable
                         'completed' => 'Completed',
                         'cancelled' => 'Cancelled',
                     ]),
+
                 SelectFilter::make('trip_type')
                     ->options([
                         'one-way' => 'One-way',
                         'round-trip' => 'Round trip',
                     ]),
+
                 SelectFilter::make('assignee_id')
                     ->label('Assigned To')
                     ->relationship('assignee', 'name')
@@ -285,146 +247,48 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->preload(),
             ])
             ->actions([
-                // ✅ Find Matches
-                Tables\Actions\Action::make('findMatches')
-                    ->label('Find Matches')
-                    ->icon('heroicon-o-magnifying-glass')
-                    ->color('primary')
+                // (اختياري) عرض الباكدجات المرتبطة بسرعة
+                Tables\Actions\Action::make('showLinkedPackages')
+                    ->label('Linked Packages')
+                    ->icon('heroicon-o-eye')
                     ->slideOver()
-                    ->mountUsing(function ($form, TravelerTicket $record) {
-                        $matches = $this->getMatchResults($record);
-
-                        if (empty($matches)) {
-                            $form->fill(['matches_display' => 'No matching packages found.']);
-                            return;
-                        }
-
-                        $content = '';
-                        foreach ($matches as $index => $match) {
-                            $p = $match['package'];
-                            $score = round($match['score'], 2);
-                            $content .= ($index + 1) . ". {$p->tracking_number} - Score: {$score}%\n";
-                            $content .= "   Route: {$p->pickup_city} → {$p->delivery_city}\n";
-                            $content .= "   Receiver: {$p->receiver_mobile}\n\n";
-                        }
-
-                        $form->fill(['matches_display' => trim($content)]);
-                    })
                     ->form([
-                        Forms\Components\Textarea::make('matches_display')
-                            ->label('Top Matching Packages')
-                            ->rows(18)
+                        Textarea::make('packages_display')
+                            ->label('Packages')
+                            ->rows(16)
                             ->disabled(),
                     ])
-                    ->visible(fn ($record) => $record->status === 'active' && auth()->user()?->hasPermission('link-ticket-package')),
+                    ->mountUsing(function ($form, TravelerTicket $record) {
+                        $list = Package::query()
+                            ->select(['tracking_number', 'pickup_city', 'delivery_city'])
+                            ->where('ticket_id', $record->id)
+                            ->latest('id')
+                            ->limit(50)
+                            ->get()
+                            ->map(fn ($p) => "{$p->tracking_number} | {$p->pickup_city} → {$p->delivery_city}")
+                            ->implode("\n");
 
-                // ✅ Link Package (بحث سريع بدل pluck كبيرة)
-                Tables\Actions\Action::make('linkPackage')
-                    ->label('Link Package')
-                    ->icon('heroicon-o-link')
-                    ->color('info')
-                    ->form([
-                        Select::make('package_id')
-                            ->label('Package')
-                            ->searchable()
-                            ->getSearchResultsUsing(function (string $search) {
-                                return Package::query()
-                                    ->whereNull('ticket_id')
-                                    ->where('tracking_number', 'like', "%{$search}%")
-                                    ->limit(50)
-                                    ->pluck('tracking_number', 'id')
-                                    ->toArray();
-                            })
-                            ->getOptionLabelUsing(fn ($value) => Package::whereKey($value)->value('tracking_number') ?? '—')
-                            ->required(),
-                    ])
-                    ->action(function (TravelerTicket $record, array $data) {
-                        Package::whereKey($data['package_id'])->update(['ticket_id' => $record->id]);
-
-                        Notification::make()->title('Package linked successfully')->success()->send();
-
-                        $this->resetTable();
-                    })
-                    ->visible(fn () => auth()->user()?->hasPermission('link-ticket-package')),
-
-                // ✅ Unlink Package (Query مباشرة بدل $record->packages)
-                Tables\Actions\Action::make('unlinkPackage')
-                    ->label('Unlink Package')
-                    ->icon('heroicon-o-link-slash')
-                    ->color('danger')
-                    ->requiresConfirmation()
-                    ->form([
-                        Select::make('package_id')
-                            ->label('Package to Unlink')
-                            ->searchable()
-                            ->options(fn (TravelerTicket $record) => Package::where('ticket_id', $record->id)->pluck('tracking_number', 'id')->toArray())
-                            ->required(),
-                    ])
-                    ->action(function (TravelerTicket $record, array $data) {
-                        Package::whereKey($data['package_id'])->update(['ticket_id' => null]);
-
-                        Notification::make()->title('Package unlinked successfully')->success()->send();
-
-                        $this->resetTable();
-                    })
-                    ->visible(fn () => auth()->user()?->hasPermission('link-ticket-package')),
-
-                // ✅ Update Status
-                Tables\Actions\Action::make('updateStatus')
-                    ->label('Update Status')
-                    ->icon('heroicon-o-pencil')
-                    ->form([
-                        Select::make('status')
-                            ->options([
-                                'draft' => 'Draft',
-                                'active' => 'Active',
-                                'matched' => 'Matched',
-                                'completed' => 'Completed',
-                                'cancelled' => 'Cancelled',
-                            ])
-                            ->required(),
-                    ])
-                    ->action(function (TravelerTicket $record, array $data) {
-                        $record->update($data);
-                        Notification::make()->title('Status updated successfully')->success()->send();
-                        $this->resetTable();
+                        $form->fill([
+                            'packages_display' => $list ?: 'No packages linked.',
+                        ]);
                     })
                     ->visible(fn () => auth()->user()?->hasPermission('manage-traveler-tickets')),
-
-                // ✅ Assign
-                Tables\Actions\Action::make('assign')
-                    ->label('Assign')
-                    ->icon('heroicon-o-user')
-                    ->form([
-                        Select::make('assignee_id')
-                            ->label('Assign To')
-                            ->relationship('assignee', 'name')
-                            ->searchable()
-                            ->preload()
-                            ->nullable(),
-                    ])
-                    ->action(function (TravelerTicket $record, array $data) {
-                        $record->update($data);
-                        Notification::make()->title('Ticket assigned successfully')->success()->send();
-                        $this->resetTable();
-                    })
-                    ->visible(fn () => auth()->user()?->hasPermission('assign-tickets')),
-            ])
-            ->defaultSort('created_at', 'desc');
+            ]);
     }
 
-    protected function configurePackagesTable(Table $table): Table
+    protected function packagesTable(Table $table): Table
     {
         return $table
             ->query($this->getPackagesTableQuery())
             ->deferLoading()
             ->paginationPageOptions([25, 50, 100])
             ->defaultPaginationPageOption(25)
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('tracking_number')
                     ->label('Tracking #')
-                    ->searchable()
                     ->sortable()
+                    ->searchable()
                     ->copyable(),
 
                 TextColumn::make('status')
@@ -441,31 +305,28 @@ class TicketPackageControlCenter extends Page implements HasTable
                     })
                     ->sortable(),
 
-                TextColumn::make('pickup_city')->label('Pickup')->searchable()->sortable(),
-                TextColumn::make('delivery_city')->label('Delivery')->searchable()->sortable(),
+                TextColumn::make('pickup_city')->label('Pickup')->sortable()->searchable(),
+                TextColumn::make('delivery_city')->label('Delivery')->sortable()->searchable(),
 
                 TextColumn::make('pickup_datetime')
                     ->label('Pickup Date')
                     ->dateTime()
-                    ->getStateUsing(fn ($record) => $record->pickup_datetime)
+                    ->getStateUsing(fn (Package $record) => $record->pickup_datetime)
                     ->sortable(query: fn (Builder $q, string $dir) => $q->orderBy('pickup_date', $dir)->orderBy('pickup_time', $dir)),
 
                 TextColumn::make('delivery_datetime')
                     ->label('Delivery Date')
                     ->dateTime()
-                    ->getStateUsing(fn ($record) => $record->delivery_datetime)
+                    ->getStateUsing(fn (Package $record) => $record->delivery_datetime)
                     ->sortable(query: fn (Builder $q, string $dir) => $q->orderBy('delivery_date', $dir)->orderBy('delivery_time', $dir)),
 
-                TextColumn::make('receiver_mobile')->label('Receiver Mobile')->searchable()->sortable(),
+                TextColumn::make('receiver_mobile')->label('Receiver Mobile')->sortable()->searchable(),
 
-                IconColumn::make('compliance_confirmed')
-                    ->label('Compliance')
-                    ->boolean()
-                    ->sortable(),
+                IconColumn::make('compliance_confirmed')->label('Compliance')->boolean()->sortable(),
 
                 TextColumn::make('ticket.id')
                     ->label('Linked Ticket')
-                    ->formatStateUsing(fn ($state) => $state ? 'Ticket #' . $state : '—')
+                    ->formatStateUsing(fn ($state) => $state ? "Ticket #{$state}" : '—')
                     ->sortable(),
             ])
             ->filters([
@@ -485,9 +346,74 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->searchable(),
             ])
             ->actions([
+                /**
+                 * ✅ عكس الربط: Link package -> ticket
+                 */
+                Tables\Actions\Action::make('linkToTicket')
+                    ->label('Link to Ticket')
+                    ->icon('heroicon-o-link')
+                    ->color('info')
+                    ->visible(fn () => auth()->user()?->hasPermission('link-ticket-package'))
+                    ->form([
+                        Select::make('ticket_id')
+                            ->label('Ticket')
+                            ->searchable()
+                            ->getSearchResultsUsing(function (string $search) {
+                                $search = trim($search);
+
+                                return TravelerTicket::query()
+                                    ->select(['id', 'from_city', 'to_city'])
+                                    ->where('status', 'active')
+                                    ->where(function ($q) use ($search) {
+                                        $q->where('id', 'like', "%{$search}%")
+                                          ->orWhere('from_city', 'like', "%{$search}%")
+                                          ->orWhere('to_city', 'like', "%{$search}%");
+                                    })
+                                    ->orderByDesc('id')
+                                    ->limit(50)
+                                    ->get()
+                                    ->mapWithKeys(fn ($t) => [$t->id => "Ticket #{$t->id} ({$t->from_city} → {$t->to_city})"])
+                                    ->toArray();
+                            })
+                            ->getOptionLabelUsing(function ($value) {
+                                $t = TravelerTicket::query()->select(['id', 'from_city', 'to_city'])->find($value);
+                                return $t ? "Ticket #{$t->id} ({$t->from_city} → {$t->to_city})" : '—';
+                            })
+                            ->required(),
+                    ])
+                    ->action(function (Package $record, array $data) {
+                        // ✅ لو مرتبط بتذكرة بالفعل، هيتغير للتذكرة الجديدة
+                        $record->update(['ticket_id' => $data['ticket_id']]);
+
+                        Notification::make()
+                            ->title('Package linked to ticket successfully')
+                            ->success()
+                            ->send();
+
+                        $this->resetTable();
+                    }),
+
+                Tables\Actions\Action::make('unlinkFromTicket')
+                    ->label('Unlink')
+                    ->icon('heroicon-o-link-slash')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->visible(fn (Package $record) => $record->ticket_id !== null && auth()->user()?->hasPermission('link-ticket-package'))
+                    ->action(function (Package $record) {
+                        $record->update(['ticket_id' => null]);
+
+                        Notification::make()
+                            ->title('Package unlinked successfully')
+                            ->success()
+                            ->send();
+
+                        $this->resetTable();
+                    }),
+
                 Tables\Actions\Action::make('updateStatus')
                     ->label('Update Status')
                     ->icon('heroicon-o-pencil')
+                    ->visible(fn () => auth()->user()?->hasPermission('manage-packages'))
                     ->form([
                         Select::make('status')
                             ->options([
@@ -503,15 +429,20 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ])
                     ->action(function (Package $record, array $data) {
                         $record->update($data);
-                        Notification::make()->title('Status updated successfully')->success()->send();
+
+                        Notification::make()
+                            ->title('Status updated successfully')
+                            ->success()
+                            ->send();
+
                         $this->resetTable();
-                    })
-                    ->visible(fn () => auth()->user()?->hasPermission('manage-packages')),
+                    }),
 
                 Tables\Actions\Action::make('markDelivered')
                     ->label('Mark Delivered')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
+                    ->visible(fn (Package $record) => $record->status !== 'delivered' && auth()->user()?->hasPermission('manage-packages'))
                     ->form([
                         DatePicker::make('delivered_at')
                             ->label('Delivered At')
@@ -523,11 +454,68 @@ class TicketPackageControlCenter extends Page implements HasTable
                             'status' => 'delivered',
                             'delivered_at' => $data['delivered_at'],
                         ]);
-                        Notification::make()->title('Package marked as delivered')->success()->send();
+
+                        Notification::make()
+                            ->title('Package marked as delivered')
+                            ->success()
+                            ->send();
+
                         $this->resetTable();
-                    })
-                    ->visible(fn (Package $record) => $record->status !== 'delivered' && auth()->user()?->hasPermission('manage-packages')),
-            ])
-            ->defaultSort('created_at', 'desc');
+                    }),
+
+                /**
+                 * ✅ (اختياري) Find matches من package للـ active tickets
+                 * (لو حابب نفس فكرة matcher لكن بالعكس)
+                 */
+                Tables\Actions\Action::make('findTicketMatches')
+                    ->label('Find Ticket Matches')
+                    ->icon('heroicon-o-magnifying-glass')
+                    ->color('primary')
+                    ->slideOver()
+                    ->visible(fn () => auth()->user()?->hasPermission('link-ticket-package'))
+                    ->form([
+                        Textarea::make('matches_display')
+                            ->label('Top Matching Tickets')
+                            ->rows(18)
+                            ->disabled(),
+                    ])
+                    ->mountUsing(function ($form, Package $record) {
+                        $matcher = app(TicketPackageMatcher::class);
+
+                        $tickets = TravelerTicket::query()
+                            ->select(['id', 'from_city', 'to_city', 'status', 'trip_type', 'transport_type'])
+                            ->where('status', 'active')
+                            ->when($record->pickup_city, fn ($q) => $q->where('from_city', $record->pickup_city))
+                            ->when($record->delivery_city, fn ($q) => $q->where('to_city', $record->delivery_city))
+                            ->limit(300)
+                            ->get();
+
+                        $matches = [];
+                        foreach ($tickets as $t) {
+                            $score = $matcher->match($record, $t); // لو matcher expects (Package, Ticket) يبقى كده صح
+                            if ($score > 0) {
+                                $matches[] = ['ticket' => $t, 'score' => $score];
+                            }
+                        }
+
+                        usort($matches, fn ($a, $b) => $b['score'] <=> $a['score']);
+                        $matches = array_slice($matches, 0, 10);
+
+                        if (! $matches) {
+                            $form->fill(['matches_display' => 'No matching tickets found.']);
+                            return;
+                        }
+
+                        $content = '';
+                        foreach ($matches as $i => $m) {
+                            $t = $m['ticket'];
+                            $score = round($m['score'], 2);
+                            $content .= ($i + 1) . ". Ticket #{$t->id} - Score: {$score}%\n";
+                            $content .= "   Route: {$t->from_city} → {$t->to_city}\n\n";
+                        }
+
+                        $form->fill(['matches_display' => trim($content)]);
+                    }),
+            ]);
     }
 }
