@@ -51,6 +51,7 @@ class Package extends Model
         'compliance_confirmed',
         'delivered_at',
         'ticket_id',
+        'fees'
     ];
 
     protected $casts = [
@@ -66,6 +67,7 @@ class Package extends Model
         'delivery_longitude' => 'decimal:8',
         'compliance_confirmed' => 'boolean',
         'delivered_at' => 'datetime',
+        'fees' => 'decimal:2',
     ];
 
     protected static function boot()
@@ -132,15 +134,15 @@ class Package extends Model
             return null;
         }
 
-        $date = $this->pickup_date instanceof Carbon 
-            ? $this->pickup_date->copy() 
+        $date = $this->pickup_date instanceof Carbon
+            ? $this->pickup_date->copy()
             : Carbon::parse($this->pickup_date);
-        
+
         // pickup_time is stored as time string (H:i:s)
-        $timeString = is_string($this->pickup_time) 
-            ? $this->pickup_time 
-            : ($this->pickup_time instanceof Carbon 
-                ? $this->pickup_time->format('H:i:s') 
+        $timeString = is_string($this->pickup_time)
+            ? $this->pickup_time
+            : ($this->pickup_time instanceof Carbon
+                ? $this->pickup_time->format('H:i:s')
                 : Carbon::parse($this->pickup_time)->format('H:i:s'));
 
         return $date->setTimeFromTimeString($timeString);
@@ -155,15 +157,15 @@ class Package extends Model
             return null;
         }
 
-        $date = $this->delivery_date instanceof Carbon 
-            ? $this->delivery_date->copy() 
+        $date = $this->delivery_date instanceof Carbon
+            ? $this->delivery_date->copy()
             : Carbon::parse($this->delivery_date);
-        
+
         // delivery_time is stored as time string (H:i:s)
-        $timeString = is_string($this->delivery_time) 
-            ? $this->delivery_time 
-            : ($this->delivery_time instanceof Carbon 
-                ? $this->delivery_time->format('H:i:s') 
+        $timeString = is_string($this->delivery_time)
+            ? $this->delivery_time
+            : ($this->delivery_time instanceof Carbon
+                ? $this->delivery_time->format('H:i:s')
                 : Carbon::parse($this->delivery_time)->format('H:i:s'));
 
         return $date->setTimeFromTimeString($timeString);
@@ -175,7 +177,7 @@ class Package extends Model
     public function getIsDelayedAttribute(): bool
     {
         $deliveryDatetime = $this->delivery_datetime;
-        
+
         if (!$deliveryDatetime) {
             return false;
         }
@@ -193,15 +195,15 @@ class Package extends Model
         }
 
         $deliveryDatetime = $this->delivery_datetime;
-        
+
         if (!$deliveryDatetime) {
             return false;
         }
 
-        $deliveredAt = $this->delivered_at instanceof Carbon 
-            ? $this->delivered_at 
+        $deliveredAt = $this->delivered_at instanceof Carbon
+            ? $this->delivered_at
             : Carbon::parse($this->delivered_at);
-        
+
         return $deliveredAt->isAfter($deliveryDatetime);
     }
 
