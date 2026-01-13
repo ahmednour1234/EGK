@@ -75,7 +75,6 @@ Route::prefix('sender')->middleware('auth:sender')->group(function () {
     Route::post('packages/{id}/cancel', [\App\Http\Controllers\Api\PackageController::class, 'cancel']);
     Route::get('packages/active', [\App\Http\Controllers\Api\PackageController::class, 'activePackage']);
     Route::get('packages/last', [\App\Http\Controllers\Api\PackageController::class, 'lastPackage']);
-    Route::post('packages/{id}/complete', [\App\Http\Controllers\Api\PackageController::class, 'complete']);
 
     // Statistics route (accessible to both travelers and senders)
     Route::get('statistics', [StatisticsController::class, 'index']);
@@ -89,6 +88,7 @@ Route::prefix('sender')->middleware('auth:sender')->group(function () {
 
     // Traveler Package routes (only for travelers)
     Route::prefix('traveler')->group(function () {
+        Route::post('packages/{id}/complete', [\App\Http\Controllers\Api\PackageController::class, 'complete']);
         Route::get('packages-with-me', [TravelerPackageController::class, 'packagesWithMe']);
         Route::get('active-packages-now', [TravelerPackageController::class, 'activePackagesNow']);
     });
