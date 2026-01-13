@@ -153,7 +153,10 @@ class TicketPackageControlCenter extends Page implements HasTable
             $q->where('status', '!=', 'delivered')
                 ->whereNotNull('delivery_date')
                 ->whereNotNull('delivery_time')
-                ->whereRaw("STR_TO_DATE(CONCAT(delivery_date,' ',delivery_time),'%Y-%m-%d %H:%i:%s') < ?", [now()->format('Y-m-d H:i:s')]);
+                ->whereRaw(
+                    "STR_TO_DATE(CONCAT(delivery_date,' ',delivery_time),'%Y-%m-%d %H:%i:%s') < ?",
+                    [now()->format('Y-m-d H:i:s')]
+                );
         }
 
         if ($this->searchQuery) {
@@ -247,7 +250,6 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->preload(),
             ])
             ->actions([
-                // (اختياري) عرض الباكدجات المرتبطة بسرعة
                 Tables\Actions\Action::make('showLinkedPackages')
                     ->label('Linked Packages')
                     ->icon('heroicon-o-eye')
@@ -347,7 +349,7 @@ class TicketPackageControlCenter extends Page implements HasTable
             ])
             ->actions([
                 /**
-                 * ✅ عكس الربط: Link package -> ticket
+                 * ✅ Link package -> ticket (with traveler search)
                  */
                 Tables\Actions\Action::make('linkToTicket')
                     ->label('Link to Ticket')
@@ -362,27 +364,44 @@ class TicketPackageControlCenter extends Page implements HasTable
                                 $search = trim($search);
 
                                 return TravelerTicket::query()
-                                    ->select(['id', 'from_city', 'to_city'])
+                                    ->select(['id', 'traveler_id', 'from_city', 'to_city', 'status'])
+                                    ->with(['traveler:id,phone'])
                                     ->where('status', 'active')
                                     ->where(function ($q) use ($search) {
                                         $q->where('id', 'like', "%{$search}%")
+                                          ->orWhere('traveler_id', 'like', "%{$search}%")
                                           ->orWhere('from_city', 'like', "%{$search}%")
-                                          ->orWhere('to_city', 'like', "%{$search}%");
+                                          ->orWhere('to_city', 'like', "%{$search}%")
+                                          ->orWhereHas('traveler', function ($t) use ($search) {
+                                              $t->where('phone', 'like', "%{$search}%");
+                                          });
                                     })
                                     ->orderByDesc('id')
                                     ->limit(50)
                                     ->get()
-                                    ->mapWithKeys(fn ($t) => [$t->id => "Ticket #{$t->id} ({$t->from_city} → {$t->to_city})"])
+                                    ->mapWithKeys(function ($t) {
+                                        $phone = $t->traveler?->phone ?? '-';
+                                        $label = "Ticket #{$t->id} | Traveler: {$t->traveler_id} ({$phone}) | {$t->from_city} → {$t->to_city}";
+                                        return [$t->id => $label];
+                                    })
                                     ->toArray();
                             })
                             ->getOptionLabelUsing(function ($value) {
-                                $t = TravelerTicket::query()->select(['id', 'from_city', 'to_city'])->find($value);
-                                return $t ? "Ticket #{$t->id} ({$t->from_city} → {$t->to_city})" : '—';
+                                $t = TravelerTicket::query()
+                                    ->select(['id', 'traveler_id', 'from_city', 'to_city'])
+                                    ->with(['traveler:id,phone'])
+                                    ->find($value);
+
+                                if (! $t) {
+                                    return '—';
+                                }
+
+                                $phone = $t->traveler?->phone ?? '-';
+                                return "Ticket #{$t->id} | Traveler: {$t->traveler_id} ({$phone}) | {$t->from_city} → {$t->to_city}";
                             })
                             ->required(),
                     ])
                     ->action(function (Package $record, array $data) {
-                        // ✅ لو مرتبط بتذكرة بالفعل، هيتغير للتذكرة الجديدة
                         $record->update(['ticket_id' => $data['ticket_id']]);
 
                         Notification::make()
@@ -463,10 +482,6 @@ class TicketPackageControlCenter extends Page implements HasTable
                         $this->resetTable();
                     }),
 
-                /**
-                 * ✅ (اختياري) Find matches من package للـ active tickets
-                 * (لو حابب نفس فكرة matcher لكن بالعكس)
-                 */
                 Tables\Actions\Action::make('findTicketMatches')
                     ->label('Find Ticket Matches')
                     ->icon('heroicon-o-magnifying-glass')
@@ -492,7 +507,7 @@ class TicketPackageControlCenter extends Page implements HasTable
 
                         $matches = [];
                         foreach ($tickets as $t) {
-                            $score = $matcher->match($record, $t); // لو matcher expects (Package, Ticket) يبقى كده صح
+                            $score = $matcher->match($record, $t);
                             if ($score > 0) {
                                 $matches[] = ['ticket' => $t, 'score' => $score];
                             }
