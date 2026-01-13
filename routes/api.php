@@ -65,27 +65,28 @@ Route::prefix('sender')->middleware('auth:sender')->group(function () {
     Route::post('switch-type', [SenderAuthController::class, 'switchType']);
     Route::post('logout', [SenderAuthController::class, 'logout']);
     Route::post('refresh', [SenderAuthController::class, 'refresh']);
-    
+
     // Sender Addresses routes
     Route::apiResource('addresses', \App\Http\Controllers\Api\SenderAddressController::class);
     Route::post('addresses/{id}/set-default', [\App\Http\Controllers\Api\SenderAddressController::class, 'setDefault']);
-    
+
     // Sender Packages routes
     Route::apiResource('packages', \App\Http\Controllers\Api\PackageController::class);
     Route::post('packages/{id}/cancel', [\App\Http\Controllers\Api\PackageController::class, 'cancel']);
     Route::get('packages/active', [\App\Http\Controllers\Api\PackageController::class, 'activePackage']);
     Route::get('packages/last', [\App\Http\Controllers\Api\PackageController::class, 'lastPackage']);
-    
+    Route::post('packages/{id}/complete', [\App\Http\Controllers\Api\PackageController::class, 'complete']);
+
     // Statistics route (accessible to both travelers and senders)
     Route::get('statistics', [StatisticsController::class, 'index']);
-    
+
     // Recent Updates route (accessible to both travelers and senders)
     Route::get('recent-updates', [RecentUpdatesController::class, 'index']);
-    
+
     // Traveler Tickets routes (only for travelers)
     Route::apiResource('tickets', \App\Http\Controllers\Api\TravelerTicketController::class);
     Route::get('traveler/active-trips', [\App\Http\Controllers\Api\TravelerTicketController::class, 'activeTrips']);
-    
+
     // Traveler Package routes (only for travelers)
     Route::prefix('traveler')->group(function () {
         Route::get('packages-with-me', [TravelerPackageController::class, 'packagesWithMe']);

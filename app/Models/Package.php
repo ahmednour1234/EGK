@@ -51,7 +51,8 @@ class Package extends Model
         'compliance_confirmed',
         'delivered_at',
         'ticket_id',
-        'fees'
+        'fees',
+        'image_fees'
     ];
 
     protected $casts = [
