@@ -40,6 +40,7 @@ class TravelerTicket extends Model
         'allow_urgent_packages',
         'accept_only_verified_senders',
         'status',
+        'fees'
     ];
 
     protected $casts = [

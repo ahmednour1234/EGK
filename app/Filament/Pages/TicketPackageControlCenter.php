@@ -8,6 +8,7 @@ use App\Services\TicketPackageMatcher;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Tables;
@@ -133,6 +134,7 @@ class TicketPackageControlCenter extends Page implements HasTable
                 'compliance_confirmed',
                 'delivered_at',
                 'ticket_id',
+                'fees',
                 'created_at',
             ])
             ->with(['ticket:id']);
@@ -324,6 +326,13 @@ class TicketPackageControlCenter extends Page implements HasTable
 
                 TextColumn::make('receiver_mobile')->label('Receiver Mobile')->sortable()->searchable(),
 
+                // ✅ FEES column
+                TextColumn::make('fees')
+                    ->label('Fees')
+                    ->money('USD') // لو عملتك غير USD غيرها أو شيل money وخليها ->numeric()
+                    ->sortable()
+                    ->toggleable(),
+
                 IconColumn::make('compliance_confirmed')->label('Compliance')->boolean()->sortable(),
 
                 TextColumn::make('ticket.id')
@@ -349,13 +358,19 @@ class TicketPackageControlCenter extends Page implements HasTable
             ])
             ->actions([
                 /**
-                 * ✅ Link package -> ticket (with traveler search)
+                 * ✅ Link package -> ticket (with fees)
+                 * - fees input يظهر أثناء الربط
+                 * - ويتعبّى تلقائيًا بقيمة fees الحالية لو موجودة (عشان تقدر تعدّل)
                  */
                 Tables\Actions\Action::make('linkToTicket')
-                    ->label('Link to Ticket')
+                    ->label(fn (Package $record) => $record->ticket_id ? 'Edit Link / Fees' : 'Link to Ticket')
                     ->icon('heroicon-o-link')
                     ->color('info')
                     ->visible(fn () => auth()->user()?->hasPermission('link-ticket-package'))
+                    ->fillForm(fn (Package $record) => [
+                        'ticket_id' => $record->ticket_id,
+                        'fees' => $record->fees,
+                    ])
                     ->form([
                         Select::make('ticket_id')
                             ->label('Ticket')
@@ -400,12 +415,24 @@ class TicketPackageControlCenter extends Page implements HasTable
                                 return "Ticket #{$t->id} | Traveler: {$t->traveler_id} ({$phone}) | {$t->from_city} → {$t->to_city}";
                             })
                             ->required(),
+
+                        TextInput::make('fees')
+                            ->label('Fees')
+                            ->numeric()
+                            ->minValue(0)
+                            ->step('0.01')
+                            ->prefix('$') // غيرها حسب عملتك أو شيلها
+                            ->default(0)
+                            ->helperText('Set / update package fees while linking to a ticket.'),
                     ])
                     ->action(function (Package $record, array $data) {
-                        $record->update(['ticket_id' => $data['ticket_id']]);
+                        $record->update([
+                            'ticket_id' => $data['ticket_id'],
+                            'fees' => $data['fees'] ?? 0,
+                        ]);
 
                         Notification::make()
-                            ->title('Package linked to ticket successfully')
+                            ->title('Package linked & fees saved successfully')
                             ->success()
                             ->send();
 
