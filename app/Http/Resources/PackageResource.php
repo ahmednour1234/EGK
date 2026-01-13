@@ -24,7 +24,7 @@ class PackageResource extends JsonResource
             'status_label' => $this->status_label,
             'status_color' => $this->status_color,
             'compliance_confirmed' => $this->compliance_confirmed,
-            
+
             // Pickup Information
             'pickup' => [
                 'address_id' => $this->pickup_address_id,
@@ -44,11 +44,11 @@ class PackageResource extends JsonResource
                 'longitude' => $this->pickup_longitude,
                 'date' => $this->pickup_date?->format('Y-m-d'),
                 'time' => $this->formatTime($this->pickup_time),
-                'datetime' => $this->pickup_date && $this->pickup_time 
+                'datetime' => $this->pickup_date && $this->pickup_time
                     ? $this->pickup_date->format('Y-m-d') . ' at ' . $this->formatTime($this->pickup_time)
                     : null,
             ],
-            
+
             // Delivery Information
             'delivery' => [
                 'full_address' => $this->delivery_full_address,
@@ -60,18 +60,18 @@ class PackageResource extends JsonResource
                 'longitude' => $this->delivery_longitude,
                 'date' => $this->delivery_date?->format('Y-m-d'),
                 'time' => $this->formatTime($this->delivery_time),
-                'datetime' => $this->delivery_date && $this->delivery_time 
+                'datetime' => $this->delivery_date && $this->delivery_time
                     ? $this->delivery_date->format('Y-m-d') . ' at ' . $this->formatTime($this->delivery_time)
                     : null,
             ],
-            
+
             // Receiver Information
             'receiver' => [
                 'name' => $this->receiver_name,
                 'mobile' => $this->receiver_mobile,
                 'notes' => $this->receiver_notes,
             ],
-            
+
             // Package Information
             'package' => [
                 'type' => PackageTypeResource::make($this->whenLoaded('packageType')),
@@ -82,13 +82,13 @@ class PackageResource extends JsonResource
                     'width' => $this->width,
                     'height' => $this->height,
                 ],
-                'dimensions_display' => $this->length && $this->width && $this->height 
+                'dimensions_display' => $this->length && $this->width && $this->height
                     ? "{$this->length} × {$this->width} × {$this->height} cm"
                     : null,
                 'special_instructions' => $this->special_instructions,
                 'image' => $this->image ? Storage::disk('public')->url($this->image) : null,
             ],
-            
+
             'country_id' => $this->country_id,
             'country' => $this->whenLoaded('country', function () {
                 return [
@@ -96,7 +96,7 @@ class PackageResource extends JsonResource
                     'name' => $this->country->name,
                 ];
             }),
-            
+
             'ticket_id' => $this->ticket_id,
             'ticket' => $this->whenLoaded('ticket', function () {
                 return [
@@ -107,10 +107,11 @@ class PackageResource extends JsonResource
                     'status_label' => $this->ticket->status_label,
                 ];
             }),
-            
+
             'can_be_cancelled' => $this->canBeCancelled(),
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
+            'fees'=>$this->fees??0,
         ];
     }
 
