@@ -15,6 +15,10 @@ class TravelerTicket extends Model
     protected $fillable = [
         'traveler_id',
         'assignee_id',
+
+        'from_country_id',
+        'to_country_id',
+
         'from_city',
         'to_city',
         'full_address',
@@ -39,6 +43,9 @@ class TravelerTicket extends Model
     ];
 
     protected $casts = [
+        'from_country_id' => 'integer',
+        'to_country_id'   => 'integer',
+
         'departure_date' => 'date',
         'return_date' => 'date',
         'total_weight_limit' => 'decimal:2',
@@ -51,15 +58,33 @@ class TravelerTicket extends Model
     ];
 
     /**
-     * Get the traveler that owns the ticket.
+     * Traveler owner of the ticket.
+     * NOTE: لو traveler_id بيروح لموديل تاني غير Sender عدّل هنا.
      */
     public function traveler(): BelongsTo
     {
+        // لو عندك موديل اسمه Traveler استبدل Sender بـ Traveler
         return $this->belongsTo(Sender::class, 'traveler_id');
     }
 
     /**
-     * Get the packages linked to this ticket.
+     * Country (From).
+     */
+    public function fromCountry(): BelongsTo
+    {
+        return $this->belongsTo(Country::class, 'from_country_id');
+    }
+
+    /**
+     * Country (To).
+     */
+    public function toCountry(): BelongsTo
+    {
+        return $this->belongsTo(Country::class, 'to_country_id');
+    }
+
+    /**
+     * Packages linked to this ticket.
      */
     public function packages(): HasMany
     {
@@ -67,7 +92,7 @@ class TravelerTicket extends Model
     }
 
     /**
-     * Get the user assigned to this ticket.
+     * User assigned to this ticket.
      */
     public function assignee(): BelongsTo
     {
@@ -75,26 +100,26 @@ class TravelerTicket extends Model
     }
 
     /**
-     * Get status label.
+     * Status label.
      */
     public function getStatusLabelAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'draft' => 'Draft',
             'active' => 'Active',
             'matched' => 'Matched',
             'completed' => 'Completed',
             'cancelled' => 'Cancelled',
-            default => ucfirst($this->status),
+            default => ucfirst((string) $this->status),
         };
     }
 
     /**
-     * Get status color.
+     * Status color.
      */
     public function getStatusColorAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             'draft' => 'gray',
             'active' => 'info',
             'matched' => 'success',

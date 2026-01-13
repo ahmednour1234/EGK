@@ -5,14 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\Api\StoreTravelerTicketRequest;
 use App\Http\Resources\TravelerTicketResource;
 use App\Repositories\Contracts\TravelerTicketRepositoryInterface;
-use App\Support\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 /**
  * @group Traveler Tickets
- * 
+ *
  * APIs for managing traveler tickets (only accessible to travelers)
  */
 class TravelerTicketController extends BaseApiController
@@ -23,14 +22,18 @@ class TravelerTicketController extends BaseApiController
 
     /**
      * Get All Tickets
-     * 
+     *
      * Get a list of all tickets for the authenticated traveler with advanced filtering.
      * Only travelers (type='traveler') can access this endpoint.
-     * 
+     *
      * @queryParam status string Filter by status (draft, active, matched, completed, cancelled). Example: active
      * @queryParam statuses array Filter by multiple statuses. Example: ["draft","active"]
      * @queryParam trip_type string Filter by trip type (one-way, round-trip). Example: one-way
      * @queryParam transport_type string Filter by transport type. Example: Car
+     *
+     * @queryParam from_country_id int Filter by from country id. Example: 1
+     * @queryParam to_country_id int Filter by to country id. Example: 2
+     *
      * @queryParam from_city string Filter by from city. Example: Beirut
      * @queryParam to_city string Filter by to city. Example: Tripoli
      * @queryParam departure_date_from date Filter tickets with departure date from. Example: 2025-11-01
@@ -38,7 +41,7 @@ class TravelerTicketController extends BaseApiController
      * @queryParam search string Search in cities, transport type, or notes. Example: Beirut
      * @queryParam page int Page number for pagination. Example: 1
      * @queryParam per_page int Items per page (default: 15, max: 100). Example: 15
-     * 
+     *
      * @response 200 {
      *   "success": true,
      *   "message": "Tickets retrieved successfully",
@@ -50,7 +53,6 @@ class TravelerTicketController extends BaseApiController
     {
         $traveler = Auth::guard('sender')->user();
 
-        // Ensure user is a traveler
         if ($traveler->type !== 'traveler') {
             return $this->error('Only travelers can access tickets', 403);
         }
@@ -60,6 +62,10 @@ class TravelerTicketController extends BaseApiController
             'statuses' => $request->input('statuses'),
             'trip_type' => $request->input('trip_type'),
             'transport_type' => $request->input('transport_type'),
+
+            'from_country_id' => $request->input('from_country_id'),
+            'to_country_id' => $request->input('to_country_id'),
+
             'from_city' => $request->input('from_city'),
             'to_city' => $request->input('to_city'),
             'departure_date_from' => $request->input('departure_date_from'),
@@ -69,23 +75,39 @@ class TravelerTicketController extends BaseApiController
 
         // Handle statuses as array if provided as comma-separated string
         if (isset($filters['statuses']) && is_string($filters['statuses'])) {
-            $filters['statuses'] = explode(',', $filters['statuses']);
+            $filters['statuses'] = array_values(array_filter(array_map('trim', explode(',', $filters['statuses']))));
+        }
+
+        // normalize country ids if string
+        foreach (['from_country_id', 'to_country_id'] as $key) {
+            if (isset($filters[$key]) && $filters[$key] !== null && $filters[$key] !== '') {
+                $filters[$key] = (int) $filters[$key];
+            }
         }
 
         $perPage = min((int) $request->input('per_page', 15), 100);
-        $tickets = $this->ticketRepository->getAll($traveler->id, array_filter($filters, fn($value) => $value !== null), $perPage);
+
+        $tickets = $this->ticketRepository->getAll(
+            $traveler->id,
+            array_filter($filters, fn ($value) => $value !== null && $value !== ''),
+            $perPage
+        );
 
         return $this->paginated(TravelerTicketResource::collection($tickets), 'Tickets retrieved successfully');
     }
 
     /**
      * Get Active Trips
-     * 
+     *
      * Get all active tickets (status='active') for the authenticated traveler with package counts.
      * Only travelers (type='traveler') can access this endpoint.
-     * 
+     *
      * @queryParam trip_type string Filter by trip type (one-way, round-trip). Example: one-way
      * @queryParam transport_type string Filter by transport type. Example: Car
+     *
+     * @queryParam from_country_id int Filter by from country id. Example: 1
+     * @queryParam to_country_id int Filter by to country id. Example: 2
+     *
      * @queryParam from_city string Filter by from city. Example: Beirut
      * @queryParam to_city string Filter by to city. Example: Tripoli
      * @queryParam departure_date_from date Filter tickets with departure date from. Example: 2025-11-01
@@ -93,7 +115,7 @@ class TravelerTicketController extends BaseApiController
      * @queryParam search string Search in cities, transport type, or notes. Example: Beirut
      * @queryParam page int Page number for pagination. Example: 1
      * @queryParam per_page int Items per page (default: 15, max: 100). Example: 15
-     * 
+     *
      * @response 200 {
      *   "success": true,
      *   "message": "Active trips retrieved successfully",
@@ -105,15 +127,18 @@ class TravelerTicketController extends BaseApiController
     {
         $traveler = Auth::guard('sender')->user();
 
-        // Ensure user is a traveler
         if ($traveler->type !== 'traveler') {
             return $this->error('Only travelers can access active trips', 403);
         }
 
         $filters = [
-            'status' => 'active', // Force status to active
+            'status' => 'active',
             'trip_type' => $request->input('trip_type'),
             'transport_type' => $request->input('transport_type'),
+
+            'from_country_id' => $request->input('from_country_id'),
+            'to_country_id' => $request->input('to_country_id'),
+
             'from_city' => $request->input('from_city'),
             'to_city' => $request->input('to_city'),
             'departure_date_from' => $request->input('departure_date_from'),
@@ -121,20 +146,36 @@ class TravelerTicketController extends BaseApiController
             'search' => $request->input('search'),
         ];
 
-        $perPage = min((int) $request->input('per_page', 15), 100);
-        $tickets = $this->ticketRepository->getAll($traveler->id, array_filter($filters, fn($value) => $value !== null), $perPage);
+        foreach (['from_country_id', 'to_country_id'] as $key) {
+            if (isset($filters[$key]) && $filters[$key] !== null && $filters[$key] !== '') {
+                $filters[$key] = (int) $filters[$key];
+            }
+        }
 
-        // Load package counts for each ticket
-        $tickets->loadCount('packages');
+        $perPage = min((int) $request->input('per_page', 15), 100);
+
+        // الأفضل تحميل العدّ من الريبو (query) لو متاح
+        $tickets = $this->ticketRepository->getAll(
+            $traveler->id,
+            array_filter($filters, fn ($value) => $value !== null && $value !== ''),
+            $perPage,
+            withCounts: ['packages'] // لو الريبو بيدعمها (اختياري)
+        );
+
+        // لو الريبو مش بيدعم withCounts، سيب السطر ده وفعّل loadCount هنا:
+        // $tickets->getCollection()->loadCount('packages');
 
         return $this->paginated(TravelerTicketResource::collection($tickets), 'Active trips retrieved successfully');
     }
 
     /**
      * Create Ticket
-     * 
+     *
      * Create a new travel ticket. Only travelers (type='traveler') can create tickets.
-     * 
+     *
+     * @bodyParam from_country_id int required From country id. Example: 1
+     * @bodyParam to_country_id int required To country id. Example: 2
+     *
      * @bodyParam from_city string required From city. Example: Beirut
      * @bodyParam to_city string required To city. Example: Tripoli
      * @bodyParam full_address string required Full address. Example: Main Street, Building 5
@@ -156,7 +197,7 @@ class TravelerTicketController extends BaseApiController
      * @bodyParam allow_urgent_packages boolean optional Allow urgent packages. Example: false
      * @bodyParam accept_only_verified_senders boolean optional Accept only verified senders. Example: true
      * @bodyParam status string optional Status (draft or active). Default: draft. Example: active
-     * 
+     *
      * @response 201 {
      *   "success": true,
      *   "message": "Ticket created successfully",
@@ -167,14 +208,12 @@ class TravelerTicketController extends BaseApiController
     {
         $traveler = Auth::guard('sender')->user();
 
-        // Ensure user is a traveler
         if ($traveler->type !== 'traveler') {
             return $this->error('Only travelers can create tickets', 403);
         }
 
         $data = $request->validated();
-        
-        // Set default status to draft if not provided
+
         if (!isset($data['status'])) {
             $data['status'] = 'draft';
         }
@@ -186,11 +225,11 @@ class TravelerTicketController extends BaseApiController
 
     /**
      * Get Single Ticket
-     * 
+     *
      * Get a single ticket by ID with full details.
-     * 
+     *
      * @urlParam id int required Ticket ID. Example: 1
-     * 
+     *
      * @response 200 {
      *   "success": true,
      *   "message": "Ticket retrieved successfully",
@@ -201,7 +240,6 @@ class TravelerTicketController extends BaseApiController
     {
         $traveler = Auth::guard('sender')->user();
 
-        // Ensure user is a traveler
         if ($traveler->type !== 'traveler') {
             return $this->error('Only travelers can access tickets', 403);
         }
@@ -217,11 +255,11 @@ class TravelerTicketController extends BaseApiController
 
     /**
      * Update Ticket
-     * 
+     *
      * Update an existing ticket. Only draft or active tickets can be updated.
-     * 
+     *
      * @urlParam id int required Ticket ID. Example: 1
-     * 
+     *
      * @response 200 {
      *   "success": true,
      *   "message": "Ticket updated successfully",
@@ -232,7 +270,6 @@ class TravelerTicketController extends BaseApiController
     {
         $traveler = Auth::guard('sender')->user();
 
-        // Ensure user is a traveler
         if ($traveler->type !== 'traveler') {
             return $this->error('Only travelers can update tickets', 403);
         }
@@ -243,15 +280,14 @@ class TravelerTicketController extends BaseApiController
             return $this->error('Ticket not found', 404);
         }
 
-        // Only allow updates for draft or active tickets
-        if (!in_array($ticket->status, ['draft', 'active'])) {
+        if (!in_array($ticket->status, ['draft', 'active'], true)) {
             return $this->error('Ticket can only be updated if status is draft or active', 422);
         }
 
         $data = $request->validated();
-        
+
         // Don't allow status change to matched, completed, or cancelled through update
-        if (isset($data['status']) && in_array($data['status'], ['matched', 'completed', 'cancelled'])) {
+        if (isset($data['status']) && in_array($data['status'], ['matched', 'completed', 'cancelled'], true)) {
             unset($data['status']);
         }
 
@@ -262,11 +298,11 @@ class TravelerTicketController extends BaseApiController
 
     /**
      * Delete Ticket
-     * 
+     *
      * Soft delete a ticket.
-     * 
+     *
      * @urlParam id int required Ticket ID. Example: 1
-     * 
+     *
      * @response 200 {
      *   "success": true,
      *   "message": "Ticket deleted successfully",
@@ -277,7 +313,6 @@ class TravelerTicketController extends BaseApiController
     {
         $traveler = Auth::guard('sender')->user();
 
-        // Ensure user is a traveler
         if ($traveler->type !== 'traveler') {
             return $this->error('Only travelers can delete tickets', 403);
         }
