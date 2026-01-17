@@ -29,27 +29,24 @@ class TravelerTicketResource extends JsonResource
             // Countries
             'from_country_id' => $this->from_country_id,
             'to_country_id' => $this->to_country_id,
+            'from_country_name' => $this->fromCountry?->name,
+            'to_country_name' => $this->toCountry?->name,
 
             // Trip Information
             'trip' => [
                 'from_country_id' => $this->from_country_id,
                 'to_country_id' => $this->to_country_id,
 
-                // لو العلاقات محمّلة: fromCountry / toCountry
-                'from_country' => $this->whenLoaded('fromCountry', function () {
-                    return [
-                        'id' => $this->fromCountry->id,
-                        'name' => $this->fromCountry->name ?? null,
-                        'code' => $this->fromCountry->code ?? null,
-                    ];
-                }),
-                'to_country' => $this->whenLoaded('toCountry', function () {
-                    return [
-                        'id' => $this->toCountry->id,
-                        'name' => $this->toCountry->name ?? null,
-                        'code' => $this->toCountry->code ?? null,
-                    ];
-                }),
+                'from_country' => $this->fromCountry ? [
+                    'id' => $this->fromCountry->id,
+                    'name' => $this->fromCountry->name ?? null,
+                    'code' => $this->fromCountry->code ?? null,
+                ] : null,
+                'to_country' => $this->toCountry ? [
+                    'id' => $this->toCountry->id,
+                    'name' => $this->toCountry->name ?? null,
+                    'code' => $this->toCountry->code ?? null,
+                ] : null,
 
                 'from_city' => $this->from_city,
                 'to_city' => $this->to_city,
