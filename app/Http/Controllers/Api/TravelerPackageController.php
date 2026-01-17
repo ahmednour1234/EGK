@@ -34,14 +34,11 @@ class TravelerPackageController extends BaseApiController
      * @queryParam pickup_date_to date Filter packages with pickup date to. Example: 2025-11-30
      * @queryParam delivery_date_from date Filter packages with delivery date from. Example: 2025-11-01
      * @queryParam delivery_date_to date Filter packages with delivery date to. Example: 2025-11-30
-     * @queryParam page int Page number for pagination. Example: 1
-     * @queryParam per_page int Items per page (default: 15, max: 100). Example: 15
      *
      * @response 200 {
      *   "success": true,
      *   "message": "Packages retrieved successfully",
-     *   "data": [...],
-     *   "meta": {...}
+     *   "data": [...]
      * }
      */
     public function packagesWithMe(Request $request): JsonResponse
@@ -70,14 +67,12 @@ class TravelerPackageController extends BaseApiController
             $filters['statuses'] = explode(',', $filters['statuses']);
         }
 
-        $perPage = min((int) $request->input('per_page', 15), 100);
         $packages = $this->travelerPackageRepository->getPackagesWithMe(
             $traveler->id,
-            array_filter($filters, fn($value) => $value !== null),
-            $perPage
+            array_filter($filters, fn($value) => $value !== null)
         );
 
-        return $this->paginated($packages, PackageResource::class, 'Packages retrieved successfully');
+        return $this->success(PackageResource::collection($packages), 'Packages retrieved successfully');
     }
 
     /**
@@ -90,14 +85,11 @@ class TravelerPackageController extends BaseApiController
      * @queryParam search string Search in tracking number, receiver name, or description. Example: PKG-102
      * @queryParam created_from date Filter packages created from. Example: 2025-11-01
      * @queryParam created_to date Filter packages created to. Example: 2025-11-30
-     * @queryParam page int Page number for pagination. Example: 1
-     * @queryParam per_page int Items per page (default: 15, max: 100). Example: 15
      *
      * @response 200 {
      *   "success": true,
      *   "message": "Active packages retrieved successfully",
-     *   "data": [...],
-     *   "meta": {...}
+     *   "data": [...]
      * }
      */
     public function activePackagesNow(Request $request): JsonResponse
@@ -116,13 +108,11 @@ class TravelerPackageController extends BaseApiController
             'created_to' => $request->input('created_to'),
         ];
 
-        $perPage = min((int) $request->input('per_page', 15), 100);
         $packages = $this->travelerPackageRepository->getActivePackagesNow(
             $traveler->id,
-            array_filter($filters, fn($value) => $value !== null),
-            $perPage
+            array_filter($filters, fn($value) => $value !== null)
         );
 
-        return $this->paginated($packages, PackageResource::class, 'Active packages retrieved successfully');
+        return $this->success(PackageResource::collection($packages), 'Active packages retrieved successfully');
     }
 }
