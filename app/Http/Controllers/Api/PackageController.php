@@ -183,7 +183,7 @@ class PackageController extends BaseApiController
         }
 
         $request->validate([
-            'image_fees' => ['required', 'file', 'mimes:jpg,jpeg,png,webp', 'max:5120'], // 5MB
+            'image_fees' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:5120'], // 5MB
         ]);
 
         // upload fees image
