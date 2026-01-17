@@ -186,7 +186,10 @@ class PackageController extends BaseApiController
             'image_fees' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:5120'], // 5MB
         ]);
 
-        $updateData = ['status' => 'completed'];
+        $updateData = [
+            'status' => 'delivered',
+            'delivered_at' => now(),
+        ];
 
         // upload fees image if provided
         if ($request->hasFile('image_fees')) {
