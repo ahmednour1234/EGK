@@ -186,19 +186,21 @@ class PackageController extends BaseApiController
             'image_fees' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:5120'], // 5MB
         ]);
 
-        // upload fees image
-        $path = $request->file('image_fees')->store('package_fees', 'public');
+        $updateData = ['status' => 'completed'];
 
-        // delete old if exists
-        if (!empty($package->image_fees)) {
-            Storage::disk('public')->delete($package->image_fees);
+        // upload fees image if provided
+        if ($request->hasFile('image_fees')) {
+            $path = $request->file('image_fees')->store('package_fees', 'public');
+
+            // delete old if exists
+            if (!empty($package->image_fees)) {
+                Storage::disk('public')->delete($package->image_fees);
+            }
+
+            $updateData['image_fees'] = $path;
         }
 
-        // ✅ status = completed (زي ما طلبت)
-        $package->update([
-            'status' => 'completed',
-            'image_fees' => $path,
-        ]);
+        $package->update($updateData);
 
         return $this->success(new PackageResource($package), 'Package completed successfully');
     }
