@@ -14,7 +14,6 @@ class TravelerPackageRepository implements TravelerPackageRepositoryInterface
     {
         // Get active ticket IDs for this traveler
         $activeTicketIds = TravelerTicket::where('traveler_id', $travelerId)
-            ->where('status', 'active')
             ->pluck('id')
             ->toArray();
 
@@ -83,8 +82,8 @@ class TravelerPackageRepository implements TravelerPackageRepositoryInterface
 
         // Filter by multiple statuses
         if (isset($filters['statuses'])) {
-            $statuses = is_string($filters['statuses']) 
-                ? explode(',', $filters['statuses']) 
+            $statuses = is_string($filters['statuses'])
+                ? explode(',', $filters['statuses'])
                 : $filters['statuses'];
             if (is_array($statuses) && !empty($statuses)) {
                 $query->whereIn('status', $statuses);
