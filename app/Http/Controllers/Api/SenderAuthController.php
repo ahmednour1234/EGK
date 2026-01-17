@@ -22,7 +22,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 /**
  * @group Sender Authentication
- * 
+ *
  * APIs for sender authentication and management
  */
 class SenderAuthController extends BaseApiController
@@ -35,16 +35,16 @@ class SenderAuthController extends BaseApiController
 
     /**
      * Register Sender
-     * 
+     *
      * Register a new sender and send verification code to email.
-     * 
+     *
      * @bodyParam full_name string required Sender full name. Example: Ahmed Osama
      * @bodyParam email string required Sender email. Example: ahmed@example.com
      * @bodyParam phone string required Sender phone. Example: +96170123456
      * @bodyParam password string required Password (min 8 characters). Example: password123
      * @bodyParam password_confirmation string required Password confirmation. Example: password123
      * @bodyParam type string optional User type (sender or traveler). Defaults to 'sender'. Example: sender
-     * 
+     *
      * @response 201 {
      *   "success": true,
      *   "message": "Registration successful. Verification code sent to your email.",
@@ -59,7 +59,7 @@ class SenderAuthController extends BaseApiController
     public function register(RegisterSenderRequest $request): JsonResponse
     {
         $validated = $request->validated();
-        
+
         // Set default type to 'sender' if not provided
         if (!isset($validated['type']) || empty($validated['type'])) {
             $validated['type'] = 'sender';
@@ -87,13 +87,13 @@ class SenderAuthController extends BaseApiController
         // Only send email in production or if code is not the development code
         $env = config('app.env', 'production');
         $isDevelopment = in_array($env, ['local', 'development', 'dev', 'staging', 'testing']);
-        
+
         if (!$isDevelopment || $code !== '111111') {
             // Send verification code via email
             EmailHelper::sendVerificationCode($sender->email, $code, $sender->full_name);
         }
 
-        $message = $isDevelopment && $code === '111111' 
+        $message = $isDevelopment && $code === '111111'
             ? 'Registration successful. Use code 111111 to verify your email.'
             : 'Registration successful. Verification code sent to your email.';
 
@@ -107,14 +107,14 @@ class SenderAuthController extends BaseApiController
 
     /**
      * Verify Email Code
-     * 
+     *
      * Verify email with code sent during registration.
      * In development: code "111111" is accepted without database check.
-     * 
+     *
      * @bodyParam email string required Email address. Example: ahmed@example.com
      * @bodyParam code string required 6-digit verification code. Example: 123456
      * @bodyParam type string required Code type. Example: email_verification
-     * 
+     *
      * @response 200 {
      *   "success": true,
      *   "message": "Email verified successfully",
@@ -132,15 +132,15 @@ class SenderAuthController extends BaseApiController
     public function verifyCode(VerifyCodeRequest $request): JsonResponse
     {
         $validated = $request->validated();
-        
+
         // Check if it's development environment and code is "111111"
         $env = config('app.env', 'production');
         $isDevelopment = in_array($env, ['local', 'development', 'dev', 'staging', 'testing']);
         $isDevCode = $validated['code'] === '111111';
-        
+
         $verificationCode = null;
         $sender = null;
-        
+
         // In development, accept "111111" without database check
         if ($isDevelopment && $isDevCode) {
             // Find sender by email or phone
@@ -149,7 +149,7 @@ class SenderAuthController extends BaseApiController
             } else {
                 $sender = $this->senderRepository->findByPhone($validated['phone'] ?? '');
             }
-            
+
             if (!$sender) {
                 return $this->error('Sender not found', 404);
             }
@@ -207,16 +207,16 @@ class SenderAuthController extends BaseApiController
 
     /**
      * Login Sender
-     * 
+     *
      * Login with email or phone and password.
-     * 
+     *
      * @bodyParam email_or_phone string required Email or phone number. Example: ahmed@example.com
      * @bodyParam password string required Password. Example: password123
      * @bodyParam device_id string optional Device ID. Example: device123
      * @bodyParam fcm_token string optional FCM token. Example: fcm_token_here
      * @bodyParam device_type string optional Device type (ios, android, web). Example: android
      * @bodyParam device_name string optional Device name. Example: Samsung Galaxy
-     * 
+     *
      * @response 200 {
      *   "success": true,
      *   "message": "Login successful",
@@ -276,9 +276,9 @@ class SenderAuthController extends BaseApiController
 
     /**
      * Get Authenticated Sender
-     * 
+     *
      * Get current authenticated sender data.
-     * 
+     *
      * @response 200 {
      *   "success": true,
      *   "message": "Sender data retrieved successfully",
@@ -299,13 +299,13 @@ class SenderAuthController extends BaseApiController
 
     /**
      * Update Sender Data
-     * 
+     *
      * Update authenticated sender information.
-     * 
+     *
      * @bodyParam full_name string optional Full name. Example: Ahmed Osama
      * @bodyParam email string optional Email. Example: ahmed@example.com
      * @bodyParam phone string optional Phone. Example: +96170123456
-     * 
+     *
      * @response 200 {
      *   "success": true,
      *   "message": "Sender updated successfully",
@@ -319,15 +319,15 @@ class SenderAuthController extends BaseApiController
     public function update(UpdateSenderRequest $request): JsonResponse
     {
         $validated = $request->validated();
-        
+
         $passwordValidation = $request->validate([
             'password' => 'nullable|min:8|confirmed',
         ]);
-        
+
         if (isset($passwordValidation['password'])) {
             $validated['password'] = $passwordValidation['password'];
         }
-        
+
         $sender = Auth::guard('sender')->user();
         $updatedSender = $this->senderRepository->update($sender->id, $validated);
 
@@ -336,11 +336,11 @@ class SenderAuthController extends BaseApiController
 
     /**
      * Upload Avatar
-     * 
+     *
      * Upload sender avatar image.
-     * 
+     *
      * @bodyParam avatar file required Avatar image file (max 5MB). Example: (binary)
-     * 
+     *
      * @response 200 {
      *   "success": true,
      *   "message": "Avatar uploaded successfully",
@@ -378,7 +378,7 @@ class SenderAuthController extends BaseApiController
         }
 
         $avatarPath = $avatarFile->store('avatars', 'public');
-        
+
         // Store just the path relative to storage/app/public
         $updatedSender = $this->senderRepository->updateAvatar($sender->id, $avatarPath);
 
@@ -387,11 +387,11 @@ class SenderAuthController extends BaseApiController
 
     /**
      * Forget Password
-     * 
+     *
      * Send password reset code to email.
-     * 
+     *
      * @bodyParam email string required Email address. Example: ahmed@example.com
-     * 
+     *
      * @response 200 {
      *   "success": true,
      *   "message": "Password reset code sent to your email",
@@ -424,14 +424,14 @@ class SenderAuthController extends BaseApiController
 
     /**
      * Reset Password
-     * 
+     *
      * Reset password using verification code.
-     * 
+     *
      * @bodyParam email string required Email address. Example: ahmed@example.com
      * @bodyParam code string required 6-digit verification code. Example: 123456
      * @bodyParam password string required New password (min 8 characters). Example: newpassword123
      * @bodyParam password_confirmation string required Password confirmation. Example: newpassword123
-     * 
+     *
      * @response 200 {
      *   "success": true,
      *   "message": "Password reset successfully",
@@ -465,9 +465,9 @@ class SenderAuthController extends BaseApiController
 
     /**
      * Logout
-     * 
+     *
      * Logout authenticated sender and invalidate token.
-     * 
+     *
      * @response 200 {
      *   "success": true,
      *   "message": "Logout successful",
@@ -481,38 +481,13 @@ class SenderAuthController extends BaseApiController
     }
 
     /**
-     * Refresh Token
-     * 
-     * Refresh JWT token.
-     * 
-     * @response 200 {
-     *   "success": true,
-     *   "message": "Token refreshed successfully",
-     *   "data": {
-     *     "token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
-     *     "token_type": "bearer",
-     *     "expires_in": 3600
-     *   }
-     * }
-     */
-    public function refresh(): JsonResponse
-    {
-        $token = Auth::guard('sender')->refresh();
-        return $this->success([
-            'token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => config('jwt.ttl') * 60,
-        ], 'Token refreshed successfully');
-    }
-
-    /**
      * Switch User Type
-     * 
+     *
      * Switch between sender and traveler type. This will update the user's type and invalidate the current token.
      * User will need to login again after switching.
-     * 
+     *
      * @bodyParam type string required The type to switch to (sender or traveler). Example: traveler
-     * 
+     *
      * @response 200 {
      *   "success": true,
      *   "message": "User type switched successfully. Please login again.",
@@ -520,7 +495,7 @@ class SenderAuthController extends BaseApiController
      *     "type": "traveler"
      *   }
      * }
-     * 
+     *
      * @response 422 {
      *   "success": false,
      *   "message": "Validation failed",
