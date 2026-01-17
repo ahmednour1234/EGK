@@ -59,8 +59,7 @@ class PackageRepository implements PackageRepositoryInterface
 
     public function getById(int $id, int $senderId): ?Package
     {
-        return Package::where('sender_id', $senderId)
-            ->with(['packageType', 'pickupAddress'])
+        return Package::with(['packageType', 'pickupAddress'])
             ->find($id);
     }
 
@@ -75,7 +74,7 @@ class PackageRepository implements PackageRepositoryInterface
     public function update(int $id, int $senderId, array $data): Package
     {
         $package = $this->getById($id, $senderId);
-        
+
         if (!$package) {
             throw new \Exception('Package not found');
         }
@@ -92,7 +91,7 @@ class PackageRepository implements PackageRepositoryInterface
     public function cancel(int $id, int $senderId): bool
     {
         $package = $this->getById($id, $senderId);
-        
+
         if (!$package) {
             return false;
         }

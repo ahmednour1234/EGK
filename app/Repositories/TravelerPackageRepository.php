@@ -5,12 +5,12 @@ namespace App\Repositories;
 use App\Models\Package;
 use App\Models\TravelerTicket;
 use App\Repositories\Contracts\TravelerPackageRepositoryInterface;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 
 class TravelerPackageRepository implements TravelerPackageRepositoryInterface
 {
-    public function getPackagesWithMe(int $travelerId, array $filters = [], int $perPage = 15): LengthAwarePaginator
+    public function getPackagesWithMe(int $travelerId, array $filters = []): Collection
     {
         // Get active ticket IDs for this traveler
         $activeTicketIds = TravelerTicket::where('traveler_id', $travelerId)
@@ -18,12 +18,7 @@ class TravelerPackageRepository implements TravelerPackageRepositoryInterface
             ->toArray();
 
         if (empty($activeTicketIds)) {
-            return new \Illuminate\Pagination\LengthAwarePaginator(
-                collect([]),
-                0,
-                $perPage,
-                1
-            );
+            return new Collection([]);
         }
 
         // Build query for packages linked to active tickets
@@ -36,10 +31,10 @@ class TravelerPackageRepository implements TravelerPackageRepositoryInterface
         // Order by created_at desc (newest first)
         $query->orderBy('created_at', 'desc');
 
-        return $query->paginate($perPage);
+        return $query->get();
     }
 
-    public function getActivePackagesNow(int $travelerId, array $filters = [], int $perPage = 15): LengthAwarePaginator
+    public function getActivePackagesNow(int $travelerId, array $filters = []): Collection
     {
         // Get active ticket IDs for this traveler
         $activeTicketIds = TravelerTicket::where('traveler_id', $travelerId)
@@ -48,12 +43,7 @@ class TravelerPackageRepository implements TravelerPackageRepositoryInterface
             ->toArray();
 
         if (empty($activeTicketIds)) {
-            return new \Illuminate\Pagination\LengthAwarePaginator(
-                collect([]),
-                0,
-                $perPage,
-                1
-            );
+            return new Collection([]);
         }
 
         // Build query for in_transit packages linked to active tickets
@@ -67,7 +57,7 @@ class TravelerPackageRepository implements TravelerPackageRepositoryInterface
         // Order by created_at asc (oldest first)
         $query->orderBy('created_at', 'asc');
 
-        return $query->paginate($perPage);
+        return $query->get();
     }
 
     /**
