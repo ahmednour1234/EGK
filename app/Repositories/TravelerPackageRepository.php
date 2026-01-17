@@ -28,7 +28,7 @@ class TravelerPackageRepository implements TravelerPackageRepositoryInterface
 
         // Build query for packages linked to active tickets
         $query = Package::whereIn('ticket_id', $activeTicketIds)
-            ->with(['packageType', 'pickupAddress', 'ticket']);
+            ->with(['packageType', 'pickupAddress', 'ticket', 'country', 'sender']);
 
         // Apply filters
         $this->applyPackageFilters($query, $filters);
@@ -59,7 +59,7 @@ class TravelerPackageRepository implements TravelerPackageRepositoryInterface
         // Build query for in_transit packages linked to active tickets
         $query = Package::whereIn('ticket_id', $activeTicketIds)
             ->where('status', 'in_transit')
-            ->with(['packageType', 'pickupAddress', 'ticket']);
+            ->with(['packageType', 'pickupAddress', 'ticket', 'country', 'sender']);
 
         // Apply filters
         $this->applyPackageFilters($query, $filters);
