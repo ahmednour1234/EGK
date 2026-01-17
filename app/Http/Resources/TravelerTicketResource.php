@@ -26,6 +26,24 @@ class TravelerTicketResource extends JsonResource
             'traveler_id' => $this->traveler_id,
             'assignee_id' => $this->assignee_id,
 
+            'traveler' => $this->traveler ? [
+                'id' => $this->traveler->id,
+                'full_name' => $this->traveler->full_name,
+                'email' => $this->traveler->email,
+                'phone' => $this->traveler->phone,
+                'avatar' => $this->traveler->avatar,
+                'status' => $this->traveler->status,
+                'type' => $this->traveler->type,
+                'is_verified' => $this->traveler->is_verified,
+            ] : null,
+
+            'assignee' => $this->assignee ? [
+                'id' => $this->assignee->id,
+                'name' => $this->assignee->name,
+                'email' => $this->assignee->email,
+                'role_id' => $this->assignee->role_id,
+            ] : null,
+
             // Countries
             'from_country_id' => $this->from_country_id,
             'to_country_id' => $this->to_country_id,
