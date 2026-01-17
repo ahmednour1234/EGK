@@ -25,6 +25,18 @@ class PackageResource extends JsonResource
             'status_color' => $this->status_color,
             'compliance_confirmed' => $this->compliance_confirmed,
 
+            'sender_id' => $this->sender_id,
+            'sender' => $this->sender ? [
+                'id' => $this->sender->id,
+                'full_name' => $this->sender->full_name,
+                'email' => $this->sender->email,
+                'phone' => $this->sender->phone,
+                'avatar' => $this->sender->avatar,
+                'status' => $this->sender->status,
+                'type' => $this->sender->type,
+                'is_verified' => $this->sender->is_verified,
+            ] : null,
+
             // Pickup Information
             'pickup' => [
                 'address_id' => $this->pickup_address_id,
