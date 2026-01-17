@@ -50,6 +50,8 @@ class StoreTravelerTicketRequest extends FormRequest
             'notes_for_senders' => ['nullable', 'string', 'max:65535'],
             'allow_urgent_packages' => ['boolean'],
             'accept_only_verified_senders' => ['boolean'],
+            'from_country_id' => ['nullable', 'exists:countries,id'],
+            'to_country_id' => ['nullable', 'exists:countries,id'],
 
             // Status (optional, defaults to draft)
             'status' => ['nullable', 'string', Rule::in(['draft', 'active'])],
