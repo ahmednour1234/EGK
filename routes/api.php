@@ -64,7 +64,6 @@ Route::prefix('sender')->middleware('auth:sender')->group(function () {
     Route::post('upload-avatar', [SenderAuthController::class, 'uploadAvatar']);
     Route::post('switch-type', [SenderAuthController::class, 'switchType']);
     Route::post('logout', [SenderAuthController::class, 'logout']);
-    Route::post('refresh', [SenderAuthController::class, 'refresh']);
 
     // Sender Addresses routes
     Route::apiResource('addresses', \App\Http\Controllers\Api\SenderAddressController::class);
