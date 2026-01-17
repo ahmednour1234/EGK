@@ -90,6 +90,7 @@ class PackageResource extends JsonResource
             ],
 
             'country_id' => $this->country_id,
+            'country_name' => $this->country->name,
             'country' => $this->whenLoaded('country', function () {
                 return [
                     'id' => $this->country->id,
