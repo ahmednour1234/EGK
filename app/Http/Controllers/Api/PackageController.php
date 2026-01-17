@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\Api\StorePackageRequest;
 use App\Http\Resources\PackageResource;
+use App\Models\Package;
 use App\Repositories\Contracts\PackageRepositoryInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -67,10 +68,20 @@ class PackageController extends BaseApiController
      */
     public function show(int $id): JsonResponse
     {
-        $sender = Auth::guard('sender')->user();
-        $package = $this->packageRepository->getById($id, $sender->id);
+        $user = Auth::guard('sender')->user();
+        $package = Package::with(['packageType', 'pickupAddress', 'country', 'sender', 'ticket'])->find($id);
 
         if (! $package) {
+            return $this->error('Package not found', 404);
+        }
+
+        // Check if user is sender and package belongs to them
+        $isSender = $user->type === 'sender' && $package->sender_id === $user->id;
+
+        // Check if user is traveler and package is linked to their ticket
+        $isTraveler = $user->type === 'traveler' && $package->ticket_id && $package->ticket && $package->ticket->traveler_id === $user->id;
+
+        if (! $isSender && ! $isTraveler) {
             return $this->error('Package not found', 404);
         }
 
