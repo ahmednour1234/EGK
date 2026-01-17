@@ -77,7 +77,7 @@ class TravelerPackageController extends BaseApiController
             $perPage
         );
 
-        return $this->paginated(PackageResource::collection($packages), 'Packages retrieved successfully');
+        return $this->paginated($packages, PackageResource::class, 'Packages retrieved successfully');
     }
 
     /**
@@ -123,6 +123,6 @@ class TravelerPackageController extends BaseApiController
             $perPage
         );
 
-        return $this->paginated(PackageResource::collection($packages), 'Active packages retrieved successfully');
+        return $this->paginated($packages, PackageResource::class, 'Active packages retrieved successfully');
     }
 }
