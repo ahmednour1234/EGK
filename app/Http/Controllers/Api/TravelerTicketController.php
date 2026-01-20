@@ -123,51 +123,52 @@ class TravelerTicketController extends BaseApiController
      *   "meta": {...}
      * }
      */
-    public function activeTrips(Request $request): JsonResponse
-    {
-        $traveler = Auth::guard('sender')->user();
 
-        if ($traveler->type !== 'traveler') {
-            return $this->error('Only travelers can access active trips', 403);
-        }
+public function activeTrips(Request $request): JsonResponse
+{
+    $traveler = Auth::guard('sender')->user();
 
-        $filters = [
-            'status' => 'active',
-            'trip_type' => $request->input('trip_type'),
-            'transport_type' => $request->input('transport_type'),
-
-            'from_country_id' => $request->input('from_country_id'),
-            'to_country_id' => $request->input('to_country_id'),
-
-            'from_city' => $request->input('from_city'),
-            'to_city' => $request->input('to_city'),
-            'departure_date_from' => $request->input('departure_date_from'),
-            'departure_date_to' => $request->input('departure_date_to'),
-            'search' => $request->input('search'),
-        ];
-
-        foreach (['from_country_id', 'to_country_id'] as $key) {
-            if (isset($filters[$key]) && $filters[$key] !== null && $filters[$key] !== '') {
-                $filters[$key] = (int) $filters[$key];
-            }
-        }
-
-        $perPage = min((int) $request->input('per_page', 15), 100);
-
-        // الأفضل تحميل العدّ من الريبو (query) لو متاح
-        $tickets = $this->ticketRepository->getAll(
-            $traveler->id,
-            array_filter($filters, fn ($value) => $value !== null && $value !== ''),
-            $perPage,
-            withCounts: ['packages'] // لو الريبو بيدعمها (اختياري)
-        );
-
-        // لو الريبو مش بيدعم withCounts، سيب السطر ده وفعّل loadCount هنا:
-        // $tickets->getCollection()->loadCount('packages');
-
-        return $this->paginated(TravelerTicketResource::collection($tickets), 'Active trips retrieved successfully');
+    if (!$traveler || $traveler->type !== 'traveler') {
+        return $this->error('Only travelers can access active trips', 403);
     }
 
+    $filters = [
+        'status' => 'active',
+        'trip_type' => $request->input('trip_type'),
+        'transport_type' => $request->input('transport_type'),
+        'from_country_id' => $request->input('from_country_id'),
+        'to_country_id' => $request->input('to_country_id'),
+        'from_city' => $request->input('from_city'),
+        'to_city' => $request->input('to_city'),
+        'departure_date_from' => $request->input('departure_date_from'),
+        'departure_date_to' => $request->input('departure_date_to'),
+        'search' => $request->input('search'),
+    ];
+
+    foreach (['from_country_id', 'to_country_id'] as $key) {
+        if (isset($filters[$key]) && $filters[$key] !== null && $filters[$key] !== '') {
+            $filters[$key] = (int) $filters[$key];
+        }
+    }
+
+    $filters = array_filter($filters, fn ($v) => $v !== null && $v !== '');
+
+    $perPage = (int) $request->input('per_page', 15);
+    $perPage = $perPage > 0 ? min($perPage, 100) : 15;
+
+    $tickets = $this->ticketRepository->getAll(
+        travelerId: (int) $traveler->id,
+        filters: $filters,
+        perPage: $perPage,
+        withTrashed: false,
+        withCounts: ['packages'],
+    );
+
+    return $this->paginated(
+        TravelerTicketResource::collection($tickets),
+        'Active trips retrieved successfully'
+    );
+}
     /**
      * Create Ticket
      *
