@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Models\Package;
+use App\Models\Sender;
 use App\Models\TravelerTicket;
 use App\Services\TicketPackageMatcher;
 use Filament\Forms\Components\DatePicker;
@@ -31,10 +32,8 @@ class TicketPackageControlCenter extends Page implements HasTable
     protected static ?string $navigationGroup = 'Operations';
     protected static ?int $navigationSort = 1;
 
-    /** Tabs */
     public string $activeTab = 'tickets';
 
-    /** Local filters */
     public ?string $searchQuery = null;
     public ?string $packageStatusFilter = null;
     public ?string $ticketStatusFilter = null;
@@ -68,20 +67,15 @@ class TicketPackageControlCenter extends Page implements HasTable
         }
 
         $this->activeTab = $tab;
-
-        // ✅ يمنع لخبطة pagination + يخفف rerenders
         $this->resetTable();
     }
-
-    /** =========================
-     *  Queries (optimized)
-     *  ========================= */
 
     protected function getTicketsTableQuery(): Builder
     {
         $q = TravelerTicket::query()
             ->select([
                 'id',
+                'traveler_id',
                 'trip_type',
                 'transport_type',
                 'status',
@@ -91,7 +85,10 @@ class TicketPackageControlCenter extends Page implements HasTable
                 'created_at',
             ])
             ->withCount('packages')
-            ->with(['assignee:id,name']);
+            ->with([
+                'assignee:id,name',
+                'traveler:id,full_name,phone',
+            ]);
 
         if ($this->ticketStatusFilter) {
             $q->where('status', $this->ticketStatusFilter);
@@ -107,10 +104,16 @@ class TicketPackageControlCenter extends Page implements HasTable
 
         if ($this->searchQuery) {
             $s = trim($this->searchQuery);
-            $q->where(function ($qq) use ($s) {
+
+            $q->where(function (Builder $qq) use ($s) {
                 $qq->where('id', 'like', "%{$s}%")
+                    ->orWhere('traveler_id', 'like', "%{$s}%")
                     ->orWhere('from_city', 'like', "%{$s}%")
-                    ->orWhere('to_city', 'like', "%{$s}%");
+                    ->orWhere('to_city', 'like', "%{$s}%")
+                    ->orWhereHas('traveler', function (Builder $t) use ($s) {
+                        $t->where('full_name', 'like', "%{$s}%")
+                          ->orWhere('phone', 'like', "%{$s}%");
+                    });
             });
         }
 
@@ -163,7 +166,7 @@ class TicketPackageControlCenter extends Page implements HasTable
 
         if ($this->searchQuery) {
             $s = trim($this->searchQuery);
-            $q->where(function ($qq) use ($s) {
+            $q->where(function (Builder $qq) use ($s) {
                 $qq->where('tracking_number', 'like', "%{$s}%")
                     ->orWhere('receiver_mobile', 'like', "%{$s}%");
             });
@@ -179,10 +182,6 @@ class TicketPackageControlCenter extends Page implements HasTable
             : $this->getPackagesTableQuery();
     }
 
-    /** =========================
-     *  Table
-     *  ========================= */
-
     public function table(Table $table): Table
     {
         return $this->activeTab === 'tickets'
@@ -197,15 +196,35 @@ class TicketPackageControlCenter extends Page implements HasTable
             ->deferLoading()
             ->paginationPageOptions([25, 50, 100])
             ->defaultPaginationPageOption(25)
-            ->defaultSort('created_at', 'desc')
+            ->defaultSort('traveler_id', 'asc')
             ->columns([
                 TextColumn::make('id')->label('ID')->sortable(),
+
+                TextColumn::make('traveler_id')
+                    ->label('Traveler ID')
+                    ->sortable(),
+
+                TextColumn::make('traveler.full_name')
+                    ->label('Traveler Name')
+                    ->default('—')
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('traveler', fn (Builder $t) => $t->where('full_name', 'like', "%{$search}%"));
+                    }),
+
+                TextColumn::make('traveler.phone')
+                    ->label('Traveler Phone')
+                    ->default('—')
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('traveler', fn (Builder $t) => $t->where('phone', 'like', "%{$search}%"));
+                    }),
+
                 TextColumn::make('trip_type')
                     ->badge()
                     ->formatStateUsing(fn ($state) => $state === 'one-way' ? 'One-way' : 'Round trip')
                     ->sortable(),
 
                 TextColumn::make('transport_type')->label('Transport')->sortable(),
+
                 TextColumn::make('status')
                     ->badge()
                     ->formatStateUsing(fn ($state) => match ($state) {
@@ -326,10 +345,9 @@ class TicketPackageControlCenter extends Page implements HasTable
 
                 TextColumn::make('receiver_mobile')->label('Receiver Mobile')->sortable()->searchable(),
 
-                // ✅ FEES column
                 TextColumn::make('fees')
                     ->label('Fees')
-                    ->money('USD') // لو عملتك غير USD غيرها أو شيل money وخليها ->numeric()
+                    ->money('USD')
                     ->sortable()
                     ->toggleable(),
 
@@ -357,11 +375,6 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->searchable(),
             ])
             ->actions([
-                /**
-                 * ✅ Link package -> ticket (with fees)
-                 * - fees input يظهر أثناء الربط
-                 * - ويتعبّى تلقائيًا بقيمة fees الحالية لو موجودة (عشان تقدر تعدّل)
-                 */
                 Tables\Actions\Action::make('linkToTicket')
                     ->label(fn (Package $record) => $record->ticket_id ? 'Edit Link / Fees' : 'Link to Ticket')
                     ->icon('heroicon-o-link')
@@ -380,23 +393,26 @@ class TicketPackageControlCenter extends Page implements HasTable
 
                                 return TravelerTicket::query()
                                     ->select(['id', 'traveler_id', 'from_city', 'to_city', 'status'])
-                                    ->with(['traveler:id,phone'])
+                                    ->with(['traveler:id,full_name,phone'])
                                     ->where('status', 'active')
-                                    ->where(function ($q) use ($search) {
+                                    ->where(function (Builder $q) use ($search) {
                                         $q->where('id', 'like', "%{$search}%")
                                           ->orWhere('traveler_id', 'like', "%{$search}%")
                                           ->orWhere('from_city', 'like', "%{$search}%")
                                           ->orWhere('to_city', 'like', "%{$search}%")
-                                          ->orWhereHas('traveler', function ($t) use ($search) {
-                                              $t->where('phone', 'like', "%{$search}%");
+                                          ->orWhereHas('traveler', function (Builder $t) use ($search) {
+                                              $t->where('full_name', 'like', "%{$search}%")
+                                                ->orWhere('phone', 'like', "%{$search}%");
                                           });
                                     })
+                                    ->orderBy('traveler_id', 'asc')
                                     ->orderByDesc('id')
                                     ->limit(50)
                                     ->get()
                                     ->mapWithKeys(function ($t) {
+                                        $name = $t->traveler?->full_name ?? '-';
                                         $phone = $t->traveler?->phone ?? '-';
-                                        $label = "Ticket #{$t->id} | Traveler: {$t->traveler_id} ({$phone}) | {$t->from_city} → {$t->to_city}";
+                                        $label = "Ticket #{$t->id} | {$name} ({$phone}) | {$t->from_city} → {$t->to_city}";
                                         return [$t->id => $label];
                                     })
                                     ->toArray();
@@ -404,15 +420,17 @@ class TicketPackageControlCenter extends Page implements HasTable
                             ->getOptionLabelUsing(function ($value) {
                                 $t = TravelerTicket::query()
                                     ->select(['id', 'traveler_id', 'from_city', 'to_city'])
-                                    ->with(['traveler:id,phone'])
+                                    ->with(['traveler:id,full_name,phone'])
                                     ->find($value);
 
                                 if (! $t) {
                                     return '—';
                                 }
 
+                                $name = $t->traveler?->full_name ?? '-';
                                 $phone = $t->traveler?->phone ?? '-';
-                                return "Ticket #{$t->id} | Traveler: {$t->traveler_id} ({$phone}) | {$t->from_city} → {$t->to_city}";
+
+                                return "Ticket #{$t->id} | {$name} ({$phone}) | {$t->from_city} → {$t->to_city}";
                             })
                             ->required(),
 
@@ -421,9 +439,8 @@ class TicketPackageControlCenter extends Page implements HasTable
                             ->numeric()
                             ->minValue(0)
                             ->step('0.01')
-                            ->prefix('$') // غيرها حسب عملتك أو شيلها
-                            ->default(0)
-                            ->helperText('Set / update package fees while linking to a ticket.'),
+                            ->prefix('$')
+                            ->default(0),
                     ])
                     ->action(function (Package $record, array $data) {
                         $record->update([
