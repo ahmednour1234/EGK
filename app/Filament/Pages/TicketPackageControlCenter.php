@@ -122,6 +122,8 @@ class TicketPackageControlCenter extends Page implements HasTable
             });
         }
 
+        $q->orderBy('created_at', 'desc');
+
         return $q;
     }
 
@@ -176,6 +178,8 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->orWhere('receiver_mobile', 'like', "%{$s}%");
             });
         }
+
+        $q->orderBy('created_at', 'desc');
 
         return $q;
     }
