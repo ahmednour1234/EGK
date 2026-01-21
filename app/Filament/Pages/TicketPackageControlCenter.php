@@ -11,6 +11,7 @@ use App\Models\Package;
 use App\Models\Sender;
 use App\Models\TravelerTicket;
 use App\Services\TicketPackageMatcher;
+use Illuminate\Support\Facades\Log;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -541,6 +542,14 @@ class TicketPackageControlCenter extends Page implements HasTable
 
                         $ticket = TravelerTicket::find($data['ticket_id']);
                         if ($ticket) {
+                            Log::info('Package linked to ticket', [
+                                'package_id' => $record->id,
+                                'tracking_number' => $record->tracking_number,
+                                'ticket_id' => $ticket->id,
+                                'traveler_id' => $ticket->traveler_id,
+                                'sender_id' => $ticket->sender_id,
+                            ]);
+
                             $title = 'Package Linked to Ticket';
                             $body = "Package {$record->tracking_number} has been linked to ticket #{$ticket->id}";
 
@@ -554,30 +563,65 @@ class TicketPackageControlCenter extends Page implements HasTable
                             ];
 
                             if ($ticket->traveler_id) {
-                                NotificationModel::create([
-                                    'sender_id' => $ticket->traveler_id,
-                                    'type' => 'package.linked_ticket',
-                                    'title' => $title,
-                                    'body' => $body,
-                                    'data' => $notificationData,
-                                    'entity' => 'package',
-                                    'entity_id' => $record->id,
-                                ]);
+                                try {
+                                    $notification = NotificationModel::create([
+                                        'sender_id' => $ticket->traveler_id,
+                                        'type' => 'package.linked_ticket',
+                                        'title' => $title,
+                                        'body' => $body,
+                                        'data' => $notificationData,
+                                        'entity' => 'package',
+                                        'entity_id' => $record->id,
+                                    ]);
+                                    Log::info('Notification created for traveler', [
+                                        'notification_id' => $notification->id,
+                                        'traveler_id' => $ticket->traveler_id,
+                                        'package_id' => $record->id,
+                                    ]);
+                                } catch (\Exception $e) {
+                                    Log::error('Failed to create notification for traveler', [
+                                        'traveler_id' => $ticket->traveler_id,
+                                        'package_id' => $record->id,
+                                        'error' => $e->getMessage(),
+                                        'trace' => $e->getTraceAsString(),
+                                    ]);
+                                }
                                 SendFcmNotificationJob::dispatch($ticket->traveler_id, $title, $body, $notificationData);
+                                Log::info('FCM job dispatched for traveler', ['traveler_id' => $ticket->traveler_id]);
                             }
 
                             if ($ticket->sender_id) {
-                                NotificationModel::create([
-                                    'sender_id' => $ticket->sender_id,
-                                    'type' => 'package.linked_ticket',
-                                    'title' => $title,
-                                    'body' => $body,
-                                    'data' => $notificationData,
-                                    'entity' => 'package',
-                                    'entity_id' => $record->id,
-                                ]);
+                                try {
+                                    $notification = NotificationModel::create([
+                                        'sender_id' => $ticket->sender_id,
+                                        'type' => 'package.linked_ticket',
+                                        'title' => $title,
+                                        'body' => $body,
+                                        'data' => $notificationData,
+                                        'entity' => 'package',
+                                        'entity_id' => $record->id,
+                                    ]);
+                                    Log::info('Notification created for sender', [
+                                        'notification_id' => $notification->id,
+                                        'sender_id' => $ticket->sender_id,
+                                        'package_id' => $record->id,
+                                    ]);
+                                } catch (\Exception $e) {
+                                    Log::error('Failed to create notification for sender', [
+                                        'sender_id' => $ticket->sender_id,
+                                        'package_id' => $record->id,
+                                        'error' => $e->getMessage(),
+                                        'trace' => $e->getTraceAsString(),
+                                    ]);
+                                }
                                 SendFcmNotificationJob::dispatch($ticket->sender_id, $title, $body, $notificationData);
+                                Log::info('FCM job dispatched for sender', ['sender_id' => $ticket->sender_id]);
                             }
+                        } else {
+                            Log::warning('Ticket not found when linking package', [
+                                'package_id' => $record->id,
+                                'ticket_id' => $data['ticket_id'],
+                            ]);
                         }
 
                         Notification::make()
@@ -603,6 +647,14 @@ class TicketPackageControlCenter extends Page implements HasTable
                         $record->update(['ticket_id' => null]);
 
                         if ($oldTicket && $oldTicketId) {
+                            Log::info('Package unlinked from ticket', [
+                                'package_id' => $record->id,
+                                'tracking_number' => $record->tracking_number,
+                                'ticket_id' => $oldTicketId,
+                                'traveler_id' => $oldTicketTravelerId,
+                                'sender_id' => $oldTicketSenderId,
+                            ]);
+
                             $title = 'Package Unlinked from Ticket';
                             $body = "Package {$record->tracking_number} has been unlinked from ticket #{$oldTicketId}";
 
@@ -616,29 +668,59 @@ class TicketPackageControlCenter extends Page implements HasTable
                             ];
 
                             if ($oldTicketTravelerId) {
-                                NotificationModel::create([
-                                    'sender_id' => $oldTicketTravelerId,
-                                    'type' => 'package.unlinked_ticket',
-                                    'title' => $title,
-                                    'body' => $body,
-                                    'data' => $notificationData,
-                                    'entity' => 'package',
-                                    'entity_id' => $record->id,
-                                ]);
+                                try {
+                                    $notification = NotificationModel::create([
+                                        'sender_id' => $oldTicketTravelerId,
+                                        'type' => 'package.unlinked_ticket',
+                                        'title' => $title,
+                                        'body' => $body,
+                                        'data' => $notificationData,
+                                        'entity' => 'package',
+                                        'entity_id' => $record->id,
+                                    ]);
+                                    Log::info('Notification created for traveler', [
+                                        'notification_id' => $notification->id,
+                                        'traveler_id' => $oldTicketTravelerId,
+                                        'package_id' => $record->id,
+                                    ]);
+                                } catch (\Exception $e) {
+                                    Log::error('Failed to create notification for traveler', [
+                                        'traveler_id' => $oldTicketTravelerId,
+                                        'package_id' => $record->id,
+                                        'error' => $e->getMessage(),
+                                        'trace' => $e->getTraceAsString(),
+                                    ]);
+                                }
                                 SendFcmNotificationJob::dispatch($oldTicketTravelerId, $title, $body, $notificationData);
+                                Log::info('FCM job dispatched for traveler', ['traveler_id' => $oldTicketTravelerId]);
                             }
 
                             if ($oldTicketSenderId) {
-                                NotificationModel::create([
-                                    'sender_id' => $oldTicketSenderId,
-                                    'type' => 'package.unlinked_ticket',
-                                    'title' => $title,
-                                    'body' => $body,
-                                    'data' => $notificationData,
-                                    'entity' => 'package',
-                                    'entity_id' => $record->id,
-                                ]);
+                                try {
+                                    $notification = NotificationModel::create([
+                                        'sender_id' => $oldTicketSenderId,
+                                        'type' => 'package.unlinked_ticket',
+                                        'title' => $title,
+                                        'body' => $body,
+                                        'data' => $notificationData,
+                                        'entity' => 'package',
+                                        'entity_id' => $record->id,
+                                    ]);
+                                    Log::info('Notification created for sender', [
+                                        'notification_id' => $notification->id,
+                                        'sender_id' => $oldTicketSenderId,
+                                        'package_id' => $record->id,
+                                    ]);
+                                } catch (\Exception $e) {
+                                    Log::error('Failed to create notification for sender', [
+                                        'sender_id' => $oldTicketSenderId,
+                                        'package_id' => $record->id,
+                                        'error' => $e->getMessage(),
+                                        'trace' => $e->getTraceAsString(),
+                                    ]);
+                                }
                                 SendFcmNotificationJob::dispatch($oldTicketSenderId, $title, $body, $notificationData);
+                                Log::info('FCM job dispatched for sender', ['sender_id' => $oldTicketSenderId]);
                             }
                         }
 
