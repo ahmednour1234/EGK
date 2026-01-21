@@ -36,6 +36,8 @@ class StoreTravelerTicketRequest extends FormRequest
             'trip_type' => ['required', 'string', Rule::in(['one-way', 'round-trip'])],
             'departure_date' => ['required', 'date', 'after_or_equal:today'],
             'departure_time' => ['required', 'date_format:H:i'],
+            'arrival_date' => ['nullable', 'date', 'after_or_equal:departure_date'],
+            'arrival_time' => ['nullable', 'date_format:H:i'],
             'transport_type' => ['required', 'string', 'max:255'],
 
             // Travel Capacity

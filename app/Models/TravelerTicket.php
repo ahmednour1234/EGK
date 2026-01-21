@@ -32,6 +32,8 @@ class TravelerTicket extends Model
         'trip_type',
         'departure_date',
         'departure_time',
+        'arrival_date',
+        'arrival_time',
         'return_date',
         'return_time',
         'transport_type',
@@ -52,6 +54,7 @@ class TravelerTicket extends Model
         'to_country_id'   => 'integer',
 
         'departure_date' => 'date',
+        'arrival_date' => 'date',
         'return_date' => 'date',
         'decided_at' => 'datetime',
         'total_weight_limit' => 'decimal:2',

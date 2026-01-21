@@ -16,9 +16,11 @@ class TravelerTicketResource extends JsonResource
     {
         // departure_time / return_time في الغالب بيبقوا string "H:i:s" أو "H:i"
         $departureTime = $this->departure_time ? substr((string) $this->departure_time, 0, 5) : null;
+        $arrivalTime = $this->arrival_time ? substr((string) $this->arrival_time, 0, 5) : null;
         $returnTime = $this->return_time ? substr((string) $this->return_time, 0, 5) : null;
 
         $departureDate = $this->departure_date?->format('Y-m-d');
+        $arrivalDate = $this->arrival_date?->format('Y-m-d');
         $returnDate = $this->return_date?->format('Y-m-d');
 
         return [
@@ -73,6 +75,12 @@ class TravelerTicketResource extends JsonResource
                 'departure_time' => $departureTime,
                 'departure_datetime' => ($departureDate && $departureTime)
                     ? ($departureDate . ' ' . $departureTime)
+                    : null,
+
+                'arrival_date' => $arrivalDate,
+                'arrival_time' => $arrivalTime,
+                'arrival_datetime' => ($arrivalDate && $arrivalTime)
+                    ? ($arrivalDate . ' ' . $arrivalTime)
                     : null,
 
                 'return_date' => $returnDate,

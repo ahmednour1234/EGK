@@ -186,6 +186,8 @@ public function activeTrips(Request $request): JsonResponse
      * @bodyParam trip_type string required Trip type (one-way or round-trip). Example: one-way
      * @bodyParam departure_date date required Departure date. Example: 2025-11-26
      * @bodyParam departure_time time required Departure time. Example: 11:33
+     * @bodyParam arrival_date date optional Arrival date. Example: 2025-11-26
+     * @bodyParam arrival_time time optional Arrival time. Example: 14:00
      * @bodyParam return_date date optional Return date (required for round-trip). Example: 2025-11-27
      * @bodyParam return_time time optional Return time (required for round-trip). Example: 14:00
      * @bodyParam transport_type string required Transport type. Example: Car
