@@ -39,19 +39,24 @@ class FirebaseNotificationService
     public function sendToTokens(array $tokens, string $title, string $body, array $data = []): array
     {
         if (!$this->messaging) {
-            Log::error('FCM messaging not initialized');
+            Log::error('Firebase notification NOT sent - FCM messaging not initialized', [
+                'title' => $title,
+                'token_count' => count($tokens),
+            ]);
             return ['success' => 0, 'failed' => count($tokens), 'invalid_tokens' => []];
         }
 
         if (empty($tokens)) {
-            Log::warning('No tokens provided to sendToTokens');
+            Log::warning('Firebase notification NOT sent - No tokens provided', [
+                'title' => $title,
+            ]);
             return ['success' => 0, 'failed' => 0, 'invalid_tokens' => []];
         }
 
         $results = ['success' => 0, 'failed' => 0, 'invalid_tokens' => []];
 
         try {
-            Log::info('Sending FCM notification', [
+            Log::info('Sending FCM notification to Firebase', [
                 'token_count' => count($tokens),
                 'title' => $title,
             ]);
@@ -65,10 +70,18 @@ class FirebaseNotificationService
             $results['success'] = $report->successes()->count();
             $results['failed'] = $report->failures()->count();
 
-            Log::info('FCM send results', [
-                'success' => $results['success'],
-                'failed' => $results['failed'],
-            ]);
+            if ($results['success'] > 0) {
+                Log::info('Firebase notification SENT successfully', [
+                    'success_count' => $results['success'],
+                    'failed_count' => $results['failed'],
+                    'title' => $title,
+                ]);
+            } else {
+                Log::warning('Firebase notification NOT sent - All attempts failed', [
+                    'failed_count' => $results['failed'],
+                    'title' => $title,
+                ]);
+            }
 
             foreach ($report->failures() as $failure) {
                 $token = $failure->target()->value();
@@ -87,8 +100,10 @@ class FirebaseNotificationService
                 }
             }
         } catch (\Exception $e) {
-            Log::error('FCM send exception', [
+            Log::error('Firebase notification NOT sent - Exception occurred', [
                 'error' => $e->getMessage(),
+                'title' => $title,
+                'token_count' => count($tokens),
                 'trace' => $e->getTraceAsString(),
             ]);
             $results['failed'] = count($tokens);
@@ -116,7 +131,10 @@ class FirebaseNotificationService
         ]);
 
         if (empty($tokens)) {
-            Log::warning('No FCM tokens found for user', ['sender_id' => $senderId]);
+            Log::warning('Firebase notification NOT sent - No FCM tokens found for user', [
+                'sender_id' => $senderId,
+                'title' => $title,
+            ]);
             return ['success' => 0, 'failed' => 0, 'invalid_tokens' => []];
         }
 

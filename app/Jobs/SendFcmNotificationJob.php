@@ -33,11 +33,13 @@ class SendFcmNotificationJob implements ShouldQueue
         try {
             $result = $notificationService->sendToUser($this->senderId, $this->title, $this->body, $this->data);
             
-            Log::info('FCM notification sent', [
+            $sent = ($result['success'] ?? 0) > 0;
+            Log::info($sent ? 'Firebase notification SENT' : 'Firebase notification NOT sent', [
                 'sender_id' => $this->senderId,
-                'success' => $result['success'] ?? 0,
-                'failed' => $result['failed'] ?? 0,
-                'invalid_tokens' => $result['invalid_tokens'] ?? [],
+                'title' => $this->title,
+                'success_count' => $result['success'] ?? 0,
+                'failed_count' => $result['failed'] ?? 0,
+                'invalid_tokens_count' => count($result['invalid_tokens'] ?? []),
             ]);
             
             try {
