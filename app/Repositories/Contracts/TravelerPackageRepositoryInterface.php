@@ -12,8 +12,8 @@ interface TravelerPackageRepositoryInterface
     public function getPackagesWithMe(int $userId, string $userType, array $filters = []): Collection;
 
     /**
-     * Get active packages (in_transit) linked to tickets, sorted by creation date.
+     * Get active packages (in_transit) linked to tickets or sender's in_transit packages, sorted by creation date.
      */
-    public function getActivePackagesNow(int $travelerId, array $filters = []): Collection;
+    public function getActivePackagesNow(int $userId, string $userType, array $filters = []): Collection;
 }
 

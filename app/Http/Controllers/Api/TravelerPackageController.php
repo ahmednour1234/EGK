@@ -106,6 +106,7 @@ class TravelerPackageController extends BaseApiController
 
         $packages = $this->travelerPackageRepository->getActivePackagesNow(
             $traveler->id,
+            $traveler->type,
             array_filter($filters, fn($value) => $value !== null)
         );
 

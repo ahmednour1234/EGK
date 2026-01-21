@@ -41,22 +41,29 @@ class TravelerPackageRepository implements TravelerPackageRepositoryInterface
         return $query->get();
     }
 
-    public function getActivePackagesNow(int $travelerId, array $filters = []): Collection
+    public function getActivePackagesNow(int $userId, string $userType, array $filters = []): Collection
     {
-        // Get active ticket IDs for this traveler
-        $activeTicketIds = TravelerTicket::where('traveler_id', $travelerId)
-            ->where('status', 'active')
-            ->pluck('id')
-            ->toArray();
-
-        if (empty($activeTicketIds)) {
-            return new Collection([]);
-        }
-
-        // Build query for in_transit packages linked to active tickets
-        $query = Package::whereIn('ticket_id', $activeTicketIds)
-            ->where('status', 'in_transit')
+        // Build base query for in_transit packages with relationships
+        $query = Package::where('status', 'in_transit')
             ->with(['packageType', 'pickupAddress', 'ticket', 'country', 'sender']);
+
+        // If user is a sender, get their in_transit packages
+        if ($userType === 'sender') {
+            $query->where('sender_id', $userId);
+        }
+        // If user is a traveler, get in_transit packages linked to their active tickets
+        else {
+            $activeTicketIds = TravelerTicket::where('traveler_id', $userId)
+                ->where('status', 'active')
+                ->pluck('id')
+                ->toArray();
+
+            if (empty($activeTicketIds)) {
+                return new Collection([]);
+            }
+
+            $query->whereIn('ticket_id', $activeTicketIds);
+        }
 
         // Apply filters
         $this->applyPackageFilters($query, $filters);
