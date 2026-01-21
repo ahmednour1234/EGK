@@ -44,8 +44,7 @@ class TravelerPackageRepository implements TravelerPackageRepositoryInterface
     public function getActivePackagesNow(int $userId, string $userType, array $filters = []): Collection
     {
         // Build base query for in_transit packages with relationships
-        $query = Package::where('status', 'in_transit')
-            ->with(['packageType', 'pickupAddress', 'ticket', 'country', 'sender']);
+        $query = Package::with(['packageType', 'pickupAddress', 'ticket', 'country', 'sender']);
 
         // If user is a sender, get their in_transit packages
         if ($userType === 'sender') {
