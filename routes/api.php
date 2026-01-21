@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\StatisticsController;
 use App\Http\Controllers\Api\RecentUpdatesController;
 use App\Http\Controllers\Api\TravelerPackageController;
 use App\Http\Controllers\Api\DeviceTokenController;
+use App\Http\Controllers\Api\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -96,6 +97,13 @@ Route::prefix('sender')->middleware('auth:sender')->group(function () {
     // Device Token routes
     Route::post('device-tokens', [DeviceTokenController::class, 'store']);
     Route::delete('device-tokens', [DeviceTokenController::class, 'destroy']);
+
+    // Notification routes
+    Route::get('notifications', [NotificationController::class, 'index']);
+    Route::get('notifications/unread-count', [NotificationController::class, 'unreadCount']);
+    Route::get('notifications/{id}', [NotificationController::class, 'show']);
+    Route::post('notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::post('notifications/read-all', [NotificationController::class, 'markAllAsRead']);
 });
 
 

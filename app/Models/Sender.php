@@ -94,6 +94,14 @@ class Sender extends Authenticatable implements JWTSubject
     }
 
     /**
+     * Get notifications for this sender.
+     */
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    /**
      * Check if sender is active.
      */
     public function isActive(): bool

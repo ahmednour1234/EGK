@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Events\TicketStatusChanged;
 use App\Jobs\SendFcmNotificationJob;
+use App\Models\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class SendTicketStatusNotification implements ShouldQueue
@@ -41,9 +42,29 @@ class SendTicketStatusNotification implements ShouldQueue
             'deep_link' => "app://ticket/{$ticket->id}",
         ];
 
+        Notification::create([
+            'sender_id' => $travelerId,
+            'type' => 'ticket.status_changed',
+            'title' => $title,
+            'body' => $body,
+            'data' => $data,
+            'entity' => 'ticket',
+            'entity_id' => $ticket->id,
+        ]);
+
         SendFcmNotificationJob::dispatch($travelerId, $title, $body, $data);
 
         if ($ticket->sender_id) {
+            Notification::create([
+                'sender_id' => $ticket->sender_id,
+                'type' => 'ticket.status_changed',
+                'title' => $title,
+                'body' => $body,
+                'data' => $data,
+                'entity' => 'ticket',
+                'entity_id' => $ticket->id,
+            ]);
+
             SendFcmNotificationJob::dispatch($ticket->sender_id, $title, $body, $data);
         }
     }
