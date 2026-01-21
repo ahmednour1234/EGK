@@ -114,6 +114,7 @@ class PackageResource extends JsonResource
             'ticket' => $this->whenLoaded('ticket', function () {
                 return [
                     'id' => $this->ticket->id,
+                    'traveler_id' => $this->ticket->traveler_id,
                     'from_city' => $this->ticket->from_city,
                     'to_city' => $this->ticket->to_city,
                     'status' => $this->ticket->status,

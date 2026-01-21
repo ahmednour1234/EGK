@@ -10,7 +10,7 @@ class PackageRepository implements PackageRepositoryInterface
     public function getAll(int $senderId, array $filters = [])
     {
         $query = Package::where('sender_id', $senderId)
-            ->with(['packageType', 'pickupAddress']);
+            ->with(['packageType', 'pickupAddress', 'ticket.traveler']);
 
         // Filter by status
         if (isset($filters['status'])) {
@@ -59,7 +59,7 @@ class PackageRepository implements PackageRepositoryInterface
 
     public function getById(int $id, int $senderId): ?Package
     {
-        return Package::with(['packageType', 'pickupAddress'])
+        return Package::with(['packageType', 'pickupAddress', 'ticket.traveler'])
             ->find($id);
     }
 
@@ -85,7 +85,7 @@ class PackageRepository implements PackageRepositoryInterface
         }
 
         $package->update($data);
-        return $package->fresh(['packageType', 'pickupAddress']);
+        return $package->fresh(['packageType', 'pickupAddress', 'ticket.traveler']);
     }
 
     public function cancel(int $id, int $senderId): bool
@@ -109,7 +109,7 @@ class PackageRepository implements PackageRepositoryInterface
         // Active packages are those that are not delivered or cancelled
         return Package::where('sender_id', $senderId)
             ->whereNotIn('status', ['delivered', 'cancelled'])
-            ->with(['packageType', 'pickupAddress'])
+            ->with(['packageType', 'pickupAddress', 'ticket.traveler'])
             ->orderBy('created_at', 'desc')
             ->first();
     }
@@ -118,7 +118,7 @@ class PackageRepository implements PackageRepositoryInterface
     {
         // Get the most recently created package
         return Package::where('sender_id', $senderId)
-            ->with(['packageType', 'pickupAddress'])
+            ->with(['packageType', 'pickupAddress', 'ticket.traveler'])
             ->orderBy('created_at', 'desc')
             ->first();
     }
