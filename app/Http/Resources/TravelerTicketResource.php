@@ -23,6 +23,18 @@ class TravelerTicketResource extends JsonResource
         $arrivalDate = $this->arrival_date?->format('Y-m-d');
         $returnDate = $this->return_date?->format('Y-m-d');
 
+        $packagesSum = $this->relationLoaded('packages')
+            ? [
+                'count' => $this->packages->count(),
+                'total_weight' => (float) $this->packages->sum('weight'),
+                'total_fees' => (float) $this->packages->sum('fees'),
+            ]
+            : [
+                'count' => $this->packages()->count(),
+                'total_weight' => (float) $this->packages()->sum('weight'),
+                'total_fees' => (float) $this->packages()->sum('fees'),
+            ];
+
         return [
             'id' => $this->id,
             'traveler_id' => $this->traveler_id,
@@ -115,6 +127,7 @@ class TravelerTicketResource extends JsonResource
 
             // Package count (if loaded)
             'packages_count' => $this->when(isset($this->packages_count), (int) $this->packages_count),
+            'packages_sum' => $packagesSum,
 
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
