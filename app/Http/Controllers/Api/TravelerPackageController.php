@@ -95,10 +95,7 @@ class TravelerPackageController extends BaseApiController
     {
         $traveler = Auth::guard('sender')->user();
 
-        // Ensure user is a traveler
-        if ($traveler->type !== 'traveler') {
-            return $this->error('Only travelers can access this endpoint', 403);
-        }
+
 
         $filters = [
             'ticket_id' => $request->input('ticket_id'),
