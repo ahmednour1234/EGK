@@ -15,6 +15,10 @@ class TravelerTicket extends Model
     protected $fillable = [
         'traveler_id',
         'assignee_id',
+        'sender_id',
+        'decided_by',
+        'decided_at',
+        'rejection_reason',
 
         'from_country_id',
         'to_country_id',
@@ -49,6 +53,7 @@ class TravelerTicket extends Model
 
         'departure_date' => 'date',
         'return_date' => 'date',
+        'decided_at' => 'datetime',
         'total_weight_limit' => 'decimal:2',
         'max_package_count' => 'integer',
         'acceptable_package_types' => 'array',
@@ -98,6 +103,22 @@ class TravelerTicket extends Model
     public function assignee(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assignee_id');
+    }
+
+    /**
+     * Sender linked to this ticket.
+     */
+    public function sender(): BelongsTo
+    {
+        return $this->belongsTo(Sender::class, 'sender_id');
+    }
+
+    /**
+     * User who decided on this ticket (approved/rejected).
+     */
+    public function decidedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'decided_by');
     }
 
     /**

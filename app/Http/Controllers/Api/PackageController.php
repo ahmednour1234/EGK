@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\PackageCompleted;
 use App\Http\Requests\Api\StorePackageRequest;
 use App\Http\Resources\PackageResource;
 use App\Models\Package;
@@ -215,6 +216,8 @@ class PackageController extends BaseApiController
         }
 
         $package->update($updateData);
+
+        PackageCompleted::dispatch($package->fresh());
 
         return $this->success(new PackageResource($package), 'Package completed successfully');
     }

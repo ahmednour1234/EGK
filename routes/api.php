@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\SenderAuthController;
 use App\Http\Controllers\Api\StatisticsController;
 use App\Http\Controllers\Api\RecentUpdatesController;
 use App\Http\Controllers\Api\TravelerPackageController;
+use App\Http\Controllers\Api\DeviceTokenController;
 
 /*
 |--------------------------------------------------------------------------
@@ -91,6 +92,10 @@ Route::prefix('sender')->middleware('auth:sender')->group(function () {
         Route::get('packages-with-me', [TravelerPackageController::class, 'packagesWithMe']);
         Route::get('active-packages-now', [TravelerPackageController::class, 'activePackagesNow']);
     });
+
+    // Device Token routes
+    Route::post('device-tokens', [DeviceTokenController::class, 'store']);
+    Route::delete('device-tokens', [DeviceTokenController::class, 'destroy']);
 });
 
 
