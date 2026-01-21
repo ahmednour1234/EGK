@@ -10,20 +10,27 @@ use Illuminate\Database\Eloquent\Collection;
 
 class TravelerPackageRepository implements TravelerPackageRepositoryInterface
 {
-    public function getPackagesWithMe(int $travelerId, array $filters = []): Collection
+    public function getPackagesWithMe(int $userId, string $userType, array $filters = []): Collection
     {
-        // Get active ticket IDs for this traveler
-        $activeTicketIds = TravelerTicket::where('traveler_id', $travelerId)
-            ->pluck('id')
-            ->toArray();
+        // Build base query with relationships
+        $query = Package::with(['packageType', 'pickupAddress', 'ticket', 'country', 'sender']);
 
-        if (empty($activeTicketIds)) {
-            return new Collection([]);
+        // If user is a sender, get their packages
+        if ($userType === 'sender') {
+            $query->where('sender_id', $userId);
         }
+        // If user is a traveler, get packages linked to their tickets
+        else {
+            $activeTicketIds = TravelerTicket::where('traveler_id', $userId)
+                ->pluck('id')
+                ->toArray();
 
-        // Build query for packages linked to active tickets
-        $query = Package::whereIn('ticket_id', $activeTicketIds)
-            ->with(['packageType', 'pickupAddress', 'ticket', 'country', 'sender']);
+            if (empty($activeTicketIds)) {
+                return new Collection([]);
+            }
+
+            $query->whereIn('ticket_id', $activeTicketIds);
+        }
 
         // Apply filters
         $this->applyPackageFilters($query, $filters);

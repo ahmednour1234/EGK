@@ -67,6 +67,7 @@ class TravelerPackageController extends BaseApiController
 
         $packages = $this->travelerPackageRepository->getPackagesWithMe(
             $traveler->id,
+            $traveler->type,
             array_filter($filters, fn($value) => $value !== null)
         );
 
