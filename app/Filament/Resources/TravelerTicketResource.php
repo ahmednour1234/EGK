@@ -244,7 +244,11 @@ class TravelerTicketResource extends Resource
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->action(fn (TravelerTicket $record) => $record->update(['status' => 'active']))
+                    ->action(function (TravelerTicket $record) {
+                        $oldStatus = $record->status;
+                        $record->update(['status' => 'active']);
+                        \App\Events\TicketStatusChanged::dispatch($record->fresh(), $oldStatus, 'active', auth()->user());
+                    })
                     ->visible(fn (TravelerTicket $record) => $record->status === 'draft')
                     ->authorize(fn () => auth()->user()?->role?->permissions->contains('slug', 'update-traveler-tickets')),
                 Tables\Actions\Action::make('cancel')
@@ -252,7 +256,11 @@ class TravelerTicketResource extends Resource
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->requiresConfirmation()
-                    ->action(fn (TravelerTicket $record) => $record->update(['status' => 'cancelled']))
+                    ->action(function (TravelerTicket $record) {
+                        $oldStatus = $record->status;
+                        $record->update(['status' => 'cancelled']);
+                        \App\Events\TicketStatusChanged::dispatch($record->fresh(), $oldStatus, 'cancelled', auth()->user());
+                    })
                     ->visible(fn (TravelerTicket $record) => !in_array($record->status, ['cancelled', 'completed']))
                     ->authorize(fn () => auth()->user()?->role?->permissions->contains('slug', 'update-traveler-tickets')),
                 Tables\Actions\EditAction::make()
