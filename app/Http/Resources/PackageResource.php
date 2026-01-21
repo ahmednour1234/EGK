@@ -119,6 +119,9 @@ class PackageResource extends JsonResource
                     'status' => $this->ticket->status,
                     'status_label' => $this->ticket->status_label,
                     'traveler' => $this->ticket->whenLoaded('traveler', function () {
+                        if (!$this->ticket->traveler) {
+                            return null;
+                        }
                         return [
                             'id' => $this->ticket->traveler->id,
                             'full_name' => $this->ticket->traveler->full_name,
