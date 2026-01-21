@@ -5,6 +5,8 @@ namespace App\Filament\Pages;
 use App\Events\PackageUpdated;
 use App\Events\TicketSenderLinked;
 use App\Events\TicketStatusChanged;
+use App\Jobs\SendFcmNotificationJob;
+use App\Models\Notification as NotificationModel;
 use App\Models\Package;
 use App\Models\Sender;
 use App\Models\TravelerTicket;
@@ -527,10 +529,52 @@ class TicketPackageControlCenter extends Page implements HasTable
                             ->default(0),
                     ])
                     ->action(function (Package $record, array $data) {
+                        $oldTicketId = $record->ticket_id;
                         $record->update([
                             'ticket_id' => $data['ticket_id'],
                             'fees' => $data['fees'] ?? 0,
                         ]);
+
+                        $ticket = TravelerTicket::find($data['ticket_id']);
+                        if ($ticket) {
+                            $title = 'Package Linked to Ticket';
+                            $body = "Package {$record->tracking_number} has been linked to ticket #{$ticket->id}";
+
+                            $notificationData = [
+                                'type' => 'package.linked_ticket',
+                                'entity' => 'package',
+                                'entity_id' => $record->id,
+                                'ticket_id' => $ticket->id,
+                                'action' => 'linked_ticket',
+                                'deep_link' => "app://package/{$record->id}",
+                            ];
+
+                            if ($ticket->traveler_id) {
+                                NotificationModel::create([
+                                    'sender_id' => $ticket->traveler_id,
+                                    'type' => 'package.linked_ticket',
+                                    'title' => $title,
+                                    'body' => $body,
+                                    'data' => $notificationData,
+                                    'entity' => 'package',
+                                    'entity_id' => $record->id,
+                                ]);
+                                SendFcmNotificationJob::dispatch($ticket->traveler_id, $title, $body, $notificationData);
+                            }
+
+                            if ($ticket->sender_id) {
+                                NotificationModel::create([
+                                    'sender_id' => $ticket->sender_id,
+                                    'type' => 'package.linked_ticket',
+                                    'title' => $title,
+                                    'body' => $body,
+                                    'data' => $notificationData,
+                                    'entity' => 'package',
+                                    'entity_id' => $record->id,
+                                ]);
+                                SendFcmNotificationJob::dispatch($ticket->sender_id, $title, $body, $notificationData);
+                            }
+                        }
 
                         Notification::make()
                             ->title('Package linked & fees saved successfully')
@@ -547,7 +591,52 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->requiresConfirmation()
                     ->visible(fn (Package $record) => $record->ticket_id !== null && auth()->user()?->hasPermission('link-ticket-package'))
                     ->action(function (Package $record) {
+                        $oldTicket = $record->ticket;
+                        $oldTicketId = $oldTicket?->id;
+                        $oldTicketTravelerId = $oldTicket?->traveler_id;
+                        $oldTicketSenderId = $oldTicket?->sender_id;
+
                         $record->update(['ticket_id' => null]);
+
+                        if ($oldTicket && $oldTicketId) {
+                            $title = 'Package Unlinked from Ticket';
+                            $body = "Package {$record->tracking_number} has been unlinked from ticket #{$oldTicketId}";
+
+                            $notificationData = [
+                                'type' => 'package.unlinked_ticket',
+                                'entity' => 'package',
+                                'entity_id' => $record->id,
+                                'ticket_id' => $oldTicketId,
+                                'action' => 'unlinked_ticket',
+                                'deep_link' => "app://package/{$record->id}",
+                            ];
+
+                            if ($oldTicketTravelerId) {
+                                NotificationModel::create([
+                                    'sender_id' => $oldTicketTravelerId,
+                                    'type' => 'package.unlinked_ticket',
+                                    'title' => $title,
+                                    'body' => $body,
+                                    'data' => $notificationData,
+                                    'entity' => 'package',
+                                    'entity_id' => $record->id,
+                                ]);
+                                SendFcmNotificationJob::dispatch($oldTicketTravelerId, $title, $body, $notificationData);
+                            }
+
+                            if ($oldTicketSenderId) {
+                                NotificationModel::create([
+                                    'sender_id' => $oldTicketSenderId,
+                                    'type' => 'package.unlinked_ticket',
+                                    'title' => $title,
+                                    'body' => $body,
+                                    'data' => $notificationData,
+                                    'entity' => 'package',
+                                    'entity_id' => $record->id,
+                                ]);
+                                SendFcmNotificationJob::dispatch($oldTicketSenderId, $title, $body, $notificationData);
+                            }
+                        }
 
                         Notification::make()
                             ->title('Package unlinked successfully')
