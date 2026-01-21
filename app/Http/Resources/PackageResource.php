@@ -118,6 +118,18 @@ class PackageResource extends JsonResource
                     'to_city' => $this->ticket->to_city,
                     'status' => $this->ticket->status,
                     'status_label' => $this->ticket->status_label,
+                    'traveler' => $this->ticket->whenLoaded('traveler', function () {
+                        return [
+                            'id' => $this->ticket->traveler->id,
+                            'full_name' => $this->ticket->traveler->full_name,
+                            'email' => $this->ticket->traveler->email,
+                            'phone' => $this->ticket->traveler->phone,
+                            'avatar' => $this->ticket->traveler->avatar,
+                            'status' => $this->ticket->traveler->status,
+                            'type' => $this->ticket->traveler->type,
+                            'is_verified' => $this->ticket->traveler->is_verified,
+                        ];
+                    }),
                 ];
             }),
 
