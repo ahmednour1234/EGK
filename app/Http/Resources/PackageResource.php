@@ -112,29 +112,31 @@ class PackageResource extends JsonResource
 
             'ticket_id' => $this->ticket_id,
             'ticket' => $this->whenLoaded('ticket', function () {
-                return [
+                $ticketData = [
                     'id' => $this->ticket->id,
                     'traveler_id' => $this->ticket->traveler_id,
                     'from_city' => $this->ticket->from_city,
                     'to_city' => $this->ticket->to_city,
                     'status' => $this->ticket->status,
                     'status_label' => $this->ticket->status_label,
-                    'traveler' => $this->ticket->whenLoaded('traveler', function () {
-                        if (!$this->ticket->traveler) {
-                            return null;
-                        }
-                        return [
-                            'id' => $this->ticket->traveler->id,
-                            'full_name' => $this->ticket->traveler->full_name,
-                            'email' => $this->ticket->traveler->email,
-                            'phone' => $this->ticket->traveler->phone,
-                            'avatar' => $this->ticket->traveler->avatar,
-                            'status' => $this->ticket->traveler->status,
-                            'type' => $this->ticket->traveler->type,
-                            'is_verified' => $this->ticket->traveler->is_verified,
-                        ];
-                    }),
                 ];
+
+                if ($this->ticket->relationLoaded('traveler') && $this->ticket->traveler) {
+                    $ticketData['traveler'] = [
+                        'id' => $this->ticket->traveler->id,
+                        'full_name' => $this->ticket->traveler->full_name,
+                        'email' => $this->ticket->traveler->email,
+                        'phone' => $this->ticket->traveler->phone,
+                        'avatar' => $this->ticket->traveler->avatar,
+                        'status' => $this->ticket->traveler->status,
+                        'type' => $this->ticket->traveler->type,
+                        'is_verified' => $this->ticket->traveler->is_verified,
+                    ];
+                } else {
+                    $ticketData['traveler'] = null;
+                }
+
+                return $ticketData;
             }),
 
             'can_be_cancelled' => $this->canBeCancelled(),
