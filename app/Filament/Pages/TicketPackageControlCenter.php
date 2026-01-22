@@ -11,6 +11,7 @@ use App\Models\Package;
 use App\Models\Sender;
 use App\Models\TravelerTicket;
 use App\Services\TicketPackageMatcher;
+use Illuminate\Support\Facades\Log;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -25,7 +26,6 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Log;
 
 class TicketPackageControlCenter extends Page implements HasTable
 {
@@ -66,53 +66,6 @@ class TicketPackageControlCenter extends Page implements HasTable
         ];
     }
 
-    public function mount(): void
-    {
-        $this->sanitizeProperties();
-    }
-
-    public function hydrate(): void
-    {
-        $this->sanitizeProperties();
-    }
-
-    protected function sanitizeProperties(): void
-    {
-        $properties = ['searchQuery', 'packageStatusFilter', 'ticketStatusFilter', 'delayedFilter',
-                     'pickupCityFilter', 'deliveryCityFilter', 'tripTypeFilter', 'assigneeFilter', 'activeTab'];
-
-        foreach ($properties as $property) {
-            if (isset($this->$property) && is_string($this->$property)) {
-                $this->$property = $this->sanitizeUtf8($this->$property);
-            }
-        }
-    }
-
-    public function updated($property): void
-    {
-        if (is_string($this->$property ?? null)) {
-            $this->$property = $this->sanitizeUtf8($this->$property);
-        }
-    }
-
-    public function toArray(): array
-    {
-        $array = parent::toArray();
-        return $this->sanitizeArray($array);
-    }
-
-    protected function sanitizeArray($data)
-    {
-        if (is_array($data)) {
-            return array_map([$this, 'sanitizeArray'], $data);
-        } elseif (is_string($data)) {
-            return $this->sanitizeUtf8($data);
-        } elseif (is_object($data) && method_exists($data, 'toArray')) {
-            return $this->sanitizeArray($data->toArray());
-        }
-        return $data;
-    }
-
     public function switchTab(string $tab): void
     {
         if (! in_array($tab, ['tickets', 'packages'], true)) {
@@ -121,15 +74,6 @@ class TicketPackageControlCenter extends Page implements HasTable
 
         $this->activeTab = $tab;
         $this->resetTable();
-    }
-
-    protected function sanitizeUtf8($value): string
-    {
-        if (!is_string($value)) {
-            return (string) $value;
-        }
-        $result = @iconv('UTF-8', 'UTF-8//IGNORE', $value);
-        return $result !== false ? $result : preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $value);
     }
 
     protected function getTicketsTableQuery(): Builder
@@ -150,8 +94,7 @@ class TicketPackageControlCenter extends Page implements HasTable
             ->with([
                 'assignee:id,name',
                 'traveler:id,full_name,phone',
-            ])
-            ->whereIn('status', ['approved', 'active']);
+            ]);
 
         if ($this->ticketStatusFilter) {
             $q->where('status', $this->ticketStatusFilter);
@@ -166,7 +109,7 @@ class TicketPackageControlCenter extends Page implements HasTable
         }
 
         if ($this->searchQuery) {
-            $s = $this->sanitizeUtf8(trim($this->searchQuery));
+            $s = trim($this->searchQuery);
 
             $q->where(function (Builder $qq) use ($s) {
                 $qq->where('id', 'like', "%{$s}%")
@@ -180,7 +123,9 @@ class TicketPackageControlCenter extends Page implements HasTable
             });
         }
 
-        return $q->orderBy('created_at', 'desc');
+        $q->orderBy('created_at', 'desc');
+
+        return $q;
     }
 
     protected function getPackagesTableQuery(): Builder
@@ -218,34 +163,26 @@ class TicketPackageControlCenter extends Page implements HasTable
         }
 
         if ($this->delayedFilter === 'yes') {
-            // ملاحظة: ساعات الوقت في DB بتكون HH:ii بدون ثواني
-            // فبنستخدم %H:%i ونضيف :00 لو ناقص
             $q->where('status', '!=', 'delivered')
                 ->whereNotNull('delivery_date')
                 ->whereNotNull('delivery_time')
-                ->whereRaw("
-                    STR_TO_DATE(
-                        CONCAT(
-                            delivery_date, ' ',
-                            CASE
-                                WHEN delivery_time REGEXP '^[0-9]{2}:[0-9]{2}$' THEN CONCAT(delivery_time, ':00')
-                                ELSE delivery_time
-                            END
-                        ),
-                        '%Y-%m-%d %H:%i:%s'
-                    ) < ?
-                ", [now()->format('Y-m-d H:i:s')]);
+                ->whereRaw(
+                    "STR_TO_DATE(CONCAT(delivery_date,' ',delivery_time),'%Y-%m-%d %H:%i:%s') < ?",
+                    [now()->format('Y-m-d H:i:s')]
+                );
         }
 
         if ($this->searchQuery) {
-            $s = $this->sanitizeUtf8(trim($this->searchQuery));
+            $s = trim($this->searchQuery);
             $q->where(function (Builder $qq) use ($s) {
                 $qq->where('tracking_number', 'like', "%{$s}%")
                     ->orWhere('receiver_mobile', 'like', "%{$s}%");
             });
         }
 
-        return $q->orderBy('created_at', 'desc');
+        $q->orderBy('created_at', 'desc');
+
+        return $q;
     }
 
     protected function getTableQuery(): Builder
@@ -273,23 +210,21 @@ class TicketPackageControlCenter extends Page implements HasTable
             ->columns([
                 TextColumn::make('id')->label('ID')->sortable(),
 
-                TextColumn::make('traveler_id')->label('Traveler ID')->sortable(),
+                TextColumn::make('traveler_id')
+                    ->label('Traveler ID')
+                    ->sortable(),
 
                 TextColumn::make('traveler.full_name')
                     ->label('Traveler Name')
                     ->default('—')
-                    ->formatStateUsing(fn ($state) => $state ? $this->sanitizeUtf8($state) : '—')
                     ->searchable(query: function (Builder $query, string $search): Builder {
-                        $search = $this->sanitizeUtf8($search);
                         return $query->whereHas('traveler', fn (Builder $t) => $t->where('full_name', 'like', "%{$search}%"));
                     }),
 
                 TextColumn::make('traveler.phone')
                     ->label('Traveler Phone')
                     ->default('—')
-                    ->formatStateUsing(fn ($state) => $state ? $this->sanitizeUtf8($state) : '—')
                     ->searchable(query: function (Builder $query, string $search): Builder {
-                        $search = $this->sanitizeUtf8($search);
                         return $query->whereHas('traveler', fn (Builder $t) => $t->where('phone', 'like', "%{$search}%"));
                     }),
 
@@ -298,16 +233,12 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->formatStateUsing(fn ($state) => $state === 'one-way' ? 'One-way' : 'Round trip')
                     ->sortable(),
 
-                TextColumn::make('transport_type')
-                    ->label('Transport')
-                    ->formatStateUsing(fn ($state) => $state ? $this->sanitizeUtf8($state) : '—')
-                    ->sortable(),
+                TextColumn::make('transport_type')->label('Transport')->sortable(),
 
                 TextColumn::make('status')
                     ->badge()
                     ->formatStateUsing(fn ($state) => match ($state) {
                         'draft' => 'Draft',
-                        'approved' => 'Approved',
                         'active' => 'Active',
                         'matched' => 'Matched',
                         'completed' => 'Completed',
@@ -316,60 +247,32 @@ class TicketPackageControlCenter extends Page implements HasTable
                     })
                     ->sortable(),
 
-                TextColumn::make('from_city')
-                    ->label('From')
-                    ->formatStateUsing(fn ($state) => $state ? $this->sanitizeUtf8($state) : '—')
-                    ->sortable(),
-
-                TextColumn::make('to_city')
-                    ->label('To')
-                    ->formatStateUsing(fn ($state) => $state ? $this->sanitizeUtf8($state) : '—')
-                    ->sortable(),
+                TextColumn::make('from_city')->label('From')->sortable(),
+                TextColumn::make('to_city')->label('To')->sortable(),
 
                 TextColumn::make('packages_count')
                     ->label('Linked Packages')
                     ->badge()
                     ->sortable(),
 
-                TextColumn::make('first_package_assigned_at')
-                    ->label('First Package Assigned')
-                    ->dateTime()
-                    ->getStateUsing(function (TravelerTicket $record) {
-                        try {
-                            $firstPackage = $record->packages()
-                                ->select('created_at')
-                                ->orderBy('created_at', 'asc')
-                                ->first();
-
-                            return $firstPackage?->created_at;
-                        } catch (\Throwable $e) {
-                            return null;
-                        }
-                    })
-                    ->default('—')
-                    ->sortable(false),
-
-                TextColumn::make('assignee.name')
-                    ->label('Assigned To')
-                    ->default('—')
-                    ->formatStateUsing(fn ($state) => $state ? $this->sanitizeUtf8($state) : '—')
-                    ->sortable(),
-
+                TextColumn::make('assignee.name')->label('Assigned To')->default('—')->sortable(),
                 TextColumn::make('created_at')->dateTime()->sortable(),
             ])
             ->filters([
-                SelectFilter::make('status')->options([
-                    'approved' => 'Approved',
-                    'active' => 'Active',
-                    'matched' => 'Matched',
-                    'completed' => 'Completed',
-                    'cancelled' => 'Cancelled',
-                ]),
+                SelectFilter::make('status')
+                    ->options([
+                        'draft' => 'Draft',
+                        'active' => 'Active',
+                        'matched' => 'Matched',
+                        'completed' => 'Completed',
+                        'cancelled' => 'Cancelled',
+                    ]),
 
-                SelectFilter::make('trip_type')->options([
-                    'one-way' => 'One-way',
-                    'round-trip' => 'Round trip',
-                ]),
+                SelectFilter::make('trip_type')
+                    ->options([
+                        'one-way' => 'One-way',
+                        'round-trip' => 'Round trip',
+                    ]),
 
                 SelectFilter::make('assignee_id')
                     ->label('Assigned To')
@@ -386,7 +289,6 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->visible(fn (TravelerTicket $record) => $record->status !== 'approved' && auth()->user()?->hasPermission('manage-traveler-tickets'))
                     ->action(function (TravelerTicket $record) {
                         $oldStatus = $record->status;
-
                         $record->update([
                             'status' => 'approved',
                             'decided_by' => auth()->id(),
@@ -395,7 +297,11 @@ class TicketPackageControlCenter extends Page implements HasTable
 
                         TicketStatusChanged::dispatch($record->fresh(), $oldStatus, 'approved', auth()->user());
 
-                        Notification::make()->title('Ticket approved successfully')->success()->send();
+                        Notification::make()
+                            ->title('Ticket approved successfully')
+                            ->success()
+                            ->send();
+
                         $this->resetTable();
                     }),
 
@@ -404,12 +310,14 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->form([
-                        Textarea::make('rejection_reason')->label('Rejection Reason')->required()->rows(4),
+                        Textarea::make('rejection_reason')
+                            ->label('Rejection Reason')
+                            ->required()
+                            ->rows(4),
                     ])
                     ->visible(fn (TravelerTicket $record) => $record->status !== 'rejected' && auth()->user()?->hasPermission('manage-traveler-tickets'))
                     ->action(function (TravelerTicket $record, array $data) {
                         $oldStatus = $record->status;
-
                         $record->update([
                             'status' => 'rejected',
                             'decided_by' => auth()->id(),
@@ -419,7 +327,11 @@ class TicketPackageControlCenter extends Page implements HasTable
 
                         TicketStatusChanged::dispatch($record->fresh(), $oldStatus, 'rejected', auth()->user());
 
-                        Notification::make()->title('Ticket rejected successfully')->success()->send();
+                        Notification::make()
+                            ->title('Ticket rejected successfully')
+                            ->success()
+                            ->send();
+
                         $this->resetTable();
                     }),
 
@@ -442,7 +354,11 @@ class TicketPackageControlCenter extends Page implements HasTable
 
                         TicketSenderLinked::dispatch($record->fresh(), $sender);
 
-                        Notification::make()->title('Sender linked successfully')->success()->send();
+                        Notification::make()
+                            ->title('Sender linked successfully')
+                            ->success()
+                            ->send();
+
                         $this->resetTable();
                     }),
 
@@ -451,7 +367,10 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->icon('heroicon-o-eye')
                     ->slideOver()
                     ->form([
-                        Textarea::make('packages_display')->label('Packages')->rows(16)->disabled(),
+                        Textarea::make('packages_display')
+                            ->label('Packages')
+                            ->rows(16)
+                            ->disabled(),
                     ])
                     ->mountUsing(function ($form, TravelerTicket $record) {
                         $list = Package::query()
@@ -460,12 +379,7 @@ class TicketPackageControlCenter extends Page implements HasTable
                             ->latest('id')
                             ->limit(50)
                             ->get()
-                            ->map(function ($p) {
-                                $tracking = $this->sanitizeUtf8($p->tracking_number ?? '');
-                                $pickup = $this->sanitizeUtf8($p->pickup_city ?? '');
-                                $delivery = $this->sanitizeUtf8($p->delivery_city ?? '');
-                                return "{$tracking} | {$pickup} → {$delivery}";
-                            })
+                            ->map(fn ($p) => "{$p->tracking_number} | {$p->pickup_city} → {$p->delivery_city}")
                             ->implode("\n");
 
                         $form->fill([
@@ -487,7 +401,6 @@ class TicketPackageControlCenter extends Page implements HasTable
             ->columns([
                 TextColumn::make('tracking_number')
                     ->label('Tracking #')
-                    ->formatStateUsing(fn ($state) => $state ? $this->sanitizeUtf8($state) : '—')
                     ->sortable()
                     ->searchable()
                     ->copyable(),
@@ -506,17 +419,8 @@ class TicketPackageControlCenter extends Page implements HasTable
                     })
                     ->sortable(),
 
-                TextColumn::make('pickup_city')
-                    ->label('Pickup')
-                    ->formatStateUsing(fn ($state) => $state ? $this->sanitizeUtf8($state) : '—')
-                    ->sortable()
-                    ->searchable(),
-
-                TextColumn::make('delivery_city')
-                    ->label('Delivery')
-                    ->formatStateUsing(fn ($state) => $state ? $this->sanitizeUtf8($state) : '—')
-                    ->sortable()
-                    ->searchable(),
+                TextColumn::make('pickup_city')->label('Pickup')->sortable()->searchable(),
+                TextColumn::make('delivery_city')->label('Delivery')->sortable()->searchable(),
 
                 TextColumn::make('pickup_datetime')
                     ->label('Pickup Date')
@@ -530,11 +434,7 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->getStateUsing(fn (Package $record) => $record->delivery_datetime)
                     ->sortable(query: fn (Builder $q, string $dir) => $q->orderBy('delivery_date', $dir)->orderBy('delivery_time', $dir)),
 
-                TextColumn::make('receiver_mobile')
-                    ->label('Receiver Mobile')
-                    ->formatStateUsing(fn ($state) => $state ? $this->sanitizeUtf8($state) : '—')
-                    ->sortable()
-                    ->searchable(),
+                TextColumn::make('receiver_mobile')->label('Receiver Mobile')->sortable()->searchable(),
 
                 TextColumn::make('fees')
                     ->label('Fees')
@@ -550,16 +450,16 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->sortable(),
             ])
             ->filters([
-                SelectFilter::make('status')->options([
-                    'pending_review' => 'Pending Review',
-                    'approved' => 'Approved',
-                    'rejected' => 'Rejected',
-                    'paid' => 'Paid',
-                    'in_transit' => 'In Transit',
-                    'delivered' => 'Delivered',
-                    'cancelled' => 'Cancelled',
-                ]),
-
+                SelectFilter::make('status')
+                    ->options([
+                        'pending_review' => 'Pending Review',
+                        'approved' => 'Approved',
+                        'rejected' => 'Rejected',
+                        'paid' => 'Paid',
+                        'in_transit' => 'In Transit',
+                        'delivered' => 'Delivered',
+                        'cancelled' => 'Cancelled',
+                    ]),
                 SelectFilter::make('ticket_id')
                     ->label('Linked Ticket')
                     ->relationship('ticket', 'id')
@@ -580,7 +480,7 @@ class TicketPackageControlCenter extends Page implements HasTable
                             ->label('Ticket')
                             ->searchable()
                             ->getSearchResultsUsing(function (string $search) {
-                                $search = $this->sanitizeUtf8(trim($search));
+                                $search = trim($search);
 
                                 return TravelerTicket::query()
                                     ->select(['id', 'traveler_id', 'from_city', 'to_city', 'status'])
@@ -601,11 +501,9 @@ class TicketPackageControlCenter extends Page implements HasTable
                                     ->limit(50)
                                     ->get()
                                     ->mapWithKeys(function ($t) {
-                                        $name = $this->sanitizeUtf8($t->traveler?->full_name ?? '-');
-                                        $phone = $this->sanitizeUtf8($t->traveler?->phone ?? '-');
-                                        $fromCity = $this->sanitizeUtf8($t->from_city ?? '-');
-                                        $toCity = $this->sanitizeUtf8($t->to_city ?? '-');
-                                        $label = "Ticket #{$t->id} | {$name} ({$phone}) | {$fromCity} → {$toCity}";
+                                        $name = $t->traveler?->full_name ?? '-';
+                                        $phone = $t->traveler?->phone ?? '-';
+                                        $label = "Ticket #{$t->id} | {$name} ({$phone}) | {$t->from_city} → {$t->to_city}";
                                         return [$t->id => $label];
                                     })
                                     ->toArray();
@@ -620,12 +518,10 @@ class TicketPackageControlCenter extends Page implements HasTable
                                     return '—';
                                 }
 
-                                $name = $this->sanitizeUtf8($t->traveler?->full_name ?? '-');
-                                $phone = $this->sanitizeUtf8($t->traveler?->phone ?? '-');
-                                $fromCity = $this->sanitizeUtf8($t->from_city ?? '-');
-                                $toCity = $this->sanitizeUtf8($t->to_city ?? '-');
+                                $name = $t->traveler?->full_name ?? '-';
+                                $phone = $t->traveler?->phone ?? '-';
 
-                                return "Ticket #{$t->id} | {$name} ({$phone}) | {$fromCity} → {$toCity}";
+                                return "Ticket #{$t->id} | {$name} ({$phone}) | {$t->from_city} → {$t->to_city}";
                             })
                             ->required(),
 
@@ -638,17 +534,24 @@ class TicketPackageControlCenter extends Page implements HasTable
                             ->default(0),
                     ])
                     ->action(function (Package $record, array $data) {
+                        $oldTicketId = $record->ticket_id;
                         $record->update([
                             'ticket_id' => $data['ticket_id'],
                             'fees' => $data['fees'] ?? 0,
                         ]);
 
                         $ticket = TravelerTicket::find($data['ticket_id']);
-
                         if ($ticket) {
+                            Log::info('Package linked to ticket', [
+                                'package_id' => $record->id,
+                                'tracking_number' => $record->tracking_number,
+                                'ticket_id' => $ticket->id,
+                                'traveler_id' => $ticket->traveler_id,
+                                'sender_id' => $ticket->sender_id,
+                            ]);
+
                             $title = 'Package Linked to Ticket';
-                            $trackingNumber = $this->sanitizeUtf8($record->tracking_number ?? '');
-                            $body = "Package {$trackingNumber} has been linked to ticket #{$ticket->id}";
+                            $body = "Package {$record->tracking_number} has been linked to ticket #{$ticket->id}";
 
                             $notificationData = [
                                 'type' => 'package.linked_ticket',
@@ -661,7 +564,7 @@ class TicketPackageControlCenter extends Page implements HasTable
 
                             if ($ticket->traveler_id) {
                                 try {
-                                    NotificationModel::create([
+                                    $notification = NotificationModel::create([
                                         'sender_id' => $ticket->traveler_id,
                                         'type' => 'package.linked_ticket',
                                         'title' => $title,
@@ -670,19 +573,26 @@ class TicketPackageControlCenter extends Page implements HasTable
                                         'entity' => 'package',
                                         'entity_id' => $record->id,
                                     ]);
-                                } catch (\Throwable $e) {
+                                    Log::info('Notification created for traveler', [
+                                        'notification_id' => $notification->id,
+                                        'traveler_id' => $ticket->traveler_id,
+                                        'package_id' => $record->id,
+                                    ]);
+                                } catch (\Exception $e) {
                                     Log::error('Failed to create notification for traveler', [
                                         'traveler_id' => $ticket->traveler_id,
                                         'package_id' => $record->id,
                                         'error' => $e->getMessage(),
+                                        'trace' => $e->getTraceAsString(),
                                     ]);
                                 }
                                 SendFcmNotificationJob::dispatch($ticket->traveler_id, $title, $body, $notificationData);
+                                Log::info('FCM job dispatched for traveler', ['traveler_id' => $ticket->traveler_id]);
                             }
 
                             if ($ticket->sender_id) {
                                 try {
-                                    NotificationModel::create([
+                                    $notification = NotificationModel::create([
                                         'sender_id' => $ticket->sender_id,
                                         'type' => 'package.linked_ticket',
                                         'title' => $title,
@@ -691,18 +601,34 @@ class TicketPackageControlCenter extends Page implements HasTable
                                         'entity' => 'package',
                                         'entity_id' => $record->id,
                                     ]);
-                                } catch (\Throwable $e) {
+                                    Log::info('Notification created for sender', [
+                                        'notification_id' => $notification->id,
+                                        'sender_id' => $ticket->sender_id,
+                                        'package_id' => $record->id,
+                                    ]);
+                                } catch (\Exception $e) {
                                     Log::error('Failed to create notification for sender', [
                                         'sender_id' => $ticket->sender_id,
                                         'package_id' => $record->id,
                                         'error' => $e->getMessage(),
+                                        'trace' => $e->getTraceAsString(),
                                     ]);
                                 }
                                 SendFcmNotificationJob::dispatch($ticket->sender_id, $title, $body, $notificationData);
+                                Log::info('FCM job dispatched for sender', ['sender_id' => $ticket->sender_id]);
                             }
+                        } else {
+                            Log::warning('Ticket not found when linking package', [
+                                'package_id' => $record->id,
+                                'ticket_id' => $data['ticket_id'],
+                            ]);
                         }
 
-                        Notification::make()->title('Package linked & fees saved successfully')->success()->send();
+                        Notification::make()
+                            ->title('Package linked & fees saved successfully')
+                            ->success()
+                            ->send();
+
                         $this->resetTable();
                     }),
 
@@ -715,15 +641,22 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->action(function (Package $record) {
                         $oldTicket = $record->ticket;
                         $oldTicketId = $oldTicket?->id;
-                        $oldTravelerId = $oldTicket?->traveler_id;
-                        $oldSenderId = $oldTicket?->sender_id;
+                        $oldTicketTravelerId = $oldTicket?->traveler_id;
+                        $oldTicketSenderId = $oldTicket?->sender_id;
 
                         $record->update(['ticket_id' => null]);
 
-                        if ($oldTicketId) {
+                        if ($oldTicket && $oldTicketId) {
+                            Log::info('Package unlinked from ticket', [
+                                'package_id' => $record->id,
+                                'tracking_number' => $record->tracking_number,
+                                'ticket_id' => $oldTicketId,
+                                'traveler_id' => $oldTicketTravelerId,
+                                'sender_id' => $oldTicketSenderId,
+                            ]);
+
                             $title = 'Package Unlinked from Ticket';
-                            $trackingNumber = $this->sanitizeUtf8($record->tracking_number ?? '');
-                            $body = "Package {$trackingNumber} has been unlinked from ticket #{$oldTicketId}";
+                            $body = "Package {$record->tracking_number} has been unlinked from ticket #{$oldTicketId}";
 
                             $notificationData = [
                                 'type' => 'package.unlinked_ticket',
@@ -734,10 +667,10 @@ class TicketPackageControlCenter extends Page implements HasTable
                                 'deep_link' => "app://package/{$record->id}",
                             ];
 
-                            if ($oldTravelerId) {
+                            if ($oldTicketTravelerId) {
                                 try {
-                                    NotificationModel::create([
-                                        'sender_id' => $oldTravelerId,
+                                    $notification = NotificationModel::create([
+                                        'sender_id' => $oldTicketTravelerId,
                                         'type' => 'package.unlinked_ticket',
                                         'title' => $title,
                                         'body' => $body,
@@ -745,20 +678,27 @@ class TicketPackageControlCenter extends Page implements HasTable
                                         'entity' => 'package',
                                         'entity_id' => $record->id,
                                     ]);
-                                } catch (\Throwable $e) {
+                                    Log::info('Notification created for traveler', [
+                                        'notification_id' => $notification->id,
+                                        'traveler_id' => $oldTicketTravelerId,
+                                        'package_id' => $record->id,
+                                    ]);
+                                } catch (\Exception $e) {
                                     Log::error('Failed to create notification for traveler', [
-                                        'traveler_id' => $oldTravelerId,
+                                        'traveler_id' => $oldTicketTravelerId,
                                         'package_id' => $record->id,
                                         'error' => $e->getMessage(),
+                                        'trace' => $e->getTraceAsString(),
                                     ]);
                                 }
-                                SendFcmNotificationJob::dispatch($oldTravelerId, $title, $body, $notificationData);
+                                SendFcmNotificationJob::dispatch($oldTicketTravelerId, $title, $body, $notificationData);
+                                Log::info('FCM job dispatched for traveler', ['traveler_id' => $oldTicketTravelerId]);
                             }
 
-                            if ($oldSenderId) {
+                            if ($oldTicketSenderId) {
                                 try {
-                                    NotificationModel::create([
-                                        'sender_id' => $oldSenderId,
+                                    $notification = NotificationModel::create([
+                                        'sender_id' => $oldTicketSenderId,
                                         'type' => 'package.unlinked_ticket',
                                         'title' => $title,
                                         'body' => $body,
@@ -766,18 +706,29 @@ class TicketPackageControlCenter extends Page implements HasTable
                                         'entity' => 'package',
                                         'entity_id' => $record->id,
                                     ]);
-                                } catch (\Throwable $e) {
+                                    Log::info('Notification created for sender', [
+                                        'notification_id' => $notification->id,
+                                        'sender_id' => $oldTicketSenderId,
+                                        'package_id' => $record->id,
+                                    ]);
+                                } catch (\Exception $e) {
                                     Log::error('Failed to create notification for sender', [
-                                        'sender_id' => $oldSenderId,
+                                        'sender_id' => $oldTicketSenderId,
                                         'package_id' => $record->id,
                                         'error' => $e->getMessage(),
+                                        'trace' => $e->getTraceAsString(),
                                     ]);
                                 }
-                                SendFcmNotificationJob::dispatch($oldSenderId, $title, $body, $notificationData);
+                                SendFcmNotificationJob::dispatch($oldTicketSenderId, $title, $body, $notificationData);
+                                Log::info('FCM job dispatched for sender', ['sender_id' => $oldTicketSenderId]);
                             }
                         }
 
-                        Notification::make()->title('Package unlinked successfully')->success()->send();
+                        Notification::make()
+                            ->title('Package unlinked successfully')
+                            ->success()
+                            ->send();
+
                         $this->resetTable();
                     }),
 
@@ -786,25 +737,29 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->icon('heroicon-o-pencil')
                     ->visible(fn () => auth()->user()?->hasPermission('manage-packages'))
                     ->form([
-                        Select::make('status')->options([
-                            'pending_review' => 'Pending Review',
-                            'approved' => 'Approved',
-                            'rejected' => 'Rejected',
-                            'paid' => 'Paid',
-                            'in_transit' => 'In Transit',
-                            'delivered' => 'Delivered',
-                            'cancelled' => 'Cancelled',
-                        ])->required(),
+                        Select::make('status')
+                            ->options([
+                                'pending_review' => 'Pending Review',
+                                'approved' => 'Approved',
+                                'rejected' => 'Rejected',
+                                'paid' => 'Paid',
+                                'in_transit' => 'In Transit',
+                                'delivered' => 'Delivered',
+                                'cancelled' => 'Cancelled',
+                            ])
+                            ->required(),
                     ])
                     ->action(function (Package $record, array $data) {
                         $oldStatus = $record->status;
                         $record->update($data);
 
-                        PackageUpdated::dispatch($record->fresh(), [
-                            'status' => ['old' => $oldStatus, 'new' => $data['status']],
-                        ]);
+                        PackageUpdated::dispatch($record->fresh(), ['status' => ['old' => $oldStatus, 'new' => $data['status']]]);
 
-                        Notification::make()->title('Status updated successfully')->success()->send();
+                        Notification::make()
+                            ->title('Status updated successfully')
+                            ->success()
+                            ->send();
+
                         $this->resetTable();
                     }),
 
@@ -814,21 +769,25 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->color('success')
                     ->visible(fn (Package $record) => $record->status !== 'delivered' && auth()->user()?->hasPermission('manage-packages'))
                     ->form([
-                        DatePicker::make('delivered_at')->label('Delivered At')->default(now())->required(),
+                        DatePicker::make('delivered_at')
+                            ->label('Delivered At')
+                            ->default(now())
+                            ->required(),
                     ])
                     ->action(function (Package $record, array $data) {
                         $oldStatus = $record->status;
-
                         $record->update([
                             'status' => 'delivered',
                             'delivered_at' => $data['delivered_at'],
                         ]);
 
-                        PackageUpdated::dispatch($record->fresh(), [
-                            'status' => ['old' => $oldStatus, 'new' => 'delivered'],
-                        ]);
+                        PackageUpdated::dispatch($record->fresh(), ['status' => ['old' => $oldStatus, 'new' => 'delivered']]);
 
-                        Notification::make()->title('Package marked as delivered')->success()->send();
+                        Notification::make()
+                            ->title('Package marked as delivered')
+                            ->success()
+                            ->send();
+
                         $this->resetTable();
                     }),
 
@@ -839,7 +798,10 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->slideOver()
                     ->visible(fn () => auth()->user()?->hasPermission('link-ticket-package'))
                     ->form([
-                        Textarea::make('matches_display')->label('Top Matching Tickets')->rows(18)->disabled(),
+                        Textarea::make('matches_display')
+                            ->label('Top Matching Tickets')
+                            ->rows(18)
+                            ->disabled(),
                     ])
                     ->mountUsing(function ($form, Package $record) {
                         $matcher = app(TicketPackageMatcher::class);
@@ -872,11 +834,8 @@ class TicketPackageControlCenter extends Page implements HasTable
                         foreach ($matches as $i => $m) {
                             $t = $m['ticket'];
                             $score = round($m['score'], 2);
-                            $fromCity = $this->sanitizeUtf8($t->from_city ?? '-');
-                            $toCity = $this->sanitizeUtf8($t->to_city ?? '-');
-
                             $content .= ($i + 1) . ". Ticket #{$t->id} - Score: {$score}%\n";
-                            $content .= "   Route: {$fromCity} → {$toCity}\n\n";
+                            $content .= "   Route: {$t->from_city} → {$t->to_city}\n\n";
                         }
 
                         $form->fill(['matches_display' => trim($content)]);
