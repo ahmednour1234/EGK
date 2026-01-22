@@ -76,11 +76,13 @@ class StoreTravelerTicketRequest extends FormRequest
      */
     protected function failedValidation(Validator $validator): void
     {
+        $errors = $validator->errors()->toArray();
+
         throw new HttpResponseException(
             ApiResponse::error(
                 'Validation failed',
                 422,
-                $validator->errors()->toArray()
+                $errors
             )
         );
     }
