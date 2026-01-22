@@ -36,13 +36,13 @@ class StoreTravelerTicketRequest extends FormRequest
             'trip_type' => ['required'],
             'departure_date' => ['required'],
             'departure_time' => ['required'],
-            'arrival_date' => ['nullable'],
-            'arrival_time' => ['nullable'],
-            'transport_type' => ['required'],
+            'arrival_date' => ['nullable', 'date', 'after_or_equal:departure_date'],
+            'arrival_time' => ['nullable', 'date_format:H:i'],
+            'transport_type' => ['required', 'string', 'max:255'],
 
             // Travel Capacity
-            'total_weight_limit' => ['nullable'],
-            'max_package_count' => ['nullable'],
+            'total_weight_limit' => ['nullable', 'numeric', 'min:0.01'],
+            'max_package_count' => ['nullable', 'integer', 'min:1'],
             'acceptable_package_types' => ['nullable', 'array'],
             'acceptable_package_types.*' => ['exists:package_types,id'],
             'preferred_pickup_area' => ['nullable', 'string', 'max:255'],
@@ -60,7 +60,13 @@ class StoreTravelerTicketRequest extends FormRequest
         ];
 
         // If round-trip, require return date and time
-
+        if ($this->input('trip_type') === 'round-trip') {
+            $rules['return_date'] = ['nullable', 'date', 'after_or_equal:departure_date'];
+            $rules['return_time'] = ['nullable', 'date_format:H:i'];
+        } else {
+            $rules['return_date'] = ['nullable', 'date'];
+            $rules['return_time'] = ['nullable', 'date_format:H:i'];
+        }
 
         return $rules;
     }

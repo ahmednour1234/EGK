@@ -139,6 +139,11 @@ class PackageResource extends Resource
                         Forms\Components\TimePicker::make('delivery_time')
                             ->required()
                             ->seconds(false),
+                        Forms\Components\DatePicker::make('arrival_date')
+                            ->label('Arrival Date'),
+                        Forms\Components\TimePicker::make('arrival_time')
+                            ->label('Arrival Time')
+                            ->seconds(false),
                     ])
                     ->columns(2),
                 Forms\Components\Section::make('Receiver Information')

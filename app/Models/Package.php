@@ -35,6 +35,8 @@ class Package extends Model
         'delivery_longitude',
         'delivery_date',
         'delivery_time',
+        'arrival_date',
+        'arrival_time',
         'receiver_name',
         'receiver_mobile',
         'receiver_notes',
@@ -58,6 +60,7 @@ class Package extends Model
     protected $casts = [
         'pickup_date' => 'datetime',
         'delivery_date' => 'datetime',
+        'arrival_date' => 'datetime',
         'weight' => 'decimal:2',
         'length' => 'decimal:2',
         'width' => 'decimal:2',
