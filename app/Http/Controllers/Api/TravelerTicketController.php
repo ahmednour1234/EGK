@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 /**
  * @group Traveler Tickets
  *
- * APIs for managing traveler tickets (only accessible to travelers)
+ * APIs for managing traveler tickets (accessible to travelers and senders)
  */
 class TravelerTicketController extends BaseApiController
 {
@@ -23,8 +23,7 @@ class TravelerTicketController extends BaseApiController
     /**
      * Get All Tickets
      *
-     * Get a list of all tickets for the authenticated traveler with advanced filtering.
-     * Only travelers (type='traveler') can access this endpoint.
+     * Get a list of all tickets for the authenticated user (traveler or sender) with advanced filtering.
      *
      * @queryParam status string Filter by status (draft, active, matched, completed, cancelled). Example: active
      * @queryParam statuses array Filter by multiple statuses. Example: ["draft","active"]
@@ -51,11 +50,7 @@ class TravelerTicketController extends BaseApiController
      */
     public function index(Request $request): JsonResponse
     {
-        $traveler = Auth::guard('sender')->user();
-
-        if ($traveler->type !== 'traveler') {
-            return $this->error('Only travelers can access tickets', 403);
-        }
+        $user = Auth::guard('sender')->user();
 
         $filters = [
             'status' => $request->input('status'),
@@ -88,7 +83,7 @@ class TravelerTicketController extends BaseApiController
         $perPage = min((int) $request->input('per_page', 15), 100);
 
         $tickets = $this->ticketRepository->getAll(
-            $traveler->id,
+            $user->id,
             array_filter($filters, fn ($value) => $value !== null && $value !== ''),
             $perPage
         );
@@ -99,8 +94,7 @@ class TravelerTicketController extends BaseApiController
     /**
      * Get Active Trips
      *
-     * Get all active tickets (status='active') for the authenticated traveler with package counts.
-     * Only travelers (type='traveler') can access this endpoint.
+     * Get all active tickets (status='active') for the authenticated user (traveler or sender) with package counts.
      *
      * @queryParam trip_type string Filter by trip type (one-way, round-trip). Example: one-way
      * @queryParam transport_type string Filter by transport type. Example: Car
@@ -126,9 +120,7 @@ class TravelerTicketController extends BaseApiController
 
 public function activeTrips(Request $request): JsonResponse
 {
-    $traveler = Auth::guard('sender')->user();
-
-
+    $user = Auth::guard('sender')->user();
 
     $filters = [
         'status' => 'active',
@@ -155,7 +147,7 @@ public function activeTrips(Request $request): JsonResponse
     $perPage = $perPage > 0 ? min($perPage, 100) : 15;
 
     $tickets = $this->ticketRepository->getAll(
-        travelerId: (int) $traveler->id,
+        travelerId: (int) $user->id,
         filters: $filters,
         perPage: $perPage,
         withTrashed: false,
@@ -170,7 +162,7 @@ public function activeTrips(Request $request): JsonResponse
     /**
      * Create Ticket
      *
-     * Create a new travel ticket. Only travelers (type='traveler') can create tickets.
+     * Create a new travel ticket. Both travelers and senders can create tickets.
      *
      * @bodyParam from_country_id int required From country id. Example: 1
      * @bodyParam to_country_id int required To country id. Example: 2
@@ -207,8 +199,7 @@ public function activeTrips(Request $request): JsonResponse
      */
     public function store(StoreTravelerTicketRequest $request): JsonResponse
     {
-        $traveler = Auth::guard('sender')->user();
-
+        $user = Auth::guard('sender')->user();
 
         $data = $request->validated();
 
@@ -216,7 +207,7 @@ public function activeTrips(Request $request): JsonResponse
             $data['status'] = 'draft';
         }
 
-        $ticket = $this->ticketRepository->create($traveler->id, $data);
+        $ticket = $this->ticketRepository->create($user->id, $data);
 
         return $this->created(TravelerTicketResource::make($ticket), 'Ticket created successfully');
     }
@@ -236,9 +227,9 @@ public function activeTrips(Request $request): JsonResponse
      */
     public function show(string $id): JsonResponse
     {
-        $traveler = Auth::guard('sender')->user();
+        $user = Auth::guard('sender')->user();
 
-        $ticket = $this->ticketRepository->getById($traveler->id, (int) $id);
+        $ticket = $this->ticketRepository->getById($user->id, (int) $id);
 
         if (!$ticket) {
             return $this->error('Ticket not found', 404);
@@ -262,11 +253,9 @@ public function activeTrips(Request $request): JsonResponse
      */
     public function update(StoreTravelerTicketRequest $request, string $id): JsonResponse
     {
-        $traveler = Auth::guard('sender')->user();
+        $user = Auth::guard('sender')->user();
 
-
-
-        $ticket = $this->ticketRepository->getById($traveler->id, (int) $id);
+        $ticket = $this->ticketRepository->getById($user->id, (int) $id);
 
         if (!$ticket) {
             return $this->error('Ticket not found', 404);
@@ -283,7 +272,7 @@ public function activeTrips(Request $request): JsonResponse
             unset($data['status']);
         }
 
-        $ticket = $this->ticketRepository->update($traveler->id, (int) $id, $data);
+        $ticket = $this->ticketRepository->update($user->id, (int) $id, $data);
 
         return $this->success(TravelerTicketResource::make($ticket), 'Ticket updated successfully');
     }
@@ -303,11 +292,9 @@ public function activeTrips(Request $request): JsonResponse
      */
     public function destroy(string $id): JsonResponse
     {
-        $traveler = Auth::guard('sender')->user();
+        $user = Auth::guard('sender')->user();
 
-
-
-        $deleted = $this->ticketRepository->delete($traveler->id, (int) $id);
+        $deleted = $this->ticketRepository->delete($user->id, (int) $id);
 
         if (!$deleted) {
             return $this->error('Ticket not found', 404);

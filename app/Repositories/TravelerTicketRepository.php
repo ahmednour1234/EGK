@@ -18,7 +18,10 @@ public function getAll(
     bool $withTrashed = false,
     array $withCounts = []
 ): LengthAwarePaginator {
-    $query = TravelerTicket::query()->where('traveler_id', $travelerId);
+    $query = TravelerTicket::query()->where(function ($q) use ($travelerId) {
+        $q->where('traveler_id', $travelerId)
+          ->orWhere('sender_id', $travelerId);
+    });
 
     if ($withTrashed) {
         $query->withTrashed();
@@ -82,8 +85,10 @@ public function getAll(
 }
     public function getById(int $travelerId, int $id, bool $withTrashed = false): ?TravelerTicket
     {
-        $query = TravelerTicket::where('traveler_id', $travelerId)
-            ->where('id', $id);
+        $query = TravelerTicket::where(function ($q) use ($travelerId) {
+            $q->where('traveler_id', $travelerId)
+              ->orWhere('sender_id', $travelerId);
+        })->where('id', $id);
 
         if ($withTrashed) {
             $query->withTrashed();
@@ -114,6 +119,10 @@ public function getAll(
             return null;
         }
 
+        if ($ticket->traveler_id !== $travelerId && $ticket->sender_id !== $travelerId) {
+            return null;
+        }
+
         return DB::transaction(function () use ($ticket, $data) {
             $ticket->update($data);
             return $ticket->fresh();
@@ -128,13 +137,20 @@ public function getAll(
             return false;
         }
 
+        if ($ticket->traveler_id !== $travelerId && $ticket->sender_id !== $travelerId) {
+            return false;
+        }
+
         return $ticket->delete(); // Soft delete
     }
 
     public function restore(int $travelerId, int $id): bool
     {
         $ticket = TravelerTicket::onlyTrashed()
-            ->where('traveler_id', $travelerId)
+            ->where(function ($q) use ($travelerId) {
+                $q->where('traveler_id', $travelerId)
+                  ->orWhere('sender_id', $travelerId);
+            })
             ->where('id', $id)
             ->first();
 
@@ -148,7 +164,10 @@ public function getAll(
     public function forceDelete(int $travelerId, int $id): bool
     {
         $ticket = TravelerTicket::onlyTrashed()
-            ->where('traveler_id', $travelerId)
+            ->where(function ($q) use ($travelerId) {
+                $q->where('traveler_id', $travelerId)
+                  ->orWhere('sender_id', $travelerId);
+            })
             ->where('id', $id)
             ->first();
 

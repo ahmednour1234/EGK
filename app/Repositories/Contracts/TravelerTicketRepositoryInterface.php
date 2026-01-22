@@ -7,7 +7,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 interface TravelerTicketRepositoryInterface
 {
-    public function getAll(int $travelerId, array $filters = [], int $perPage = 15, bool $withTrashed = false): LengthAwarePaginator;
+    public function getAll(int $travelerId, array $filters = [], int $perPage = 15, bool $withTrashed = false, array $withCounts = []): LengthAwarePaginator;
     public function getById(int $travelerId, int $id, bool $withTrashed = false): ?TravelerTicket;
     public function create(int $travelerId, array $data): TravelerTicket;
     public function update(int $travelerId, int $id, array $data): ?TravelerTicket;
