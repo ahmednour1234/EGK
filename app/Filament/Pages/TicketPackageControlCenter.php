@@ -76,50 +76,6 @@ class TicketPackageControlCenter extends Page implements HasTable
         $this->resetTable();
     }
 
-    /**
-     * أهم جزء لحل المشكلة:
-     * - يضمن إن أي نص طالع من DB يكون UTF-8 صالح
-     * - يشيل البايتات البايظة/الـ control chars اللي بتكسر json_encode
-     */
-    protected function safeUtf8($value, string $default = '—'): string
-    {
-        if ($value === null) {
-            return $default;
-        }
-
-        if (is_bool($value)) {
-            return $value ? '1' : '0';
-        }
-
-        if (is_numeric($value)) {
-            return (string) $value;
-        }
-
-        $str = (string) $value;
-
-        // سريع: لو UTF-8 سليم خلاص
-        if (mb_check_encoding($str, 'UTF-8')) {
-            // شيل control chars غير المسموح بها
-            $str = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $str);
-            return $str === '' ? $default : $str;
-        }
-
-        // لو مش UTF-8 سليم: جرّب تحويلات شائعة
-        $converted =
-            @iconv('Windows-1256', 'UTF-8//IGNORE', $str) ?:
-            @iconv('ISO-8859-1', 'UTF-8//IGNORE', $str) ?:
-            @iconv('CP1252', 'UTF-8//IGNORE', $str);
-
-        if ($converted === false || $converted === null) {
-            // fallback
-            $converted = utf8_encode($str);
-        }
-
-        $converted = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $converted);
-
-        return $converted === '' ? $default : $converted;
-    }
-
     protected function getTicketsTableQuery(): Builder
     {
         $q = TravelerTicket::query()
