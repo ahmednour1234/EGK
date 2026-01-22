@@ -26,7 +26,8 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Database\Eloquent\Model::retrieved(function ($model) {
             foreach ($model->getAttributes() as $key => $value) {
                 if (is_string($value)) {
-                    $model->setAttribute($key, mb_convert_encoding($value, 'UTF-8', 'UTF-8//IGNORE'));
+                    $result = @iconv('UTF-8', 'UTF-8//IGNORE', $value);
+                    $model->setAttribute($key, $result !== false ? $result : preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $value));
                 }
             }
         });

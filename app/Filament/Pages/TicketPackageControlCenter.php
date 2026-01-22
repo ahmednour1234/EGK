@@ -81,7 +81,8 @@ class TicketPackageControlCenter extends Page implements HasTable
         if (!is_string($value)) {
             return (string) $value;
         }
-        return mb_convert_encoding($value, 'UTF-8', 'UTF-8//IGNORE');
+        $result = @iconv('UTF-8', 'UTF-8//IGNORE', $value);
+        return $result !== false ? $result : preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $value);
     }
 
     protected function getTicketsTableQuery(): Builder
