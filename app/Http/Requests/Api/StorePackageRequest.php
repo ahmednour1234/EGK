@@ -18,7 +18,7 @@ class StorePackageRequest extends FormRequest
     public function rules(): array
     {
         $senderId = auth('sender')->id();
-        
+
         return [
             // Pickup Information
             'pickup_address_id' => [
@@ -32,9 +32,9 @@ class StorePackageRequest extends FormRequest
             'pickup_landmark' => 'nullable|string',
             'pickup_latitude' => 'nullable|numeric|between:-90,90',
             'pickup_longitude' => 'nullable|numeric|between:-180,180',
-            'pickup_date' => 'nullable|date|after_or_equal:today',
-            'pickup_time' => 'nullable|date_format:H:i',
-            
+            'pickup_date' => 'nullable',
+            'pickup_time' => 'nullable',
+
             // Delivery Information
             'delivery_full_address' => 'required|string',
             'delivery_country' => 'nullable|string|max:255',
@@ -48,13 +48,13 @@ class StorePackageRequest extends FormRequest
                 'date',
                 Rule::when($this->has('pickup_date') && $this->pickup_date, 'after_or_equal:pickup_date'),
             ],
-            'delivery_time' => 'required|date_format:H:i',
-            
+            'delivery_time' => 'required',
+
             // Receiver Information
             'receiver_name' => 'required|string|max:255',
             'receiver_mobile' => 'required|string|max:255',
             'receiver_notes' => 'nullable|string',
-            
+
             // Package Information
             'package_type_id' => 'required|exists:package_types,id',
             'country_id' => 'nullable|exists:countries,id',
@@ -65,7 +65,7 @@ class StorePackageRequest extends FormRequest
             'height' => 'nullable|numeric|min:0|max:1000',
             'special_instructions' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
-            
+
             // Compliance
             'compliance_confirmed' => 'required|boolean|accepted',
         ];
