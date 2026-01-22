@@ -22,5 +22,13 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         TravelerTicket::observe(TravelerTicketObserver::class);
+
+        \Illuminate\Database\Eloquent\Model::retrieved(function ($model) {
+            foreach ($model->getAttributes() as $key => $value) {
+                if (is_string($value)) {
+                    $model->setAttribute($key, mb_convert_encoding($value, 'UTF-8', 'UTF-8//IGNORE'));
+                }
+            }
+        });
     }
 }
