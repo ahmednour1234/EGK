@@ -76,6 +76,14 @@ class TicketPackageControlCenter extends Page implements HasTable
         $this->resetTable();
     }
 
+    protected function sanitizeUtf8($value): string
+    {
+        if (!is_string($value)) {
+            return (string) $value;
+        }
+        return mb_convert_encoding($value, 'UTF-8', 'UTF-8//IGNORE');
+    }
+
     protected function getTicketsTableQuery(): Builder
     {
         $q = TravelerTicket::query()
@@ -110,7 +118,7 @@ class TicketPackageControlCenter extends Page implements HasTable
         }
 
         if ($this->searchQuery) {
-            $s = trim($this->searchQuery);
+            $s = $this->sanitizeUtf8(trim($this->searchQuery));
 
             $q->where(function (Builder $qq) use ($s) {
                 $qq->where('id', 'like', "%{$s}%")
@@ -182,7 +190,7 @@ class TicketPackageControlCenter extends Page implements HasTable
         }
 
         if ($this->searchQuery) {
-            $s = trim($this->searchQuery);
+            $s = $this->sanitizeUtf8(trim($this->searchQuery));
             $q->where(function (Builder $qq) use ($s) {
                 $qq->where('tracking_number', 'like', "%{$s}%")
                     ->orWhere('receiver_mobile', 'like', "%{$s}%");
@@ -222,14 +230,18 @@ class TicketPackageControlCenter extends Page implements HasTable
                 TextColumn::make('traveler.full_name')
                     ->label('Traveler Name')
                     ->default('—')
+                    ->formatStateUsing(fn ($state) => $state ? $this->sanitizeUtf8($state) : '—')
                     ->searchable(query: function (Builder $query, string $search): Builder {
+                        $search = $this->sanitizeUtf8($search);
                         return $query->whereHas('traveler', fn (Builder $t) => $t->where('full_name', 'like', "%{$search}%"));
                     }),
 
                 TextColumn::make('traveler.phone')
                     ->label('Traveler Phone')
                     ->default('—')
+                    ->formatStateUsing(fn ($state) => $state ? $this->sanitizeUtf8($state) : '—')
                     ->searchable(query: function (Builder $query, string $search): Builder {
+                        $search = $this->sanitizeUtf8($search);
                         return $query->whereHas('traveler', fn (Builder $t) => $t->where('phone', 'like', "%{$search}%"));
                     }),
 
@@ -240,6 +252,7 @@ class TicketPackageControlCenter extends Page implements HasTable
 
                 TextColumn::make('transport_type')
                     ->label('Transport')
+                    ->formatStateUsing(fn ($state) => $state ? $this->sanitizeUtf8($state) : '—')
                     ->sortable(),
 
                 TextColumn::make('status')
@@ -257,10 +270,12 @@ class TicketPackageControlCenter extends Page implements HasTable
 
                 TextColumn::make('from_city')
                     ->label('From')
+                    ->formatStateUsing(fn ($state) => $state ? $this->sanitizeUtf8($state) : '—')
                     ->sortable(),
 
                 TextColumn::make('to_city')
                     ->label('To')
+                    ->formatStateUsing(fn ($state) => $state ? $this->sanitizeUtf8($state) : '—')
                     ->sortable(),
 
                 TextColumn::make('packages_count')
@@ -289,6 +304,7 @@ class TicketPackageControlCenter extends Page implements HasTable
                 TextColumn::make('assignee.name')
                     ->label('Assigned To')
                     ->default('—')
+                    ->formatStateUsing(fn ($state) => $state ? $this->sanitizeUtf8($state) : '—')
                     ->sortable(),
 
                 TextColumn::make('created_at')->dateTime()->sortable(),
@@ -397,7 +413,10 @@ class TicketPackageControlCenter extends Page implements HasTable
                             ->limit(50)
                             ->get()
                             ->map(function ($p) {
-                                return "{$p->tracking_number} | {$p->pickup_city} → {$p->delivery_city}";
+                                $tracking = $this->sanitizeUtf8($p->tracking_number ?? '');
+                                $pickup = $this->sanitizeUtf8($p->pickup_city ?? '');
+                                $delivery = $this->sanitizeUtf8($p->delivery_city ?? '');
+                                return "{$tracking} | {$pickup} → {$delivery}";
                             })
                             ->implode("\n");
 
@@ -420,6 +439,7 @@ class TicketPackageControlCenter extends Page implements HasTable
             ->columns([
                 TextColumn::make('tracking_number')
                     ->label('Tracking #')
+                    ->formatStateUsing(fn ($state) => $state ? $this->sanitizeUtf8($state) : '—')
                     ->sortable()
                     ->searchable()
                     ->copyable(),
@@ -440,11 +460,13 @@ class TicketPackageControlCenter extends Page implements HasTable
 
                 TextColumn::make('pickup_city')
                     ->label('Pickup')
+                    ->formatStateUsing(fn ($state) => $state ? $this->sanitizeUtf8($state) : '—')
                     ->sortable()
                     ->searchable(),
 
                 TextColumn::make('delivery_city')
                     ->label('Delivery')
+                    ->formatStateUsing(fn ($state) => $state ? $this->sanitizeUtf8($state) : '—')
                     ->sortable()
                     ->searchable(),
 
@@ -462,6 +484,7 @@ class TicketPackageControlCenter extends Page implements HasTable
 
                 TextColumn::make('receiver_mobile')
                     ->label('Receiver Mobile')
+                    ->formatStateUsing(fn ($state) => $state ? $this->sanitizeUtf8($state) : '—')
                     ->sortable()
                     ->searchable(),
 
@@ -509,7 +532,7 @@ class TicketPackageControlCenter extends Page implements HasTable
                             ->label('Ticket')
                             ->searchable()
                             ->getSearchResultsUsing(function (string $search) {
-                                $search = trim($search);
+                                $search = $this->sanitizeUtf8(trim($search));
 
                                 return TravelerTicket::query()
                                     ->select(['id', 'traveler_id', 'from_city', 'to_city', 'status'])
@@ -530,9 +553,11 @@ class TicketPackageControlCenter extends Page implements HasTable
                                     ->limit(50)
                                     ->get()
                                     ->mapWithKeys(function ($t) {
-                                        $name = $t->traveler?->full_name ?? '-';
-                                        $phone = $t->traveler?->phone ?? '-';
-                                        $label = "Ticket #{$t->id} | {$name} ({$phone}) | {$t->from_city} → {$t->to_city}";
+                                        $name = $this->sanitizeUtf8($t->traveler?->full_name ?? '-');
+                                        $phone = $this->sanitizeUtf8($t->traveler?->phone ?? '-');
+                                        $fromCity = $this->sanitizeUtf8($t->from_city ?? '-');
+                                        $toCity = $this->sanitizeUtf8($t->to_city ?? '-');
+                                        $label = "Ticket #{$t->id} | {$name} ({$phone}) | {$fromCity} → {$toCity}";
                                         return [$t->id => $label];
                                     })
                                     ->toArray();
@@ -547,10 +572,12 @@ class TicketPackageControlCenter extends Page implements HasTable
                                     return '—';
                                 }
 
-                                $name = $t->traveler?->full_name ?? '-';
-                                $phone = $t->traveler?->phone ?? '-';
+                                $name = $this->sanitizeUtf8($t->traveler?->full_name ?? '-');
+                                $phone = $this->sanitizeUtf8($t->traveler?->phone ?? '-');
+                                $fromCity = $this->sanitizeUtf8($t->from_city ?? '-');
+                                $toCity = $this->sanitizeUtf8($t->to_city ?? '-');
 
-                                return "Ticket #{$t->id} | {$name} ({$phone}) | {$t->from_city} → {$t->to_city}";
+                                return "Ticket #{$t->id} | {$name} ({$phone}) | {$fromCity} → {$toCity}";
                             })
                             ->required(),
 
@@ -572,7 +599,8 @@ class TicketPackageControlCenter extends Page implements HasTable
 
                         if ($ticket) {
                             $title = 'Package Linked to Ticket';
-                            $body = "Package {$record->tracking_number} has been linked to ticket #{$ticket->id}";
+                            $trackingNumber = $this->sanitizeUtf8($record->tracking_number ?? '');
+                            $body = "Package {$trackingNumber} has been linked to ticket #{$ticket->id}";
 
                             $notificationData = [
                                 'type' => 'package.linked_ticket',
@@ -646,7 +674,8 @@ class TicketPackageControlCenter extends Page implements HasTable
 
                         if ($oldTicketId) {
                             $title = 'Package Unlinked from Ticket';
-                            $body = "Package {$record->tracking_number} has been unlinked from ticket #{$oldTicketId}";
+                            $trackingNumber = $this->sanitizeUtf8($record->tracking_number ?? '');
+                            $body = "Package {$trackingNumber} has been unlinked from ticket #{$oldTicketId}";
 
                             $notificationData = [
                                 'type' => 'package.unlinked_ticket',
@@ -795,9 +824,11 @@ class TicketPackageControlCenter extends Page implements HasTable
                         foreach ($matches as $i => $m) {
                             $t = $m['ticket'];
                             $score = round($m['score'], 2);
+                            $fromCity = $this->sanitizeUtf8($t->from_city ?? '-');
+                            $toCity = $this->sanitizeUtf8($t->to_city ?? '-');
 
                             $content .= ($i + 1) . ". Ticket #{$t->id} - Score: {$score}%\n";
-                            $content .= "   Route: {$t->from_city} → {$t->to_city}\n\n";
+                            $content .= "   Route: {$fromCity} → {$toCity}\n\n";
                         }
 
                         $form->fill(['matches_display' => trim($content)]);
