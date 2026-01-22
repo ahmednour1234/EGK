@@ -219,6 +219,7 @@ class TicketPackageControlCenter extends Page implements HasTable
                 TextColumn::make('traveler.full_name')
                     ->label('Traveler Name')
                     ->default('—')
+                    ->formatStateUsing(fn ($state) => $state ? mb_convert_encoding((string) $state, 'UTF-8', 'UTF-8') : '—')
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->whereHas('traveler', fn (Builder $t) => $t->where('full_name', 'like', "%{$search}%"));
                     }),
@@ -226,6 +227,7 @@ class TicketPackageControlCenter extends Page implements HasTable
                 TextColumn::make('traveler.phone')
                     ->label('Traveler Phone')
                     ->default('—')
+                    ->formatStateUsing(fn ($state) => $state ? mb_convert_encoding((string) $state, 'UTF-8', 'UTF-8') : '—')
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->whereHas('traveler', fn (Builder $t) => $t->where('phone', 'like', "%{$search}%"));
                     }),
@@ -250,8 +252,14 @@ class TicketPackageControlCenter extends Page implements HasTable
                     })
                     ->sortable(),
 
-                TextColumn::make('from_city')->label('From')->sortable(),
-                TextColumn::make('to_city')->label('To')->sortable(),
+                TextColumn::make('from_city')
+                    ->label('From')
+                    ->formatStateUsing(fn ($state) => $state ? mb_convert_encoding((string) $state, 'UTF-8', 'UTF-8') : '—')
+                    ->sortable(),
+                TextColumn::make('to_city')
+                    ->label('To')
+                    ->formatStateUsing(fn ($state) => $state ? mb_convert_encoding((string) $state, 'UTF-8', 'UTF-8') : '—')
+                    ->sortable(),
 
                 TextColumn::make('packages_count')
                     ->label('Linked Packages')
@@ -282,7 +290,11 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->default('—')
                     ->sortable(false),
 
-                TextColumn::make('assignee.name')->label('Assigned To')->default('—')->sortable(),
+                TextColumn::make('assignee.name')
+                    ->label('Assigned To')
+                    ->formatStateUsing(fn ($state) => $state ? mb_convert_encoding((string) $state, 'UTF-8', 'UTF-8') : '—')
+                    ->default('—')
+                    ->sortable(),
                 TextColumn::make('created_at')->dateTime()->sortable(),
             ])
             ->filters([
@@ -406,7 +418,12 @@ class TicketPackageControlCenter extends Page implements HasTable
                             ->latest('id')
                             ->limit(50)
                             ->get()
-                            ->map(fn ($p) => "{$p->tracking_number} | {$p->pickup_city} → {$p->delivery_city}")
+                            ->map(function ($p) {
+                                $tracking = mb_convert_encoding((string) $p->tracking_number, 'UTF-8', 'UTF-8');
+                                $pickup = mb_convert_encoding((string) $p->pickup_city, 'UTF-8', 'UTF-8');
+                                $delivery = mb_convert_encoding((string) $p->delivery_city, 'UTF-8', 'UTF-8');
+                                return "{$tracking} | {$pickup} → {$delivery}";
+                            })
                             ->implode("\n");
 
                         $form->fill([
@@ -428,6 +445,7 @@ class TicketPackageControlCenter extends Page implements HasTable
             ->columns([
                 TextColumn::make('tracking_number')
                     ->label('Tracking #')
+                    ->formatStateUsing(fn ($state) => $state ? mb_convert_encoding((string) $state, 'UTF-8', 'UTF-8') : '—')
                     ->sortable()
                     ->searchable()
                     ->copyable(),
@@ -446,8 +464,16 @@ class TicketPackageControlCenter extends Page implements HasTable
                     })
                     ->sortable(),
 
-                TextColumn::make('pickup_city')->label('Pickup')->sortable()->searchable(),
-                TextColumn::make('delivery_city')->label('Delivery')->sortable()->searchable(),
+                TextColumn::make('pickup_city')
+                    ->label('Pickup')
+                    ->formatStateUsing(fn ($state) => $state ? mb_convert_encoding((string) $state, 'UTF-8', 'UTF-8') : '—')
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('delivery_city')
+                    ->label('Delivery')
+                    ->formatStateUsing(fn ($state) => $state ? mb_convert_encoding((string) $state, 'UTF-8', 'UTF-8') : '—')
+                    ->sortable()
+                    ->searchable(),
 
                 TextColumn::make('pickup_datetime')
                     ->label('Pickup Date')
@@ -461,7 +487,11 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->getStateUsing(fn (Package $record) => $record->delivery_datetime)
                     ->sortable(query: fn (Builder $q, string $dir) => $q->orderBy('delivery_date', $dir)->orderBy('delivery_time', $dir)),
 
-                TextColumn::make('receiver_mobile')->label('Receiver Mobile')->sortable()->searchable(),
+                TextColumn::make('receiver_mobile')
+                    ->label('Receiver Mobile')
+                    ->formatStateUsing(fn ($state) => $state ? mb_convert_encoding((string) $state, 'UTF-8', 'UTF-8') : '—')
+                    ->sortable()
+                    ->searchable(),
 
                 TextColumn::make('fees')
                     ->label('Fees')
@@ -528,9 +558,11 @@ class TicketPackageControlCenter extends Page implements HasTable
                                     ->limit(50)
                                     ->get()
                                     ->mapWithKeys(function ($t) {
-                                        $name = $t->traveler?->full_name ?? '-';
-                                        $phone = $t->traveler?->phone ?? '-';
-                                        $label = "Ticket #{$t->id} | {$name} ({$phone}) | {$t->from_city} → {$t->to_city}";
+                                        $name = mb_convert_encoding((string) ($t->traveler?->full_name ?? '-'), 'UTF-8', 'UTF-8');
+                                        $phone = mb_convert_encoding((string) ($t->traveler?->phone ?? '-'), 'UTF-8', 'UTF-8');
+                                        $fromCity = mb_convert_encoding((string) $t->from_city, 'UTF-8', 'UTF-8');
+                                        $toCity = mb_convert_encoding((string) $t->to_city, 'UTF-8', 'UTF-8');
+                                        $label = "Ticket #{$t->id} | {$name} ({$phone}) | {$fromCity} → {$toCity}";
                                         return [$t->id => $label];
                                     })
                                     ->toArray();
@@ -545,10 +577,12 @@ class TicketPackageControlCenter extends Page implements HasTable
                                     return '—';
                                 }
 
-                                $name = $t->traveler?->full_name ?? '-';
-                                $phone = $t->traveler?->phone ?? '-';
+                                $name = mb_convert_encoding((string) ($t->traveler?->full_name ?? '-'), 'UTF-8', 'UTF-8');
+                                $phone = mb_convert_encoding((string) ($t->traveler?->phone ?? '-'), 'UTF-8', 'UTF-8');
+                                $fromCity = mb_convert_encoding((string) $t->from_city, 'UTF-8', 'UTF-8');
+                                $toCity = mb_convert_encoding((string) $t->to_city, 'UTF-8', 'UTF-8');
 
-                                return "Ticket #{$t->id} | {$name} ({$phone}) | {$t->from_city} → {$t->to_city}";
+                                return "Ticket #{$t->id} | {$name} ({$phone}) | {$fromCity} → {$toCity}";
                             })
                             ->required(),
 
@@ -861,8 +895,10 @@ class TicketPackageControlCenter extends Page implements HasTable
                         foreach ($matches as $i => $m) {
                             $t = $m['ticket'];
                             $score = round($m['score'], 2);
+                            $fromCity = mb_convert_encoding((string) $t->from_city, 'UTF-8', 'UTF-8');
+                            $toCity = mb_convert_encoding((string) $t->to_city, 'UTF-8', 'UTF-8');
                             $content .= ($i + 1) . ". Ticket #{$t->id} - Score: {$score}%\n";
-                            $content .= "   Route: {$t->from_city} → {$t->to_city}\n\n";
+                            $content .= "   Route: {$fromCity} → {$toCity}\n\n";
                         }
 
                         $form->fill(['matches_display' => trim($content)]);
