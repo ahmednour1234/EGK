@@ -82,6 +82,11 @@ class TravelerTicketResource extends Resource
                         Forms\Components\TimePicker::make('departure_time')
                             ->required()
                             ->seconds(false),
+                        Forms\Components\DatePicker::make('arrival_date')
+                            ->label('Arrival Date'),
+                        Forms\Components\TimePicker::make('arrival_time')
+                            ->label('Arrival Time')
+                            ->seconds(false),
                         Forms\Components\DatePicker::make('return_date')
                             ->visible(fn (Forms\Get $get) => $get('trip_type') === 'round-trip')
                             ->required(fn (Forms\Get $get) => $get('trip_type') === 'round-trip'),
