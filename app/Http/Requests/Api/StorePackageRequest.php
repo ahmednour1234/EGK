@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Api;
 
 use App\Support\ApiResponse;
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -13,6 +14,53 @@ class StorePackageRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $data = $this->all();
+
+        if ($this->has('pickup_time') && $this->pickup_time !== null) {
+            $data['pickup_time'] = $this->normalizeTime($this->pickup_time);
+        }
+
+        if ($this->has('delivery_time') && $this->delivery_time !== null) {
+            $data['delivery_time'] = $this->normalizeTime($this->delivery_time);
+        }
+
+        $this->merge($data);
+    }
+
+    private function normalizeTime(?string $value): ?string
+    {
+        if (empty($value)) {
+            return null;
+        }
+
+        $time = trim($value);
+
+        $arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+        $englishDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        $time = str_replace($arabicDigits, $englishDigits, $time);
+
+        $time = str_replace(['صباحًا', 'صباحا'], 'AM', $time);
+        $time = str_replace(['مساءً', 'مساءا'], 'PM', $time);
+        $time = preg_replace('/\s*ص\s*/i', ' AM ', $time);
+        $time = preg_replace('/\s*م\s*/i', ' PM ', $time);
+        $time = trim($time);
+
+        $formats = ['g:i A', 'g:iA', 'h:i A', 'H:i', 'H:i:s'];
+
+        foreach ($formats as $format) {
+            try {
+                $carbon = Carbon::createFromFormat($format, $time);
+                return $carbon->format('H:i:s');
+            } catch (\Exception $e) {
+                continue;
+            }
+        }
+
+        return $value;
     }
 
     public function rules(): array
@@ -33,7 +81,7 @@ class StorePackageRequest extends FormRequest
             'pickup_latitude' => 'nullable|numeric|between:-90,90',
             'pickup_longitude' => 'nullable|numeric|between:-180,180',
             'pickup_date' => 'nullable',
-            'pickup_time' => 'nullable',
+            'pickup_time' => 'nullable|date_format:H:i:s',
 
             // Delivery Information
             'delivery_full_address' => 'required|string',
@@ -48,7 +96,7 @@ class StorePackageRequest extends FormRequest
                 'date',
                 Rule::when($this->has('pickup_date') && $this->pickup_date, 'after_or_equal:pickup_date'),
             ],
-            'delivery_time' => 'required',
+            'delivery_time' => 'required|date_format:H:i:s',
 
             // Receiver Information
             'receiver_name' => 'required|string|max:255',
