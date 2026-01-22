@@ -66,6 +66,53 @@ class TicketPackageControlCenter extends Page implements HasTable
         ];
     }
 
+    public function mount(): void
+    {
+        $this->sanitizeProperties();
+    }
+
+    public function hydrate(): void
+    {
+        $this->sanitizeProperties();
+    }
+
+    protected function sanitizeProperties(): void
+    {
+        $properties = ['searchQuery', 'packageStatusFilter', 'ticketStatusFilter', 'delayedFilter',
+                     'pickupCityFilter', 'deliveryCityFilter', 'tripTypeFilter', 'assigneeFilter', 'activeTab'];
+
+        foreach ($properties as $property) {
+            if (isset($this->$property) && is_string($this->$property)) {
+                $this->$property = $this->sanitizeUtf8($this->$property);
+            }
+        }
+    }
+
+    public function updated($property): void
+    {
+        if (is_string($this->$property ?? null)) {
+            $this->$property = $this->sanitizeUtf8($this->$property);
+        }
+    }
+
+    public function toArray(): array
+    {
+        $array = parent::toArray();
+        return $this->sanitizeArray($array);
+    }
+
+    protected function sanitizeArray($data)
+    {
+        if (is_array($data)) {
+            return array_map([$this, 'sanitizeArray'], $data);
+        } elseif (is_string($data)) {
+            return $this->sanitizeUtf8($data);
+        } elseif (is_object($data) && method_exists($data, 'toArray')) {
+            return $this->sanitizeArray($data->toArray());
+        }
+        return $data;
+    }
+
     public function switchTab(string $tab): void
     {
         if (! in_array($tab, ['tickets', 'packages'], true)) {
