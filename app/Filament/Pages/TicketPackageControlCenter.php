@@ -94,7 +94,13 @@ class TicketPackageControlCenter extends Page implements HasTable
             ->with([
                 'assignee:id,name',
                 'traveler:id,full_name,phone',
-            ]);
+                'packages' => function ($query) {
+                    $query->select('id', 'ticket_id', 'created_at', 'updated_at')
+                        ->orderBy('created_at', 'desc')
+                        ->limit(1);
+                },
+            ])
+            ->whereIn('status', ['approved', 'active']);
 
         if ($this->ticketStatusFilter) {
             $q->where('status', $this->ticketStatusFilter);
@@ -239,6 +245,7 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->badge()
                     ->formatStateUsing(fn ($state) => match ($state) {
                         'draft' => 'Draft',
+                        'approved' => 'Approved',
                         'active' => 'Active',
                         'matched' => 'Matched',
                         'completed' => 'Completed',
@@ -255,13 +262,23 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->badge()
                     ->sortable(),
 
+                TextColumn::make('first_package_assigned_at')
+                    ->label('First Package Assigned')
+                    ->dateTime()
+                    ->getStateUsing(function (TravelerTicket $record) {
+                        $firstPackage = $record->packages()->orderBy('created_at', 'asc')->first();
+                        return $firstPackage?->created_at;
+                    })
+                    ->default('—')
+                    ->sortable(false),
+
                 TextColumn::make('assignee.name')->label('Assigned To')->default('—')->sortable(),
                 TextColumn::make('created_at')->dateTime()->sortable(),
             ])
             ->filters([
                 SelectFilter::make('status')
                     ->options([
-                        'draft' => 'Draft',
+                        'approved' => 'Approved',
                         'active' => 'Active',
                         'matched' => 'Matched',
                         'completed' => 'Completed',
