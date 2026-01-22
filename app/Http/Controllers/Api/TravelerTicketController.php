@@ -128,9 +128,7 @@ public function activeTrips(Request $request): JsonResponse
 {
     $traveler = Auth::guard('sender')->user();
 
-    if (!$traveler || $traveler->type !== 'traveler') {
-        return $this->error('Only travelers can access active trips', 403);
-    }
+
 
     $filters = [
         'status' => 'active',
@@ -211,9 +209,6 @@ public function activeTrips(Request $request): JsonResponse
     {
         $traveler = Auth::guard('sender')->user();
 
-        if ($traveler->type !== 'traveler') {
-            return $this->error('Only travelers can create tickets', 403);
-        }
 
         $data = $request->validated();
 
@@ -243,10 +238,6 @@ public function activeTrips(Request $request): JsonResponse
     {
         $traveler = Auth::guard('sender')->user();
 
-        if ($traveler->type !== 'traveler') {
-            return $this->error('Only travelers can access tickets', 403);
-        }
-
         $ticket = $this->ticketRepository->getById($traveler->id, (int) $id);
 
         if (!$ticket) {
@@ -273,9 +264,7 @@ public function activeTrips(Request $request): JsonResponse
     {
         $traveler = Auth::guard('sender')->user();
 
-        if ($traveler->type !== 'traveler') {
-            return $this->error('Only travelers can update tickets', 403);
-        }
+
 
         $ticket = $this->ticketRepository->getById($traveler->id, (int) $id);
 
@@ -316,9 +305,7 @@ public function activeTrips(Request $request): JsonResponse
     {
         $traveler = Auth::guard('sender')->user();
 
-        if ($traveler->type !== 'traveler') {
-            return $this->error('Only travelers can delete tickets', 403);
-        }
+
 
         $deleted = $this->ticketRepository->delete($traveler->id, (int) $id);
 
