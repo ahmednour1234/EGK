@@ -11,6 +11,7 @@ use App\Models\Package;
 use App\Models\Sender;
 use App\Models\TravelerTicket;
 use App\Services\TicketPackageMatcher;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -94,11 +95,6 @@ class TicketPackageControlCenter extends Page implements HasTable
             ->with([
                 'assignee:id,name',
                 'traveler:id,full_name,phone',
-                'packages' => function ($query) {
-                    $query->select('id', 'ticket_id', 'created_at', 'updated_at')
-                        ->orderBy('created_at', 'desc')
-                        ->limit(1);
-                },
             ])
             ->whereIn('status', ['approved', 'active']);
 
@@ -266,8 +262,30 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->label('First Package Assigned')
                     ->dateTime()
                     ->getStateUsing(function (TravelerTicket $record) {
-                        $firstPackage = $record->packages()->orderBy('created_at', 'asc')->first();
-                        return $firstPackage?->created_at;
+                        try {
+                            $firstPackage = Package::where('ticket_id', $record->id)
+                                ->select('created_at')
+                                ->orderBy('created_at', 'asc')
+                                ->first();
+
+                            if (!$firstPackage || !$firstPackage->created_at) {
+                                return null;
+                            }
+
+                            $date = $firstPackage->created_at;
+
+                            if ($date instanceof Carbon) {
+                                return $date;
+                            }
+
+                            if (is_string($date)) {
+                                return Carbon::parse($date);
+                            }
+
+                            return null;
+                        } catch (\Throwable $e) {
+                            return null;
+                        }
                     })
                     ->default('—')
                     ->sortable(false),
