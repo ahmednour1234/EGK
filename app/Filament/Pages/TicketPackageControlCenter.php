@@ -250,9 +250,7 @@ class TicketPackageControlCenter extends Page implements HasTable
             ->paginationPageOptions([25, 50, 100])
             ->defaultPaginationPageOption(25)
             ->defaultSort('traveler_id', 'asc')
-            ->recordAction(
-                fn (TravelerTicket $record) => TravelerTicketResource::getUrl('edit', ['record' => $record])
-            )
+            ->recordAction('viewDetails')
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')
@@ -352,6 +350,51 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->preload(),
             ])
             ->actions([
+                Tables\Actions\Action::make('viewDetails')
+                    ->label('View Details')
+                    ->icon('heroicon-o-eye')
+                    ->slideOver()
+                    ->form([
+                        TextInput::make('id')->label('ID')->disabled(),
+                        TextInput::make('traveler_id')->label('Traveler ID')->disabled(),
+                        TextInput::make('traveler.full_name')->label('Traveler Name')->formatStateUsing(fn ($state) => self::safeText($state))->disabled(),
+                        TextInput::make('traveler.phone')->label('Traveler Phone')->formatStateUsing(fn ($state) => self::safeText($state))->disabled(),
+                        Select::make('trip_type')->label('Trip Type')->options(['one-way' => 'One-way', 'round-trip' => 'Round trip'])->disabled(),
+                        TextInput::make('transport_type')->label('Transport')->formatStateUsing(fn ($state) => self::safeText($state))->disabled(),
+                        Select::make('status')->label('Status')->options([
+                            'draft' => 'Draft',
+                            'approved' => 'Approved',
+                            'active' => 'Active',
+                            'matched' => 'Matched',
+                            'completed' => 'Completed',
+                            'cancelled' => 'Cancelled',
+                            'rejected' => 'Rejected',
+                        ])->disabled(),
+                        TextInput::make('from_city')->label('From')->formatStateUsing(fn ($state) => self::safeText($state))->disabled(),
+                        TextInput::make('to_city')->label('To')->formatStateUsing(fn ($state) => self::safeText($state))->disabled(),
+                        TextInput::make('packages_count')->label('Linked Packages')->disabled(),
+                        TextInput::make('assignee.name')->label('Assigned To')->formatStateUsing(fn ($state) => self::safeText($state ?? '—'))->disabled(),
+                        TextInput::make('created_at')->label('Created At')->formatStateUsing(fn ($state) => $state?->format('Y-m-d H:i:s'))->disabled(),
+                    ])
+                    ->fillForm(fn (TravelerTicket $record) => [
+                        'id' => $record->id,
+                        'traveler_id' => $record->traveler_id,
+                        'traveler' => [
+                            'full_name' => $record->traveler?->full_name,
+                            'phone' => $record->traveler?->phone,
+                        ],
+                        'trip_type' => $record->trip_type,
+                        'transport_type' => $record->transport_type,
+                        'status' => $record->status,
+                        'from_city' => $record->from_city,
+                        'to_city' => $record->to_city,
+                        'packages_count' => $record->packages_count ?? $record->packages()->count(),
+                        'assignee' => [
+                            'name' => $record->assignee?->name,
+                        ],
+                        'created_at' => $record->created_at,
+                    ]),
+
                 Tables\Actions\Action::make('active')
                     ->label('Activve')
                     ->icon('heroicon-o-check-circle')
@@ -445,9 +488,7 @@ class TicketPackageControlCenter extends Page implements HasTable
             ->paginationPageOptions([25, 50, 100])
             ->defaultPaginationPageOption(25)
             ->defaultSort('created_at', 'desc')
-            ->recordAction(
-                fn (Package $record) => PackageResource::getUrl('edit', ['record' => $record])
-            )
+            ->recordAction('viewDetails')
             ->columns([
                 TextColumn::make('tracking_number')
                     ->label('Tracking #')
@@ -534,6 +575,47 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->searchable(),
             ])
             ->actions([
+                Tables\Actions\Action::make('viewDetails')
+                    ->label('View Details')
+                    ->icon('heroicon-o-eye')
+                    ->slideOver()
+                    ->form([
+                        TextInput::make('tracking_number')->label('Tracking #')->formatStateUsing(fn ($state) => self::safeText($state))->disabled(),
+                        Select::make('status')->label('Status')->options([
+                            'pending_review' => 'Pending Review',
+                            'approved' => 'Approved',
+                            'rejected' => 'Rejected',
+                            'paid' => 'Paid',
+                            'in_transit' => 'In Transit',
+                            'delivered' => 'Delivered',
+                            'cancelled' => 'Cancelled',
+                        ])->disabled(),
+                        TextInput::make('pickup_city')->label('Pickup City')->formatStateUsing(fn ($state) => self::safeText($state))->disabled(),
+                        TextInput::make('delivery_city')->label('Delivery City')->formatStateUsing(fn ($state) => self::safeText($state))->disabled(),
+                        TextInput::make('pickup_datetime')->label('Pickup Date/Time')->formatStateUsing(fn ($state) => $state ? $state->format('Y-m-d H:i') : '—')->disabled(),
+                        TextInput::make('delivery_datetime')->label('Delivery Date/Time')->formatStateUsing(fn ($state) => $state ? $state->format('Y-m-d H:i') : '—')->disabled(),
+                        TextInput::make('receiver_mobile')->label('Receiver Mobile')->formatStateUsing(fn ($state) => self::safeText($state))->disabled(),
+                        TextInput::make('fees')->label('Fees')->prefix('$')->formatStateUsing(fn ($state) => number_format($state ?? 0, 2))->disabled(),
+                        TextInput::make('compliance_confirmed')->label('Compliance Confirmed')->formatStateUsing(fn ($state) => $state ? 'Yes' : 'No')->disabled(),
+                        TextInput::make('ticket.id')->label('Linked Ticket')->formatStateUsing(fn ($state) => $state ? "Ticket #{$state}" : '—')->disabled(),
+                        TextInput::make('created_at')->label('Created At')->formatStateUsing(fn ($state) => $state?->format('Y-m-d H:i:s'))->disabled(),
+                    ])
+                    ->fillForm(fn (Package $record) => [
+                        'tracking_number' => $record->tracking_number,
+                        'status' => $record->status,
+                        'pickup_city' => $record->pickup_city,
+                        'delivery_city' => $record->delivery_city,
+                        'pickup_datetime' => $record->pickup_datetime,
+                        'delivery_datetime' => $record->delivery_datetime,
+                        'receiver_mobile' => $record->receiver_mobile,
+                        'fees' => $record->fees,
+                        'compliance_confirmed' => $record->compliance_confirmed,
+                        'ticket' => [
+                            'id' => $record->ticket?->id,
+                        ],
+                        'created_at' => $record->created_at,
+                    ]),
+
                 Tables\Actions\Action::make('linkToTicket')
                     ->label(fn (Package $record) => $record->ticket_id ? 'Edit Link / Fees' : 'Link to Ticket')
                     ->icon('heroicon-o-link')
