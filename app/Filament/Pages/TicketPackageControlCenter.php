@@ -250,6 +250,9 @@ class TicketPackageControlCenter extends Page implements HasTable
             ->paginationPageOptions([25, 50, 100])
             ->defaultPaginationPageOption(25)
             ->defaultSort('traveler_id', 'asc')
+            ->recordAction(
+                fn (TravelerTicket $record) => TravelerTicketResource::getUrl('edit', ['record' => $record])
+            )
             ->columns([
                 TextColumn::make('id')
                     ->label('ID')
@@ -442,6 +445,9 @@ class TicketPackageControlCenter extends Page implements HasTable
             ->paginationPageOptions([25, 50, 100])
             ->defaultPaginationPageOption(25)
             ->defaultSort('created_at', 'desc')
+            ->recordAction(
+                fn (Package $record) => PackageResource::getUrl('edit', ['record' => $record])
+            )
             ->columns([
                 TextColumn::make('tracking_number')
                     ->label('Tracking #')
