@@ -319,20 +319,12 @@ class PackageResource extends Resource
                     ->preload(),
             ])
             ->actions([
-                Tables\Actions\Action::make('approve')
-                    ->label('Approve')
+                Tables\Actions\Action::make('active')
+                    ->label('Active')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->action(fn (Package $record) => $record->update(['status' => 'approved']))
-                    ->visible(fn (Package $record) => $record->status === 'pending_review')
-                    ->authorize(fn () => auth()->user()?->role?->permissions->contains('slug', 'update-packages')),
-                Tables\Actions\Action::make('reject')
-                    ->label('Reject')
-                    ->icon('heroicon-o-x-circle')
-                    ->color('danger')
-                    ->requiresConfirmation()
-                    ->action(fn (Package $record) => $record->update(['status' => 'rejected']))
+                    ->action(fn (Package $record) => $record->update(['status' => 'active']))
                     ->visible(fn (Package $record) => $record->status === 'pending_review')
                     ->authorize(fn () => auth()->user()?->role?->permissions->contains('slug', 'update-packages')),
                 Tables\Actions\EditAction::make()
