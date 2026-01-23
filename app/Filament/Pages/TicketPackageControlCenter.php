@@ -11,6 +11,8 @@ use App\Models\Package;
 use App\Models\Sender;
 use App\Models\TravelerTicket;
 use App\Services\TicketPackageMatcher;
+use App\Filament\Resources\TravelerTicketResource;
+use App\Filament\Resources\PackageResource;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -249,7 +251,11 @@ class TicketPackageControlCenter extends Page implements HasTable
             ->defaultPaginationPageOption(25)
             ->defaultSort('traveler_id', 'asc')
             ->columns([
-                TextColumn::make('id')->label('ID')->sortable(),
+                TextColumn::make('id')
+                    ->label('ID')
+                    ->sortable()
+                    ->url(fn (TravelerTicket $record): string => TravelerTicketResource::getUrl('edit', ['record' => $record]))
+                    ->openUrlInNewTab(false),
 
                 TextColumn::make('traveler_id')
                     ->label('Traveler ID')
@@ -442,7 +448,9 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->formatStateUsing(fn ($state) => self::safeText($state))
                     ->sortable()
                     ->searchable()
-                    ->copyable(),
+                    ->copyable()
+                    ->url(fn (Package $record): string => PackageResource::getUrl('edit', ['record' => $record]))
+                    ->openUrlInNewTab(false),
 
                 TextColumn::make('status')
                     ->badge()
@@ -499,7 +507,9 @@ class TicketPackageControlCenter extends Page implements HasTable
                 TextColumn::make('ticket.id')
                     ->label('Linked Ticket')
                     ->formatStateUsing(fn ($state) => $state ? "Ticket #{$state}" : '—')
-                    ->sortable(),
+                    ->sortable()
+                    ->url(fn (Package $record): ?string => $record->ticket_id ? TravelerTicketResource::getUrl('edit', ['record' => $record->ticket_id]) : null)
+                    ->openUrlInNewTab(false),
             ])
             ->filters([
                 SelectFilter::make('status')
