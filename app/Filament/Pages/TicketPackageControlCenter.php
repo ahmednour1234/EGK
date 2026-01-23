@@ -343,16 +343,16 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->preload(),
             ])
             ->actions([
-                Tables\Actions\Action::make('approve')
-                    ->label('Approve')
+                Tables\Actions\Action::make('active')
+                    ->label('Activve')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->visible(fn (TravelerTicket $record) => $record->status !== 'approved' && auth()->user()?->hasPermission('manage-traveler-tickets'))
+                    ->visible(fn (TravelerTicket $record) => $record->status !== 'active' && auth()->user()?->hasPermission('manage-traveler-tickets'))
                     ->action(function (TravelerTicket $record) {
                         $oldStatus = $record->status;
                         $record->update([
-                            'status' => 'approved',
+                            'status' => 'active',
                             'decided_by' => auth()->id(),
                             'decided_at' => now(),
                         ]);
@@ -360,42 +360,13 @@ class TicketPackageControlCenter extends Page implements HasTable
                         TicketStatusChanged::dispatch($record->fresh(), $oldStatus, 'approved', auth()->user());
 
                         Notification::make()
-                            ->title('Ticket approved successfully')
+                            ->title('Ticket active successfully')
                             ->success()
                             ->send();
 
                         $this->resetTable();
                     }),
 
-                Tables\Actions\Action::make('reject')
-                    ->label('Reject')
-                    ->icon('heroicon-o-x-circle')
-                    ->color('danger')
-                    ->form([
-                        Textarea::make('rejection_reason')
-                            ->label('Rejection Reason')
-                            ->required()
-                            ->rows(4),
-                    ])
-                    ->visible(fn (TravelerTicket $record) => $record->status !== 'rejected' && auth()->user()?->hasPermission('manage-traveler-tickets'))
-                    ->action(function (TravelerTicket $record, array $data) {
-                        $oldStatus = $record->status;
-                        $record->update([
-                            'status' => 'rejected',
-                            'decided_by' => auth()->id(),
-                            'decided_at' => now(),
-                            'rejection_reason' => $data['rejection_reason'],
-                        ]);
-
-                        TicketStatusChanged::dispatch($record->fresh(), $oldStatus, 'rejected', auth()->user());
-
-                        Notification::make()
-                            ->title('Ticket rejected successfully')
-                            ->success()
-                            ->send();
-
-                        $this->resetTable();
-                    }),
 
                 Tables\Actions\Action::make('linkSender')
                     ->label('Link Sender')
