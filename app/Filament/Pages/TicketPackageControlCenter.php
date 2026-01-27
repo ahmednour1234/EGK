@@ -378,10 +378,10 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->form([
                         TextInput::make('id')->label('ID')->disabled(),
                         TextInput::make('traveler_id')->label('Traveler ID')->disabled(),
-                        TextInput::make('traveler.full_name')->label('Traveler Name')->formatStateUsing(fn ($s) => self::safeText($s))->disabled(),
-                        TextInput::make('traveler.phone')->label('Traveler Phone')->formatStateUsing(fn ($s) => self::safeText($s))->disabled(),
+                        TextInput::make('traveler.full_name')->label('Traveler Name')->formatStateUsing(fn ($state) => self::safeText($state))->disabled(),
+                        TextInput::make('traveler.phone')->label('Traveler Phone')->formatStateUsing(fn ($state) => self::safeText($state))->disabled(),
                         Select::make('trip_type')->label('Trip Type')->options(['one-way' => 'One-way', 'round-trip' => 'Round trip'])->disabled(),
-                        TextInput::make('transport_type')->label('Transport')->formatStateUsing(fn ($s) => self::safeText($s))->disabled(),
+                        TextInput::make('transport_type')->label('Transport')->formatStateUsing(fn ($state) => self::safeText($state))->disabled(),
                         Select::make('status')->label('Status')->options([
                             'draft' => 'Draft',
                             'approved' => 'Approved',
@@ -391,11 +391,11 @@ class TicketPackageControlCenter extends Page implements HasTable
                             'cancelled' => 'Cancelled',
                             'rejected' => 'Rejected',
                         ])->disabled(),
-                        TextInput::make('from_city')->label('From')->formatStateUsing(fn ($s) => self::safeText($s))->disabled(),
-                        TextInput::make('to_city')->label('To')->formatStateUsing(fn ($s) => self::safeText($s))->disabled(),
+                        TextInput::make('from_city')->label('From')->formatStateUsing(fn ($state) => self::safeText($state))->disabled(),
+                        TextInput::make('to_city')->label('To')->formatStateUsing(fn ($state) => self::safeText($state))->disabled(),
                         TextInput::make('packages_count')->label('Linked Packages')->disabled(),
-                        TextInput::make('assignee.name')->label('Assigned To')->formatStateUsing(fn ($s) => self::safeText($s ?? '—'))->disabled(),
-                        TextInput::make('created_at')->label('Created At')->formatStateUsing(fn ($s) => $s?->format('Y-m-d H:i:s'))->disabled(),
+                        TextInput::make('assignee.name')->label('Assigned To')->formatStateUsing(fn ($state) => self::safeText($state ?? '—'))->disabled(),
+                        TextInput::make('created_at')->label('Created At')->formatStateUsing(fn ($state) => $state?->format('Y-m-d H:i:s'))->disabled(),
                     ])
                     ->fillForm(fn (TravelerTicket $record) => [
                         'id' => $record->id,
@@ -521,8 +521,8 @@ class TicketPackageControlCenter extends Page implements HasTable
                     })
                     ->sortable(),
 
-                TextColumn::make('pickup_city')->label('Pickup')->formatStateUsing(fn ($s) => self::safeText($s))->sortable()->searchable(),
-                TextColumn::make('delivery_city')->label('Delivery')->formatStateUsing(fn ($s) => self::safeText($s))->sortable()->searchable(),
+                TextColumn::make('pickup_city')->label('Pickup')->formatStateUsing(fn ($state) => self::safeText($state))->sortable()->searchable(),
+                TextColumn::make('delivery_city')->label('Delivery')->formatStateUsing(fn ($state) => self::safeText($state))->sortable()->searchable(),
 
                 TextColumn::make('pickup_datetime')
                     ->label('Pickup Date')
@@ -536,7 +536,7 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->getStateUsing(fn (Package $record) => $record->delivery_datetime)
                     ->sortable(query: fn (Builder $q, string $dir) => $q->orderBy('delivery_date', $dir)->orderBy('delivery_time', $dir)),
 
-                TextColumn::make('receiver_mobile')->label('Receiver Mobile')->formatStateUsing(fn ($s) => self::safeText($s))->sortable()->searchable(),
+                TextColumn::make('receiver_mobile')->label('Receiver Mobile')->formatStateUsing(fn ($state) => self::safeText($state))->sortable()->searchable(),
 
                 TextColumn::make('fees')->label('Fees')->money('USD')->sortable()->toggleable(),
 
@@ -570,7 +570,7 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->icon('heroicon-o-eye')
                     ->slideOver()
                     ->form([
-                        TextInput::make('tracking_number')->label('Tracking #')->formatStateUsing(fn ($s) => self::safeText($s))->disabled(),
+                        TextInput::make('tracking_number')->label('Tracking #')->formatStateUsing(fn ($state) => self::safeText($state))->disabled(),
                         Select::make('status')->label('Status')->options([
                             'pending_review' => 'Pending Review',
                             'approved' => 'Approved',
@@ -580,15 +580,15 @@ class TicketPackageControlCenter extends Page implements HasTable
                             'delivered' => 'Delivered',
                             'cancelled' => 'Cancelled',
                         ])->disabled(),
-                        TextInput::make('pickup_city')->label('Pickup City')->formatStateUsing(fn ($s) => self::safeText($s))->disabled(),
-                        TextInput::make('delivery_city')->label('Delivery City')->formatStateUsing(fn ($s) => self::safeText($s))->disabled(),
-                        TextInput::make('pickup_datetime')->label('Pickup Date/Time')->formatStateUsing(fn ($s) => $s ? $s->format('Y-m-d H:i') : '—')->disabled(),
-                        TextInput::make('delivery_datetime')->label('Delivery Date/Time')->formatStateUsing(fn ($s) => $s ? $s->format('Y-m-d H:i') : '—')->disabled(),
-                        TextInput::make('receiver_mobile')->label('Receiver Mobile')->formatStateUsing(fn ($s) => self::safeText($s))->disabled(),
-                        TextInput::make('fees')->label('Fees')->prefix('$')->formatStateUsing(fn ($s) => number_format($s ?? 0, 2))->disabled(),
-                        TextInput::make('compliance_confirmed')->label('Compliance Confirmed')->formatStateUsing(fn ($s) => $s ? 'Yes' : 'No')->disabled(),
-                        TextInput::make('ticket.id')->label('Linked Ticket')->formatStateUsing(fn ($s) => $s ? "Ticket #{$s}" : '—')->disabled(),
-                        TextInput::make('created_at')->label('Created At')->formatStateUsing(fn ($s) => $s?->format('Y-m-d H:i:s'))->disabled(),
+                        TextInput::make('pickup_city')->label('Pickup City')->formatStateUsing(fn ($state) => self::safeText($state))->disabled(),
+                        TextInput::make('delivery_city')->label('Delivery City')->formatStateUsing(fn ($state) => self::safeText($state))->disabled(),
+                        TextInput::make('pickup_datetime')->label('Pickup Date/Time')->formatStateUsing(fn ($state) => $state ? $state->format('Y-m-d H:i') : '—')->disabled(),
+                        TextInput::make('delivery_datetime')->label('Delivery Date/Time')->formatStateUsing(fn ($state) => $state ? $state->format('Y-m-d H:i') : '—')->disabled(),
+                        TextInput::make('receiver_mobile')->label('Receiver Mobile')->formatStateUsing(fn ($state) => self::safeText($state))->disabled(),
+                        TextInput::make('fees')->label('Fees')->prefix('$')->formatStateUsing(fn ($state) => number_format($state ?? 0, 2))->disabled(),
+                        TextInput::make('compliance_confirmed')->label('Compliance Confirmed')->formatStateUsing(fn ($state) => $state ? 'Yes' : 'No')->disabled(),
+                        TextInput::make('ticket.id')->label('Linked Ticket')->formatStateUsing(fn ($state) => $state ? "Ticket #{$state}" : '—')->disabled(),
+                        TextInput::make('created_at')->label('Created At')->formatStateUsing(fn ($state) => $state?->format('Y-m-d H:i:s'))->disabled(),
                     ])
                     ->fillForm(fn (Package $record) => [
                         'tracking_number' => $record->tracking_number,
