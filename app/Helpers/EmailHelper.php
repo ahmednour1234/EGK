@@ -18,6 +18,16 @@ class EmailHelper
             $htmlMessage = self::getVerificationEmailTemplate($code, $name);
             $textMessage = self::getVerificationEmailTextTemplate($code, $name);
 
+            Log::info('Attempting to send verification email', [
+                'email' => $email,
+                'mailer' => config('mail.default'),
+                'host' => config('mail.mailers.smtp.host'),
+                'port' => config('mail.mailers.smtp.port'),
+                'encryption' => config('mail.mailers.smtp.encryption'),
+                'username' => config('mail.mailers.smtp.username'),
+                'from' => config('mail.from.address'),
+            ]);
+
             Mail::send([], [], function (Message $mail) use ($email, $subject, $htmlMessage, $textMessage) {
                 $mail->to($email)
                      ->subject($subject)
@@ -27,7 +37,7 @@ class EmailHelper
                      ->text($textMessage);
             });
 
-            Log::info('Verification code sent to email', [
+            Log::info('Verification code sent to email successfully', [
                 'email' => $email,
                 'mailer' => config('mail.default'),
                 'from' => config('mail.from.address'),
@@ -37,6 +47,11 @@ class EmailHelper
             Log::error('Failed to send verification code email', [
                 'email' => $email,
                 'error' => $e->getMessage(),
+                'mailer' => config('mail.default'),
+                'host' => config('mail.mailers.smtp.host'),
+                'port' => config('mail.mailers.smtp.port'),
+                'encryption' => config('mail.mailers.smtp.encryption'),
+                'username' => config('mail.mailers.smtp.username'),
                 'trace' => $e->getTraceAsString(),
             ]);
             return false;
@@ -53,6 +68,16 @@ class EmailHelper
             $htmlMessage = self::getPasswordResetEmailTemplate($code, $name);
             $textMessage = self::getPasswordResetEmailTextTemplate($code, $name);
 
+            Log::info('Attempting to send password reset email', [
+                'email' => $email,
+                'mailer' => config('mail.default'),
+                'host' => config('mail.mailers.smtp.host'),
+                'port' => config('mail.mailers.smtp.port'),
+                'encryption' => config('mail.mailers.smtp.encryption'),
+                'username' => config('mail.mailers.smtp.username'),
+                'from' => config('mail.from.address'),
+            ]);
+
             Mail::send([], [], function (Message $mail) use ($email, $subject, $htmlMessage, $textMessage) {
                 $mail->to($email)
                      ->subject($subject)
@@ -62,7 +87,7 @@ class EmailHelper
                      ->text($textMessage);
             });
 
-            Log::info('Password reset code sent to email', [
+            Log::info('Password reset code sent to email successfully', [
                 'email' => $email,
                 'mailer' => config('mail.default'),
                 'from' => config('mail.from.address'),
@@ -72,6 +97,11 @@ class EmailHelper
             Log::error('Failed to send password reset code email', [
                 'email' => $email,
                 'error' => $e->getMessage(),
+                'mailer' => config('mail.default'),
+                'host' => config('mail.mailers.smtp.host'),
+                'port' => config('mail.mailers.smtp.port'),
+                'encryption' => config('mail.mailers.smtp.encryption'),
+                'username' => config('mail.mailers.smtp.username'),
                 'trace' => $e->getTraceAsString(),
             ]);
             return false;

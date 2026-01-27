@@ -352,18 +352,18 @@ class TicketPackageControlCenter extends Page implements HasTable
             ])
             ->filters([
                 SelectFilter::make('status')->options([
-                    'draft' => 'Draft',
-                    'approved' => 'Approved',
-                    'active' => 'Active',
-                    'matched' => 'Matched',
-                    'completed' => 'Completed',
-                    'cancelled' => 'Cancelled',
-                    'rejected' => 'Rejected',
-                ]),
+                        'draft' => 'Draft',
+                        'approved' => 'Approved',
+                        'active' => 'Active',
+                        'matched' => 'Matched',
+                        'completed' => 'Completed',
+                        'cancelled' => 'Cancelled',
+                        'rejected' => 'Rejected',
+                    ]),
                 SelectFilter::make('trip_type')->options([
-                    'one-way' => 'One-way',
-                    'round-trip' => 'Round trip',
-                ]),
+                        'one-way' => 'One-way',
+                        'round-trip' => 'Round trip',
+                    ]),
                 SelectFilter::make('assignee_id')
                     ->label('Assigned To')
                     ->relationship('assignee', 'name')
@@ -551,14 +551,14 @@ class TicketPackageControlCenter extends Page implements HasTable
             ])
             ->filters([
                 SelectFilter::make('status')->options([
-                    'pending_review' => 'Pending Review',
-                    'approved' => 'Approved',
-                    'rejected' => 'Rejected',
-                    'paid' => 'Paid',
-                    'in_transit' => 'In Transit',
-                    'delivered' => 'Delivered',
-                    'cancelled' => 'Cancelled',
-                ]),
+                        'pending_review' => 'Pending Review',
+                        'approved' => 'Approved',
+                        'rejected' => 'Rejected',
+                        'paid' => 'Paid',
+                        'in_transit' => 'In Transit',
+                        'delivered' => 'Delivered',
+                        'cancelled' => 'Cancelled',
+                    ]),
                 SelectFilter::make('ticket_id')
                     ->label('Linked Ticket')
                     ->relationship('ticket', 'id')
@@ -691,20 +691,20 @@ class TicketPackageControlCenter extends Page implements HasTable
                             return;
                         }
 
-                        Log::info('Package linked to ticket', [
-                            'package_id' => $record->id,
-                            'tracking_number' => (string) $record->tracking_number,
-                            'ticket_id' => $ticket->id,
-                            'traveler_id' => $ticket->traveler_id,
+                            Log::info('Package linked to ticket', [
+                                'package_id' => $record->id,
+                                'tracking_number' => (string) $record->tracking_number,
+                                'ticket_id' => $ticket->id,
+                                'traveler_id' => $ticket->traveler_id,
                             'sender_id' => $record->sender_id,
-                        ]);
+                            ]);
 
-                        $tracking = self::safeText($record->tracking_number);
-                        $title = self::safeText('Package Linked to Ticket');
+                            $tracking = self::safeText($record->tracking_number);
+                            $title = self::safeText('Package Linked to Ticket');
                         $body  = self::safeText("Package {$tracking} has been linked to ticket #{$ticket->id}");
 
                         // ✅ data payload exactly like your style
-                        $notificationData = [
+                            $notificationData = [
                             'deeplink'     => "app://package/{$record->id}",
                             'web_url'      => null,
                             'subject_type' => 'package',
@@ -713,51 +713,51 @@ class TicketPackageControlCenter extends Page implements HasTable
                             'room_kind'    => null,
                             'booking_meta' => null,
                             'message_id'   => (string) $record->id,
-                        ];
+                            ];
 
                         // ✅ 1) DB + Push to Traveler
-                        if ($ticket->traveler_id) {
-                            try {
-                                NotificationModel::create([
-                                    'sender_id' => $ticket->traveler_id,
-                                    'type' => 'package.linked_ticket',
-                                    'title' => $title,
-                                    'body' => $body,
-                                    'data' => $notificationData,
-                                    'entity' => 'package',
-                                    'entity_id' => $record->id,
-                                ]);
+                            if ($ticket->traveler_id) {
+                                try {
+                                    NotificationModel::create([
+                                        'sender_id' => $ticket->traveler_id,
+                                        'type' => 'package.linked_ticket',
+                                        'title' => $title,
+                                        'body' => $body,
+                                        'data' => $notificationData,
+                                        'entity' => 'package',
+                                        'entity_id' => $record->id,
+                                    ]);
                             } catch (\Throwable $e) {
-                                Log::error('Failed to create notification for traveler', [
-                                    'traveler_id' => $ticket->traveler_id,
-                                    'package_id' => $record->id,
-                                    'error' => $e->getMessage(),
-                                ]);
-                            }
+                                    Log::error('Failed to create notification for traveler', [
+                                        'traveler_id' => $ticket->traveler_id,
+                                        'package_id' => $record->id,
+                                        'error' => $e->getMessage(),
+                                    ]);
+                                }
 
                             $travelerTokens = $this->getSenderFcmTokens($ticket->traveler_id);
                             $this->pushIfTokensExist($travelerTokens, $title, $body, $notificationData);
-                        }
+                            }
 
                         // ✅ 2) DB + Push to Sender
                         if ($record->sender_id) {
-                            try {
-                                NotificationModel::create([
+                                try {
+                                    NotificationModel::create([
                                     'sender_id' => $record->sender_id,
-                                    'type' => 'package.linked_ticket',
-                                    'title' => $title,
-                                    'body' => $body,
-                                    'data' => $notificationData,
-                                    'entity' => 'package',
-                                    'entity_id' => $record->id,
-                                ]);
+                                        'type' => 'package.linked_ticket',
+                                        'title' => $title,
+                                        'body' => $body,
+                                        'data' => $notificationData,
+                                        'entity' => 'package',
+                                        'entity_id' => $record->id,
+                                    ]);
                             } catch (\Throwable $e) {
-                                Log::error('Failed to create notification for sender', [
+                                    Log::error('Failed to create notification for sender', [
                                     'sender_id' => $record->sender_id,
-                                    'package_id' => $record->id,
-                                    'error' => $e->getMessage(),
-                                ]);
-                            }
+                                        'package_id' => $record->id,
+                                        'error' => $e->getMessage(),
+                                    ]);
+                                }
 
                             $senderTokens = $this->getSenderFcmTokens($record->sender_id);
                             $this->pushIfTokensExist($senderTokens, $title, $body, $notificationData);
@@ -853,13 +853,13 @@ class TicketPackageControlCenter extends Page implements HasTable
                     ->visible(fn () => auth()->user()?->hasPermission('manage-packages'))
                     ->form([
                         Select::make('status')->options([
-                            'pending_review' => 'Pending Review',
-                            'approved' => 'Approved',
-                            'rejected' => 'Rejected',
-                            'paid' => 'Paid',
-                            'in_transit' => 'In Transit',
-                            'delivered' => 'Delivered',
-                            'cancelled' => 'Cancelled',
+                                'pending_review' => 'Pending Review',
+                                'approved' => 'Approved',
+                                'rejected' => 'Rejected',
+                                'paid' => 'Paid',
+                                'in_transit' => 'In Transit',
+                                'delivered' => 'Delivered',
+                                'cancelled' => 'Cancelled',
                         ])->required(),
                     ])
                     ->action(function (Package $record, array $data) {
