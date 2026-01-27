@@ -34,5 +34,11 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+// config/services.php
+'firebase' => [
+    'service_account' => env('FIREBASE_SERVICE_ACCOUNT'),
+    'project_id' => env('FIREBASE_PROJECT_ID'),
+],
+
 
 ];

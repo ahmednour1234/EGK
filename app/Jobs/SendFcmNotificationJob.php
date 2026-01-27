@@ -2,70 +2,68 @@
 
 namespace App\Jobs;
 
-use App\Services\FirebaseNotificationService;
-use App\Services\FirebaseRealtimeService;
+use App\Services\FcmV1Service;
+use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
 class SendFcmNotificationJob implements ShouldQueue
 {
-    use Queueable;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public function __construct(
-        public int $senderId,
+        public array $tokens,
         public string $title,
         public string $body,
-        public array $data = []
+        public array $data = [],
     ) {}
 
-    public function handle(
-        FirebaseNotificationService $notificationService,
-        FirebaseRealtimeService $realtimeService
-    ): void {
-        Log::info('SendFcmNotificationJob started', [
-            'sender_id' => $this->senderId,
-            'title' => $this->title,
-            'body' => $this->body,
-            'data' => $this->data,
-        ]);
+    public function handle(FcmV1Service $fcm): void
+    {
+        $tokens = array_values(array_filter(
+            $this->tokens,
+            fn ($t) => is_string($t) && trim($t) !== ''
+        ));
 
-        try {
-            $result = $notificationService->sendToUser($this->senderId, $this->title, $this->body, $this->data);
-            
-            $sent = ($result['success'] ?? 0) > 0;
-            Log::info($sent ? 'Firebase notification SENT' : 'Firebase notification NOT sent', [
-                'sender_id' => $this->senderId,
-                'title' => $this->title,
-                'success_count' => $result['success'] ?? 0,
-                'failed_count' => $result['failed'] ?? 0,
-                'invalid_tokens_count' => count($result['invalid_tokens'] ?? []),
-            ]);
-            
-            try {
-                $realtimeService->pushEvent(
-                    $this->senderId,
-                    $this->data['type'] ?? 'notification',
-                    $this->data['entity'] ?? 'unknown',
-                    $this->data['entity_id'] ?? 0,
-                    $this->data
-                );
-                Log::info('Realtime event pushed', ['sender_id' => $this->senderId]);
-            } catch (\Exception $e) {
-                Log::error('Realtime event push failed', [
-                    'sender_id' => $this->senderId,
-                    'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString(),
-                ]);
+        if (count($tokens) === 0) {
+            return;
+        }
+
+        $title = (string) $this->title;
+        $body  = (string) $this->body;
+
+        // ✅ نفس ستايلك: data => array_filter(...)
+        $data = array_filter($this->data, fn ($v) => $v !== null && $v !== '');
+
+        $failed = [];
+        $okCount = 0;
+
+        foreach ($tokens as $token) {
+            $result = $fcm->sendToToken(
+                token: $token,
+                title: $title,
+                body: $body,
+                data: $data
+            );
+
+            if (!($result['ok'] ?? false)) {
+                $failed[] = [
+                    'token_tail' => substr($token, -12), // عشان منسجلش التوكن كامل
+                    'result' => $result,
+                ];
+            } else {
+                $okCount++;
             }
-        } catch (\Exception $e) {
-            Log::error('SendFcmNotificationJob failed', [
-                'sender_id' => $this->senderId,
-                'title' => $this->title,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+        }
+
+        if (!empty($failed)) {
+            Log::warning('SendFcmNotificationJob v1: some tokens failed', [
+                'ok' => $okCount,
+                'failed' => $failed,
             ]);
-            throw $e;
         }
     }
 }
