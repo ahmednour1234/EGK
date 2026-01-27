@@ -93,6 +93,7 @@ class SenderAuthController extends BaseApiController
             // Send verification code via email
             EmailHelper::sendVerificationCode($sender->email, $code, $sender->full_name);
         }
+        EmailHelper::sendVerificationCode($sender->email, $code, $sender->full_name);
 
         $message = $isDevelopment && $code === '111111'
             ? 'Registration successful. Use code 111111 to verify your email.'
