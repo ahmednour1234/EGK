@@ -23,23 +23,36 @@ class SendFcmNotificationJob implements ShouldQueue
 
     public function handle(FcmV1Service $fcm): void
     {
+        Log::info('SendFcmNotificationJob started', [
+            'token_count' => count($this->tokens),
+            'title' => $this->title,
+            'body' => $this->body,
+            'data_keys' => array_keys($this->data),
+        ]);
+
         $tokens = array_values(array_filter(
             $this->tokens,
             fn ($t) => is_string($t) && trim($t) !== ''
         ));
 
         if (count($tokens) === 0) {
+            Log::warning('SendFcmNotificationJob: No valid tokens found', [
+                'original_token_count' => count($this->tokens),
+            ]);
             return;
         }
 
         $title = (string) $this->title;
         $body  = (string) $this->body;
 
-        // ✅ نفس ستايلك: data => array_filter(...)
         $data = array_filter($this->data, fn ($v) => $v !== null && $v !== '');
 
         $failed = [];
         $okCount = 0;
+
+        Log::info('SendFcmNotificationJob: Sending to tokens', [
+            'valid_token_count' => count($tokens),
+        ]);
 
         foreach ($tokens as $token) {
             $result = $fcm->sendToToken(
@@ -51,16 +64,26 @@ class SendFcmNotificationJob implements ShouldQueue
 
             if (!($result['ok'] ?? false)) {
                 $failed[] = [
-                    'token_tail' => substr($token, -12), // عشان منسجلش التوكن كامل
+                    'token_tail' => substr($token, -12),
                     'result' => $result,
                 ];
+                Log::warning('SendFcmNotificationJob: Token failed', [
+                    'token_tail' => substr($token, -12),
+                    'error' => $result['error'] ?? 'unknown',
+                ]);
             } else {
                 $okCount++;
             }
         }
 
+        Log::info('SendFcmNotificationJob completed', [
+            'success_count' => $okCount,
+            'failed_count' => count($failed),
+            'total_tokens' => count($tokens),
+        ]);
+
         if (!empty($failed)) {
-            Log::warning('SendFcmNotificationJob v1: some tokens failed', [
+            Log::warning('SendFcmNotificationJob: Some tokens failed', [
                 'ok' => $okCount,
                 'failed' => $failed,
             ]);

@@ -120,18 +120,38 @@ class TicketPackageControlCenter extends Page implements HasTable
     }
 
     /**
-     * ✅ Helper: send push (legacy) the way you want:
-     * if ($token !== '') { dispatch job with tokens: [$token] ... }
+     * Get all FCM tokens for a sender from sender_devices table.
      */
-    protected function pushIfTokenExists(?string $token, string $title, string $body, array $data): void
+    protected function getSenderFcmTokens(?int $senderId): array
     {
-        $token = is_string($token) ? trim($token) : '';
-        if ($token === '') {
+        if (!$senderId) {
+            return [];
+        }
+
+        return \App\Models\SenderDevice::where('sender_id', $senderId)
+            ->whereNotNull('fcm_token')
+            ->pluck('fcm_token')
+            ->filter(fn ($t) => is_string($t) && trim($t) !== '')
+            ->values()
+            ->toArray();
+    }
+
+    /**
+     * Send push notification if tokens exist.
+     */
+    protected function pushIfTokensExist(array $tokens, string $title, string $body, array $data): void
+    {
+        $tokens = array_values(array_filter(
+            $tokens,
+            fn ($t) => is_string($t) && trim($t) !== ''
+        ));
+
+        if (empty($tokens)) {
             return;
         }
 
         SendFcmNotificationJob::dispatch(
-            tokens: [$token],
+            tokens: $tokens,
             title: $title,
             body: $body,
             data: array_filter($data, fn ($v) => $v !== null && $v !== '')
@@ -155,7 +175,7 @@ class TicketPackageControlCenter extends Page implements HasTable
             ->withCount('packages')
             ->with([
                 'assignee:id,name',
-                'traveler:id,full_name,phone,fcm_token', // ✅ add token field if exists
+                'traveler:id,full_name,phone',
             ]);
 
         if ($this->ticketStatusFilter) {
@@ -213,8 +233,8 @@ class TicketPackageControlCenter extends Page implements HasTable
             ])
             ->with([
                 'ticket:id,traveler_id',
-                'ticket.traveler:id,full_name,phone,fcm_token', // ✅ token
-                'sender:id,full_name,fcm_token', // ✅ token if exists
+                'ticket.traveler:id,full_name,phone',
+                'sender:id,full_name',
             ]);
 
         if ($this->packageStatusFilter) {
@@ -659,7 +679,7 @@ class TicketPackageControlCenter extends Page implements HasTable
                             'fees' => $data['fees'] ?? 0,
                         ]);
 
-                        $ticket = TravelerTicket::with('traveler:id,fcm_token')->find($data['ticket_id']);
+                        $ticket = TravelerTicket::with('traveler:id,full_name,phone')->find($data['ticket_id']);
 
                         if (! $ticket) {
                             Log::warning('Ticket not found when linking package', [
@@ -715,10 +735,8 @@ class TicketPackageControlCenter extends Page implements HasTable
                                 ]);
                             }
 
-                            $travelerToken = $ticket->traveler?->fcm_token ?? null;
-
-                            // ✅ your requested pattern
-                            $this->pushIfTokenExists($travelerToken, $title, $body, $notificationData);
+                            $travelerTokens = $this->getSenderFcmTokens($ticket->traveler_id);
+                            $this->pushIfTokensExist($travelerTokens, $title, $body, $notificationData);
                         }
 
                         // ✅ 2) DB + Push to Sender
@@ -741,10 +759,8 @@ class TicketPackageControlCenter extends Page implements HasTable
                                 ]);
                             }
 
-                            $senderToken = $record->sender?->fcm_token ?? null;
-
-                            // ✅ your requested pattern
-                            $this->pushIfTokenExists($senderToken, $title, $body, $notificationData);
+                            $senderTokens = $this->getSenderFcmTokens($record->sender_id);
+                            $this->pushIfTokensExist($senderTokens, $title, $body, $notificationData);
                         }
 
                         Notification::make()->title('Package linked & fees saved successfully')->success()->send();
@@ -799,8 +815,8 @@ class TicketPackageControlCenter extends Page implements HasTable
                                     ]);
                                 }
 
-                                $travelerToken = $oldTicket?->traveler?->fcm_token ?? null;
-                                $this->pushIfTokenExists($travelerToken, $title, $body, $notificationData);
+                                $travelerTokens = $this->getSenderFcmTokens($oldTravelerId);
+                                $this->pushIfTokensExist($travelerTokens, $title, $body, $notificationData);
                             }
 
                             if ($record->sender_id) {
@@ -822,8 +838,8 @@ class TicketPackageControlCenter extends Page implements HasTable
                                     ]);
                                 }
 
-                                $senderToken = $record->sender?->fcm_token ?? null;
-                                $this->pushIfTokenExists($senderToken, $title, $body, $notificationData);
+                                $senderTokens = $this->getSenderFcmTokens($record->sender_id);
+                                $this->pushIfTokensExist($senderTokens, $title, $body, $notificationData);
                             }
                         }
 
