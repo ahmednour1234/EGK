@@ -701,7 +701,7 @@ class TicketPackageControlCenter extends Page implements HasTable
                                 'tracking_number' => (string) $record->tracking_number,
                                 'ticket_id' => $ticket->id,
                                 'traveler_id' => $ticket->traveler_id,
-                                'sender_id' => $ticket->sender_id,
+                                'sender_id' => $record->sender_id,
                             ]);
 
                             $tracking = self::safeText($record->tracking_number);
@@ -738,10 +738,10 @@ class TicketPackageControlCenter extends Page implements HasTable
                                 SendFcmNotificationJob::dispatch($ticket->traveler_id, $title, $body, $notificationData);
                             }
 
-                            if ($ticket->sender_id) {
+                            if ($record->sender_id) {
                                 try {
                                     NotificationModel::create([
-                                        'sender_id' => $ticket->sender_id,
+                                        'sender_id' => $record->sender_id,
                                         'type' => 'package.linked_ticket',
                                         'title' => $title,
                                         'body' => $body,
@@ -751,12 +751,12 @@ class TicketPackageControlCenter extends Page implements HasTable
                                     ]);
                                 } catch (\Exception $e) {
                                     Log::error('Failed to create notification for sender', [
-                                        'sender_id' => $ticket->sender_id,
+                                        'sender_id' => $record->sender_id,
                                         'package_id' => $record->id,
                                         'error' => $e->getMessage(),
                                     ]);
                                 }
-                                SendFcmNotificationJob::dispatch($ticket->sender_id, $title, $body, $notificationData);
+                                SendFcmNotificationJob::dispatch($record->sender_id, $title, $body, $notificationData);
                             }
                         } else {
                             Log::warning('Ticket not found when linking package', [
@@ -783,7 +783,6 @@ class TicketPackageControlCenter extends Page implements HasTable
                         $oldTicket = $record->ticket;
                         $oldTicketId = $oldTicket?->id;
                         $oldTicketTravelerId = $oldTicket?->traveler_id;
-                        $oldTicketSenderId = $oldTicket?->sender_id;
 
                         $record->update(['ticket_id' => null]);
 
@@ -822,10 +821,10 @@ class TicketPackageControlCenter extends Page implements HasTable
                                 SendFcmNotificationJob::dispatch($oldTicketTravelerId, $title, $body, $notificationData);
                             }
 
-                            if ($oldTicketSenderId) {
+                            if ($record->sender_id) {
                                 try {
                                     NotificationModel::create([
-                                        'sender_id' => $oldTicketSenderId,
+                                        'sender_id' => $record->sender_id,
                                         'type' => 'package.unlinked_ticket',
                                         'title' => $title,
                                         'body' => $body,
@@ -835,12 +834,12 @@ class TicketPackageControlCenter extends Page implements HasTable
                                     ]);
                                 } catch (\Exception $e) {
                                     Log::error('Failed to create notification for sender', [
-                                        'sender_id' => $oldTicketSenderId,
+                                        'sender_id' => $record->sender_id,
                                         'package_id' => $record->id,
                                         'error' => $e->getMessage(),
                                     ]);
                                 }
-                                SendFcmNotificationJob::dispatch($oldTicketSenderId, $title, $body, $notificationData);
+                                SendFcmNotificationJob::dispatch($record->sender_id, $title, $body, $notificationData);
                             }
                         }
 
