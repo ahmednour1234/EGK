@@ -72,10 +72,10 @@ Route::prefix('sender')->middleware('auth:sender')->group(function () {
     Route::post('addresses/{id}/set-default', [\App\Http\Controllers\Api\SenderAddressController::class, 'setDefault']);
 
     // Sender Packages routes
-    Route::apiResource('packages', \App\Http\Controllers\Api\PackageController::class);
-    Route::post('packages/{id}/cancel', [\App\Http\Controllers\Api\PackageController::class, 'cancel']);
     Route::get('packages/active', [\App\Http\Controllers\Api\PackageController::class, 'activePackage']);
     Route::get('packages/last', [\App\Http\Controllers\Api\PackageController::class, 'lastPackage']);
+    Route::apiResource('packages', \App\Http\Controllers\Api\PackageController::class);
+    Route::post('packages/{id}/cancel', [\App\Http\Controllers\Api\PackageController::class, 'cancel']);
 
     // Statistics route (accessible to both travelers and senders)
     Route::get('statistics', [StatisticsController::class, 'index']);
