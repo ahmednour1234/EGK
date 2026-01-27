@@ -260,7 +260,7 @@ class SenderAuthController extends BaseApiController
             $this->deviceRepository->createOrUpdate([
                 'sender_id' => $sender->id,
                 'device_id' => $request->device_id,
-                'fcm_token' => $request->fcm_token,
+                'fcm_token' => $request->fcm,
                 'device_type' => $request->device_type,
                 'device_name' => $request->device_name,
             ]);
