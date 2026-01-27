@@ -27,12 +27,17 @@ class EmailHelper
                      ->text($textMessage);
             });
 
-            Log::info('Verification code sent to email', ['email' => $email]);
+            Log::info('Verification code sent to email', [
+                'email' => $email,
+                'mailer' => config('mail.default'),
+                'from' => config('mail.from.address'),
+            ]);
             return true;
         } catch (\Exception $e) {
             Log::error('Failed to send verification code email', [
                 'email' => $email,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
             return false;
         }
@@ -57,12 +62,17 @@ class EmailHelper
                      ->text($textMessage);
             });
 
-            Log::info('Password reset code sent to email', ['email' => $email]);
+            Log::info('Password reset code sent to email', [
+                'email' => $email,
+                'mailer' => config('mail.default'),
+                'from' => config('mail.from.address'),
+            ]);
             return true;
         } catch (\Exception $e) {
             Log::error('Failed to send password reset code email', [
                 'email' => $email,
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
             return false;
         }
