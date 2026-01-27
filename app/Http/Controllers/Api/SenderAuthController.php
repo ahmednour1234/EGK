@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Str;
 
 /**
  * @group Sender Authentication
@@ -256,15 +257,14 @@ class SenderAuthController extends BaseApiController
         $token = Auth::guard('sender')->login($sender);
 
         // Save device information if provided
-        if ($request->has('device_id')) {
             $this->deviceRepository->createOrUpdate([
                 'sender_id' => $sender->id,
-                'device_id' => $request->device_id,
+                'device_id' => $request->device_id ?? Str::random(10),
                 'fcm_token' => $request->fcm,
                 'device_type' => $request->device_type,
                 'device_name' => $request->device_name,
             ]);
-        }
+
 
         return $this->success([
             'token' => $token,
